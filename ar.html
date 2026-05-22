@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>AR 단서 탐색 — 루프캣</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:sans-serif; }
+
+a-scene {
+  position: fixed !important;
+  top: 0; left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
+}
+
+#hud-top {
+  position:fixed; top:0; left:0; right:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);
+}
+.status { display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(255,255,255,0.7); }
+.dot { width:8px; height:8px; border-radius:50%; background:#ef4444; }
+.dot.on { background:#22c55e; }
+.back-btn {
+  background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2);
+  color:white; font-size:13px; padding:8px 16px; border-radius:20px;
+  cursor:pointer;
+}
+
+#scan-guide {
+  position:fixed; inset:0; z-index:5;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.frame { width:200px; height:200px; position:relative; }
+.frame::before,.frame::after,.frame .c::before,.frame .c::after {
+  content:''; position:absolute; width:24px; height:24px;
+  border-color:#c9a84c; border-style:solid; opacity:0.7;
+}
+.frame::before { top:0;left:0; border-width:2px 0 0 2px; }
+.frame::after  { top:0;right:0; border-width:2px 2px 0 0; }
+.frame .c::before { bottom:0;left:0; border-width:0 0 2px 2px; }
+.frame .c::after  { bottom:0;right:0; border-width:0 2px 2px 0; }
+.scan-line {
+  position:absolute; top:0; left:4px; right:4px; height:1px;
+  background:linear-gradient(to right,transparent,#c9a84c,transparent);
+  animation:scan 2.5s ease-in-out infinite;
+}
+@keyframes scan { 0%,100%{top:0;opacity:0} 10%,90%{opacity:0.8} 50%{top:196px} }
+
+#popup {
+  position:fixed; inset:0; z-index:20;
+  display:none; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.popup-box {
+  background:rgba(8,8,15,0.95); border:1px solid #c9a84c;
+  border-radius:16px; padding:28px 40px; text-align:center;
+  animation:pop .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 40px rgba(201,168,76,0.2);
+}
+@keyframes pop { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+.pop-label { font-size:11px; letter-spacing:0.2em; color:#c9a84c; margin-bottom:8px; }
+.pop-word { font-size:40px; font-weight:700; margin-bottom:4px; }
+.pop-desc { font-size:12px; color:rgba(255,255,255,0.5); }
+
+#hud-bottom {
+  position:fixed; bottom:0; left:0; right:0; z-index:10;
+  padding:12px 18px 28px;
+  background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
+}
+.clue-label { font-size:10px; letter-spacing:0.15em; color:rgba(255,255,255,0.35); margin-bottom:8px; }
+#clue-row { display:flex; gap:8px; flex-wrap:wrap; }
+.chip {
+  font-size:13px; padding:5px 14px; border-radius:20px;
+  border:1px solid rgba(201,168,76,0.35);
+  background:rgba(201,168,76,0.12); color:#c9a84c;
+  animation:chip-in .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes chip-in { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
+.chip-empty {
+  font-size:11px; padding:5px 14px; border-radius:20px;
+  border:1px dashed rgba(255,255,255,0.1); color:rgba(255,255,255,0.2);
+}
+
+#hint-img {
+  position:fixed; bottom:80px; left:0; right:0; z-index:10;
+  display:flex; justify-content:center;
+}
+.hint-inner {
+  background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px; padding:8px 14px;
+  display:flex; align-items:center; gap:10px;
+  font-size:11px; color:rgba(255,255,255,0.6);
+}
+.hint-inner img { width:40px; height:40px; border-radius:4px; border:1px solid rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+<a-scene
+  embedded
+  arjs="sourceType:webcam;debugUIEnabled:false;detectionMode:mono_and_matrix;matrixCodeType:3x3;"
+  vr-mode-ui="enabled:false"
+  renderer="antialias:true;alpha:true;logarithmicDepthBuffer:true;">
+
+  <a-marker preset="hiro" id="m-hiro">
+    <a-text value="루  프" align="center" position="0 0.6 0" color="#c9a84c" width="4"
+      animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1600;direction:alternate;easing:easeInOutSine">
+    </a-text>
+    <a-ring color="#c9a84c" position="0 0.02 0" rotation="-90 0 0"
+      radius-inner="0.45" radius-outer="0.55" opacity="0.4"
+      animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:4000;easing:linear">
+    </a-ring>
+  </a-marker>
+
+  <a-marker preset="kanji" id="m-kanji">
+    <a-text value="탐  험  가" align="center" position="0 0.6 0" color="#84c9e0" width="4"
+      animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1900;direction:alternate;easing:easeInOutSine">
+    </a-text>
+    <a-ring color="#84c9e0" position="0 0.02 0" rotation="-90 0 0"
+      radius-inner="0.45" radius-outer="0.55" opacity="0.4"
+      animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:3000;easing:linear">
+    </a-ring>
+  </a-marker>
+
+  <a-marker type="barcode" value="0" id="m-b0">
+    <a-text value="여  비" align="center" position="0 0.6 0" color="#e084c9" width="4"
+      animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1300;direction:alternate;easing:easeInOutSine">
+    </a-text>
+    <a-ring color="#e084c9" position="0 0.02 0" rotation="-90 0 0"
+      radius-inner="0.45" radius-outer="0.55" opacity="0.4"
+      animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:5000;easing:linear">
+    </a-ring>
+  </a-marker>
+
+  <a-entity camera></a-entity>
+</a-scene>
+
+<!-- HUD -->
+<div id="hud-top">
+  <div class="status">
+    <span class="dot" id="dot"></span>
+    <span id="status-text">문양을 찾는 중...</span>
+  </div>
+  <button class="back-btn" onclick="history.back()">← 돌아가기</button>
+</div>
+
+<div id="scan-guide">
+  <div class="frame"><div class="c"></div><div class="scan-line"></div></div>
+</div>
+
+<div id="hint-img">
+  <div class="hint-inner">
+    <img src="https://ar-js-org.github.io/AR.js/data/images/HIRO.jpg" alt="hiro"/>
+    <img src="https://ar-js-org.github.io/AR.js/data/images/kanji.jpg" alt="kanji" onerror="this.style.display='none'"/>
+    <span>문양을 카메라로 비추세요</span>
+  </div>
+</div>
+
+<div id="popup">
+  <div class="popup-box">
+    <div class="pop-label">✦ 키워드 획득 ✦</div>
+    <div class="pop-word" id="pop-word"></div>
+    <div class="pop-desc" id="pop-desc"></div>
+  </div>
+</div>
+
+<div id="hud-bottom">
+  <div class="clue-label">획득한 단서</div>
+  <div id="clue-row">
+    <span class="chip-empty">???</span>
+    <span class="chip-empty">???</span>
+    <span class="chip-empty">???</span>
+  </div>
+</div>
+
+<script>
+const MARKERS = {
+  hiro:     { keyword:'루프',   desc:'첫 번째 단서 획득', color:'#c9a84c' },
+  kanji:    { keyword:'탐험가', desc:'두 번째 단서 획득', color:'#84c9e0' },
+  barcode0: { keyword:'여비',   desc:'숨겨진 단서 획득',  color:'#e084c9' },
+};
+
+let found = [];
+let timer = null;
+
+function bind(id, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('markerFound', () => {
+    document.getElementById('dot').classList.add('on');
+    document.getElementById('status-text').textContent = '✅ 문양 인식됨!';
+    showKeyword(key);
+  });
+  el.addEventListener('markerLost', () => {
+    document.getElementById('dot').classList.remove('on');
+    document.getElementById('status-text').textContent = '문양을 찾는 중...';
+  });
+}
+
+function showKeyword(key) {
+  const d = MARKERS[key];
+  if (!d) return;
+  const already = found.includes(key);
+  if (!already) {
+    found.push(key);
+    addChip(d.keyword, d.color);
+    if (navigator.vibrate) navigator.vibrate([80,40,80]);
+    // 메인 페이지에 단서 저장
+    try { localStorage.setItem('clues', JSON.stringify(found)); } catch(e){}
+  }
+  document.getElementById('pop-word').textContent = d.keyword;
+  document.getElementById('pop-word').style.color = d.color;
+  document.getElementById('pop-desc').textContent = already ? '이미 획득한 단서입니다' : d.desc;
+  const popup = document.getElementById('popup');
+  popup.style.display = 'flex';
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(() => popup.style.display = 'none', 2500);
+}
+
+function addChip(word, color) {
+  const row = document.getElementById('clue-row');
+  const empty = row.querySelector('.chip-empty');
+  if (empty) row.removeChild(empty);
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.textContent = word;
+  chip.style.color = color;
+  chip.style.borderColor = color + '55';
+  chip.style.background = color + '18';
+  row.appendChild(chip);
+}
+
+// 씬 로드 후 마커 이벤트 등록
+document.querySelector('a-scene').addEventListener('loaded', () => {
+  setTimeout(() => {
+    bind('m-hiro', 'hiro');
+    bind('m-kanji', 'kanji');
+    bind('m-b0', 'barcode0');
+  }, 500);
+});
+</script>
+</body>
+</html>
