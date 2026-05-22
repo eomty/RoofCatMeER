@@ -8,17 +8,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
 <style>
 * { margin:0; padding:0; }
-body { overflow:hidden; }
+body { overflow:hidden; font-family:sans-serif; }
 .back {
   position:fixed; top:16px; left:16px; z-index:999;
-  background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3);
-  color:white; font-size:13px; padding:8px 16px; border-radius:20px;
-  cursor:pointer; font-family:sans-serif;
+  background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.3);
+  color:white; font-size:13px; padding:8px 16px; border-radius:20px; cursor:pointer;
 }
-.status {
+#status {
   position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:999;
-  background:rgba(0,0,0,0.6); border-radius:20px; padding:7px 16px;
-  font-size:12px; color:white; font-family:sans-serif; white-space:nowrap;
+  background:rgba(0,0,0,0.7); border-radius:20px; padding:8px 18px;
+  font-size:13px; color:white; white-space:nowrap;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+/* 마커 인식됐을 때 화면 테두리 번쩍 */
+#flash {
+  position:fixed; inset:0; z-index:990;
+  border: 6px solid #c9a84c;
+  pointer-events:none; opacity:0;
+  transition: opacity 0.1s;
 }
 #popup {
   position:fixed; inset:0; z-index:9999;
@@ -26,67 +33,87 @@ body { overflow:hidden; }
   pointer-events:none;
 }
 .popup-box {
-  background:rgba(5,5,15,0.95); border:1px solid #c9a84c;
-  border-radius:16px; padding:28px 40px; text-align:center;
-  box-shadow:0 0 40px rgba(201,168,76,0.3); font-family:sans-serif;
+  background:rgba(5,5,15,0.96); border:2px solid #c9a84c;
+  border-radius:20px; padding:32px 48px; text-align:center;
+  box-shadow:0 0 60px rgba(201,168,76,0.4);
 }
-.pop-label { font-size:11px; letter-spacing:0.2em; color:#c9a84c; margin-bottom:10px; }
-.pop-word { font-size:42px; font-weight:700; margin-bottom:6px; }
-.pop-desc { font-size:12px; color:rgba(255,255,255,0.5); }
+.pop-label { font-size:12px; letter-spacing:0.2em; color:#c9a84c; margin-bottom:12px; }
+.pop-word { font-size:48px; font-weight:700; margin-bottom:8px; }
+.pop-desc { font-size:13px; color:rgba(255,255,255,0.6); }
 #ui {
   position:fixed; bottom:0; left:0; right:0; z-index:999;
-  background:rgba(0,0,0,0.6); padding:12px 18px 28px; font-family:sans-serif;
+  background:rgba(0,0,0,0.75); padding:14px 18px 30px;
 }
-.clue-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px; }
-#chips { display:flex; gap:8px; flex-wrap:wrap; }
+.clue-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px; letter-spacing:0.1em; }
+#chips { display:flex; gap:8px; flex-wrap:wrap; min-height:28px; }
 .chip {
-  font-size:13px; padding:5px 14px; border-radius:20px;
-  border:1px solid rgba(201,168,76,0.4);
+  font-size:13px; padding:5px 16px; border-radius:20px;
+  border:1px solid rgba(201,168,76,0.5);
   background:rgba(201,168,76,0.15); color:#c9a84c;
 }
+/* 테스트 마커 안내 */
+#test-guide {
+  position:fixed; bottom:90px; left:0; right:0; z-index:999;
+  display:flex; justify-content:center;
+}
+.test-inner {
+  background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15);
+  border-radius:10px; padding:8px 14px;
+  display:flex; align-items:center; gap:10px;
+  font-size:11px; color:rgba(255,255,255,0.6);
+}
+.test-inner img { width:40px; height:40px; border-radius:4px; }
 </style>
 </head>
 <body>
 
 <a-scene arjs="sourceType:webcam; debugUIEnabled:false;">
 
-  <!-- 마커 1: 발자국 → 루프 -->
-  <a-marker type="pattern" url="pattern-marker1-loop.patt" id="m1">
+  <!-- 테스트용 Hiro 마커 (항상 작동함) -->
+  <a-marker preset="hiro" id="m-test">
     <a-box position="0 0.5 0" color="#c9a84c"
-      animation="property:rotation;to:0 360 0;loop:true;dur:3000;easing:linear">
+      animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear">
     </a-box>
-    <a-text value="루프" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+    <a-text value="루프" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
   </a-marker>
 
-  <!-- 마커 2: 달+별 → 탐험가 -->
+  <!-- 커스텀 마커 2: 탐험가 -->
   <a-marker type="pattern" url="pattern-marker2-explorer.patt" id="m2">
     <a-box position="0 0.5 0" color="#84c9e0"
       animation="property:rotation;to:0 360 0;loop:true;dur:2500;easing:linear">
     </a-box>
-    <a-text value="탐험가" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+    <a-text value="탐험가" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
   </a-marker>
 
-  <!-- 마커 3: 눈 → 여비 -->
+  <!-- 커스텀 마커 3: 여비 -->
   <a-marker type="pattern" url="pattern-marker3-yebi.patt" id="m3">
     <a-box position="0 0.5 0" color="#e084c9"
       animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear">
     </a-box>
-    <a-text value="여비" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+    <a-text value="여비" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
   </a-marker>
 
-  <!-- 마커 4: 열쇠 → 히든 -->
+  <!-- 커스텀 마커 4: 히든 -->
   <a-marker type="pattern" url="pattern-marker4-hidden.patt" id="m4">
     <a-box position="0 0.5 0" color="#4caf82"
-      animation="property:rotation;to:0 360 0;loop:true;dur:3500;easing:linear">
+      animation="property:rotation;to:0 360 0;loop:true;dur:3000;easing:linear">
     </a-box>
-    <a-text value="???" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+    <a-text value="???" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
   </a-marker>
 
   <a-entity camera></a-entity>
 </a-scene>
 
 <button class="back" onclick="history.back()">← 돌아가기</button>
-<div class="status" id="status">📷 문양을 찾는 중...</div>
+<div id="status">📷 문양을 찾는 중...</div>
+<div id="flash"></div>
+
+<div id="test-guide">
+  <div class="test-inner">
+    <img src="https://ar-js-org.github.io/AR.js/data/images/HIRO.jpg" alt="hiro"/>
+    <span>Hiro 마커로 먼저 테스트 해보세요</span>
+  </div>
+</div>
 
 <div id="popup">
   <div class="popup-box">
@@ -98,22 +125,32 @@ body { overflow:hidden; }
 
 <div id="ui">
   <div class="clue-label">획득한 단서</div>
-  <div id="chips"><span style="color:rgba(255,255,255,0.25);font-size:13px;">아직 없음</span></div>
+  <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
 </div>
 
 <script>
 const MARKERS = {
-  m1: { keyword:'루프',   desc:'첫 번째 단서 획득!', color:'#c9a84c' },
-  m2: { keyword:'탐험가', desc:'두 번째 단서 획득!', color:'#84c9e0' },
-  m3: { keyword:'여비',   desc:'세 번째 단서 획득!', color:'#e084c9' },
-  m4: { keyword:'???',   desc:'히든 단서 획득...!', color:'#4caf82' },
+  'hiro':  { keyword:'루프',   desc:'첫 번째 단서 획득!', color:'#c9a84c' },
+  'm2':    { keyword:'탐험가', desc:'두 번째 단서 획득!', color:'#84c9e0' },
+  'm3':    { keyword:'여비',   desc:'세 번째 단서 획득!', color:'#e084c9' },
+  'm4':    { keyword:'???',   desc:'히든 단서 획득...!', color:'#4caf82' },
 };
 let found = [];
 let timer = null;
 
 function onFound(key) {
-  document.getElementById('status').textContent = '✅ 인식됨!';
   const d = MARKERS[key];
+  if (!d) return;
+
+  // 화면 테두리 번쩍
+  const flash = document.getElementById('flash');
+  flash.style.borderColor = d.color;
+  flash.style.opacity = '1';
+  setTimeout(() => flash.style.opacity = '0', 300);
+
+  document.getElementById('status').textContent = '✅ 인식됨! — ' + d.keyword;
+  document.getElementById('test-guide').style.display = 'none';
+
   if (!found.includes(key)) {
     found.push(key);
     if (navigator.vibrate) navigator.vibrate([80,40,80]);
@@ -126,6 +163,7 @@ function onFound(key) {
     chips.appendChild(chip);
     try { localStorage.setItem('loopcat_clues', JSON.stringify(found)); } catch(e){}
   }
+
   document.getElementById('pop-word').textContent = d.keyword;
   document.getElementById('pop-word').style.color = d.color;
   document.getElementById('pop-desc').textContent = d.desc;
@@ -139,7 +177,12 @@ function onLost() {
 }
 
 document.querySelector('a-scene').addEventListener('loaded', () => {
-  ['m1','m2','m3','m4'].forEach(id => {
+  const mTest = document.getElementById('m-test');
+  if (mTest) {
+    mTest.addEventListener('markerFound', () => onFound('hiro'));
+    mTest.addEventListener('markerLost', onLost);
+  }
+  ['m2','m3','m4'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('markerFound', () => onFound(id));
