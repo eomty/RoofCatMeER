@@ -9,32 +9,17 @@
 <style>
 * { margin:0; padding:0; }
 body { overflow:hidden; }
-
-#ui {
-  position:fixed; bottom:0; left:0; right:0; z-index:999;
-  background:rgba(0,0,0,0.6);
-  padding:12px 18px 28px;
-  font-family:sans-serif;
-}
 .back {
   position:fixed; top:16px; left:16px; z-index:999;
   background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3);
   color:white; font-size:13px; padding:8px 16px; border-radius:20px;
-  cursor:pointer;
+  cursor:pointer; font-family:sans-serif;
 }
 .status {
   position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:999;
   background:rgba(0,0,0,0.6); border-radius:20px; padding:7px 16px;
-  font-size:12px; color:white;
+  font-size:12px; color:white; font-family:sans-serif; white-space:nowrap;
 }
-.clue-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px; }
-#chips { display:flex; gap:8px; }
-.chip {
-  font-size:13px; padding:5px 14px; border-radius:20px;
-  border:1px solid rgba(201,168,76,0.4);
-  background:rgba(201,168,76,0.15); color:#c9a84c;
-}
-
 #popup {
   position:fixed; inset:0; z-index:9999;
   display:none; align-items:center; justify-content:center;
@@ -43,28 +28,60 @@ body { overflow:hidden; }
 .popup-box {
   background:rgba(5,5,15,0.95); border:1px solid #c9a84c;
   border-radius:16px; padding:28px 40px; text-align:center;
-  box-shadow:0 0 40px rgba(201,168,76,0.3);
+  box-shadow:0 0 40px rgba(201,168,76,0.3); font-family:sans-serif;
 }
 .pop-label { font-size:11px; letter-spacing:0.2em; color:#c9a84c; margin-bottom:10px; }
 .pop-word { font-size:42px; font-weight:700; margin-bottom:6px; }
 .pop-desc { font-size:12px; color:rgba(255,255,255,0.5); }
+#ui {
+  position:fixed; bottom:0; left:0; right:0; z-index:999;
+  background:rgba(0,0,0,0.6); padding:12px 18px 28px; font-family:sans-serif;
+}
+.clue-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px; }
+#chips { display:flex; gap:8px; flex-wrap:wrap; }
+.chip {
+  font-size:13px; padding:5px 14px; border-radius:20px;
+  border:1px solid rgba(201,168,76,0.4);
+  background:rgba(201,168,76,0.15); color:#c9a84c;
+}
 </style>
 </head>
 <body>
 
 <a-scene arjs="sourceType:webcam; debugUIEnabled:false;">
-  <a-marker preset="hiro" id="m-hiro">
+
+  <!-- 마커 1: 발자국 → 루프 -->
+  <a-marker type="pattern" url="pattern-marker1-loop.patt" id="m1">
     <a-box position="0 0.5 0" color="#c9a84c"
       animation="property:rotation;to:0 360 0;loop:true;dur:3000;easing:linear">
     </a-box>
     <a-text value="루프" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
   </a-marker>
-  <a-marker preset="kanji" id="m-kanji">
+
+  <!-- 마커 2: 달+별 → 탐험가 -->
+  <a-marker type="pattern" url="pattern-marker2-explorer.patt" id="m2">
     <a-box position="0 0.5 0" color="#84c9e0"
       animation="property:rotation;to:0 360 0;loop:true;dur:2500;easing:linear">
     </a-box>
     <a-text value="탐험가" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
   </a-marker>
+
+  <!-- 마커 3: 눈 → 여비 -->
+  <a-marker type="pattern" url="pattern-marker3-yebi.patt" id="m3">
+    <a-box position="0 0.5 0" color="#e084c9"
+      animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear">
+    </a-box>
+    <a-text value="여비" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+  </a-marker>
+
+  <!-- 마커 4: 열쇠 → 히든 -->
+  <a-marker type="pattern" url="pattern-marker4-hidden.patt" id="m4">
+    <a-box position="0 0.5 0" color="#4caf82"
+      animation="property:rotation;to:0 360 0;loop:true;dur:3500;easing:linear">
+    </a-box>
+    <a-text value="???" align="center" position="0 1.3 0" color="#ffffff" width="4"></a-text>
+  </a-marker>
+
   <a-entity camera></a-entity>
 </a-scene>
 
@@ -81,13 +98,15 @@ body { overflow:hidden; }
 
 <div id="ui">
   <div class="clue-label">획득한 단서</div>
-  <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
+  <div id="chips"><span style="color:rgba(255,255,255,0.25);font-size:13px;">아직 없음</span></div>
 </div>
 
 <script>
 const MARKERS = {
-  hiro:  { keyword:'루프',   desc:'첫 번째 단서 획득!', color:'#c9a84c' },
-  kanji: { keyword:'탐험가', desc:'두 번째 단서 획득!', color:'#84c9e0' },
+  m1: { keyword:'루프',   desc:'첫 번째 단서 획득!', color:'#c9a84c' },
+  m2: { keyword:'탐험가', desc:'두 번째 단서 획득!', color:'#84c9e0' },
+  m3: { keyword:'여비',   desc:'세 번째 단서 획득!', color:'#e084c9' },
+  m4: { keyword:'???',   desc:'히든 단서 획득...!', color:'#4caf82' },
 };
 let found = [];
 let timer = null;
@@ -105,6 +124,7 @@ function onFound(key) {
     chip.textContent = d.keyword;
     chip.style.color = d.color;
     chips.appendChild(chip);
+    try { localStorage.setItem('loopcat_clues', JSON.stringify(found)); } catch(e){}
   }
   document.getElementById('pop-word').textContent = d.keyword;
   document.getElementById('pop-word').style.color = d.color;
@@ -119,10 +139,13 @@ function onLost() {
 }
 
 document.querySelector('a-scene').addEventListener('loaded', () => {
-  document.getElementById('m-hiro').addEventListener('markerFound', () => onFound('hiro'));
-  document.getElementById('m-hiro').addEventListener('markerLost', onLost);
-  document.getElementById('m-kanji').addEventListener('markerFound', () => onFound('kanji'));
-  document.getElementById('m-kanji').addEventListener('markerLost', onLost);
+  ['m1','m2','m3','m4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('markerFound', () => onFound(id));
+      el.addEventListener('markerLost', onLost);
+    }
+  });
 });
 </script>
 </body>
