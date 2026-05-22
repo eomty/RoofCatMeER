@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>루프캣 AR 마커</title>
+<style>
+body { font-family:sans-serif; background:#f0ede8; padding:24px; }
+h2 { font-size:18px; margin-bottom:20px; color:#333; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:600px; }
+.card { background:white; border-radius:12px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.card svg { width:160px; height:160px; }
+.card p { font-size:12px; color:#888; margin:8px 0 4px; }
+.card strong { font-size:14px; color:#333; display:block; margin-bottom:10px; }
+.dl { display:inline-block; background:#333; color:white; font-size:12px; padding:6px 16px; border-radius:20px; text-decoration:none; cursor:pointer; }
+</style>
+</head>
+<body>
+<h2>루프캣 AR 마커 — 우클릭 → 이미지 저장</h2>
+<div class="grid">
+
+<div class="card">
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+<rect width="240" height="240" fill="white"/>
+<rect x="12" y="12" width="216" height="216" rx="4" fill="black"/>
+<rect x="32" y="32" width="176" height="176" rx="2" fill="white"/>
+<ellipse cx="120" cy="128" rx="38" ry="32" fill="black"/>
+<ellipse cx="72" cy="96" rx="18" ry="16" fill="black"/>
+<ellipse cx="120" cy="80" rx="18" ry="16" fill="black"/>
+<ellipse cx="168" cy="96" rx="18" ry="16" fill="black"/>
+<ellipse cx="88" cy="68" rx="11" ry="10" fill="black"/>
+<ellipse cx="108" cy="58" rx="11" ry="10" fill="black"/>
+<ellipse cx="132" cy="58" rx="11" ry="10" fill="black"/>
+<ellipse cx="152" cy="68" rx="11" ry="10" fill="black"/>
+</svg>
+<strong>마커 1 — 루프 (발자국)</strong>
+<p>이 이미지를 우클릭 → 이미지 저장</p>
+</div>
+
+<div class="card">
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+<rect width="240" height="240" fill="white"/>
+<rect x="12" y="12" width="216" height="216" rx="4" fill="black"/>
+<rect x="32" y="32" width="176" height="176" rx="2" fill="white"/>
+<circle cx="108" cy="120" r="52" fill="black"/>
+<circle cx="130" cy="108" r="44" fill="white"/>
+<polygon points="172,68 176,80 188,80 178,88 182,100 172,92 162,100 166,88 156,80 168,80" fill="black"/>
+<polygon points="58,72 61,81 70,81 63,87 66,96 58,90 50,96 53,87 46,81 55,81" fill="black"/>
+<polygon points="168,148 170,155 177,155 172,159 174,166 168,162 162,166 164,159 159,155 166,155" fill="black"/>
+</svg>
+<strong>마커 2 — 탐험가 (달+별)</strong>
+<p>이 이미지를 우클릭 → 이미지 저장</p>
+</div>
+
+<div class="card">
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+<rect width="240" height="240" fill="white"/>
+<rect x="12" y="12" width="216" height="216" rx="4" fill="black"/>
+<rect x="32" y="32" width="176" height="176" rx="2" fill="white"/>
+<path d="M48,120 Q120,60 192,120 Q120,180 48,120 Z" fill="black"/>
+<path d="M62,120 Q120,72 178,120 Q120,168 62,120 Z" fill="white"/>
+<circle cx="120" cy="120" r="30" fill="black"/>
+<circle cx="120" cy="120" r="16" fill="white"/>
+<circle cx="120" cy="120" r="8" fill="black"/>
+<circle cx="126" cy="114" r="4" fill="white"/>
+<line x1="80" y1="78" x2="76" y2="64" stroke="black" stroke-width="4" stroke-linecap="round"/>
+<line x1="100" y1="68" x2="98" y2="54" stroke="black" stroke-width="4" stroke-linecap="round"/>
+<line x1="120" y1="64" x2="120" y2="50" stroke="black" stroke-width="4" stroke-linecap="round"/>
+<line x1="140" y1="68" x2="142" y2="54" stroke="black" stroke-width="4" stroke-linecap="round"/>
+<line x1="160" y1="78" x2="164" y2="64" stroke="black" stroke-width="4" stroke-linecap="round"/>
+</svg>
+<strong>마커 3 — 여비 (눈)</strong>
+<p>이 이미지를 우클릭 → 이미지 저장</p>
+</div>
+
+<div class="card">
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+<rect width="240" height="240" fill="white"/>
+<rect x="12" y="12" width="216" height="216" rx="4" fill="black"/>
+<rect x="32" y="32" width="176" height="176" rx="2" fill="white"/>
+<circle cx="106" cy="96" r="38" fill="black"/>
+<circle cx="106" cy="96" r="22" fill="white"/>
+<circle cx="106" cy="96" r="10" fill="black"/>
+<rect x="118" y="90" width="58" height="18" rx="4" fill="black"/>
+<rect x="152" y="108" width="12" height="16" rx="2" fill="black"/>
+<rect x="168" y="108" width="10" height="12" rx="2" fill="black"/>
+</svg>
+<strong>마커 4 — 히든 (열쇠)</strong>
+<p>이 이미지를 우클릭 → 이미지 저장</p>
+</div>
+
+</div>
+
+<div style="margin-top:28px;background:white;border-radius:12px;padding:16px;max-width:600px;font-size:13px;color:#555;line-height:1.8;">
+<strong style="color:#333;display:block;margin-bottom:8px;">다음 단계: .patt 파일 만들기</strong>
+1. 위 마커 이미지 우클릭 → 이미지 저장<br/>
+2. 아래 링크 접속 → 이미지 업로드 → Train 버튼<br/>
+3. .patt 파일 다운로드<br/>
+<a href="https://ar-js-org.github.io/AR.js/three.js/examples/marker-training/examples/generator.html" 
+   style="color:#4f46e5;margin-top:8px;display:block;">→ AR.js 마커 트레이너 열기</a>
+</div>
+</body>
+</html>
