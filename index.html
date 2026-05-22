@@ -474,48 +474,7 @@ a-scene{position:fixed!important;inset:0;width:100%!important;height:100%!import
 
 <!-- AR 카메라 오버레이 (전체화면) -->
 <div id="ar-active">
-  <!-- A-Frame 씬 -->
-  <a-scene id="arscene" embedded
-    arjs="sourceType:webcam;debugUIEnabled:false;detectionMode:mono_and_matrix;matrixCodeType:3x3;"
-    vr-mode-ui="enabled:false"
-    renderer="antialias:true;alpha:true;logarithmicDepthBuffer:true;"
-    style="position:fixed!important;top:0;left:0;width:100%!important;height:100%!important;z-index:-1;">
-
-    <a-marker preset="hiro" id="m-hiro">
-      <a-text value="루  프" align="center" position="0 0.6 0"
-        color="#c9a84c" width="4"
-        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1600;direction:alternate;easing:easeInOutSine">
-      </a-text>
-      <a-ring color="#c9a84c" position="0 0.02 0" rotation="-90 0 0"
-        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
-        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:4000;easing:linear">
-      </a-ring>
-    </a-marker>
-
-    <a-marker preset="kanji" id="m-kanji">
-      <a-text value="탐  험  가" align="center" position="0 0.6 0"
-        color="#84c9e0" width="4"
-        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1900;direction:alternate;easing:easeInOutSine">
-      </a-text>
-      <a-ring color="#84c9e0" position="0 0.02 0" rotation="-90 0 0"
-        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
-        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:3000;easing:linear">
-      </a-ring>
-    </a-marker>
-
-    <a-marker type="barcode" value="0" id="m-b0">
-      <a-text value="여  비" align="center" position="0 0.6 0"
-        color="#e084c9" width="4"
-        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1300;direction:alternate;easing:easeInOutSine">
-      </a-text>
-      <a-ring color="#e084c9" position="0 0.02 0" rotation="-90 0 0"
-        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
-        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:5000;easing:linear">
-      </a-ring>
-    </a-marker>
-
-    <a-entity camera></a-entity>
-  </a-scene>
+  <!-- a-scene이 여기 동적으로 생성됨 -->
 
   <!-- HUD 상단 -->
   <div id="ar-hud-top">
@@ -711,17 +670,59 @@ let popTimer = null;
 
 function startAR() {
   document.getElementById('ar-active').style.display = 'block';
-  document.getElementById('arscene').style.zIndex = '201';
-  document.getElementById('screen-ar').style.overflow = 'hidden';
 
-  if (!arBound) {
-    setTimeout(() => {
-      bindAR('m-hiro', 'hiro');
-      bindAR('m-kanji', 'kanji');
-      bindAR('m-b0', 'barcode0');
-      arBound = true;
-    }, 1800);
-  }
+  // 이미 씬이 있으면 재생성 안 함
+  if (document.getElementById('arscene')) return;
+
+  // a-scene 동적 생성 (버튼 클릭 시에만 카메라 요청)
+  const scene = document.createElement('a-scene');
+  scene.setAttribute('id', 'arscene');
+  scene.setAttribute('embedded', '');
+  scene.setAttribute('arjs', 'sourceType:webcam;debugUIEnabled:false;detectionMode:mono_and_matrix;matrixCodeType:3x3;');
+  scene.setAttribute('vr-mode-ui', 'enabled:false');
+  scene.setAttribute('renderer', 'antialias:true;alpha:true;logarithmicDepthBuffer:true;');
+  scene.style.cssText = 'position:fixed!important;top:0;left:0;width:100%!important;height:100%!important;z-index:202;';
+
+  // 마커 1: Hiro → 루프
+  scene.innerHTML = `
+    <a-marker preset="hiro" id="m-hiro">
+      <a-text value="루  프" align="center" position="0 0.6 0" color="#c9a84c" width="4"
+        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1600;direction:alternate;easing:easeInOutSine">
+      </a-text>
+      <a-ring color="#c9a84c" position="0 0.02 0" rotation="-90 0 0"
+        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
+        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:4000;easing:linear">
+      </a-ring>
+    </a-marker>
+    <a-marker preset="kanji" id="m-kanji">
+      <a-text value="탐  험  가" align="center" position="0 0.6 0" color="#84c9e0" width="4"
+        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1900;direction:alternate;easing:easeInOutSine">
+      </a-text>
+      <a-ring color="#84c9e0" position="0 0.02 0" rotation="-90 0 0"
+        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
+        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:3000;easing:linear">
+      </a-ring>
+    </a-marker>
+    <a-marker type="barcode" value="0" id="m-b0">
+      <a-text value="여  비" align="center" position="0 0.6 0" color="#e084c9" width="4"
+        animation="property:position;from:0 0.4 0;to:0 0.8 0;loop:true;dur:1300;direction:alternate;easing:easeInOutSine">
+      </a-text>
+      <a-ring color="#e084c9" position="0 0.02 0" rotation="-90 0 0"
+        radius-inner="0.45" radius-outer="0.55" opacity="0.35"
+        animation="property:rotation;from:-90 0 0;to:-90 360 0;loop:true;dur:5000;easing:linear">
+      </a-ring>
+    </a-marker>
+    <a-entity camera></a-entity>
+  `;
+
+  document.getElementById('ar-active').appendChild(scene);
+
+  // 마커 이벤트는 씬 로드 후 등록
+  setTimeout(() => {
+    bindAR('m-hiro', 'hiro');
+    bindAR('m-kanji', 'kanji');
+    bindAR('m-b0', 'barcode0');
+  }, 2000);
 }
 
 function bindAR(id, key) {
@@ -772,8 +773,11 @@ function addClueChip(word, color) {
 
 function closeAR() {
   document.getElementById('ar-active').style.display = 'none';
-  document.getElementById('arscene').style.zIndex = '-1';
   document.getElementById('kw-popup').style.display = 'none';
+  // a-scene 제거 → 카메라 완전히 꺼짐
+  const scene = document.getElementById('arscene');
+  if (scene) scene.parentNode.removeChild(scene);
+  arBound = false;
 }
 
 // ── 진행도 업데이트 ──
