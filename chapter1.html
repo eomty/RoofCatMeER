@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 1 — 백설이의 락커</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5),8px 8px 40px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:fadeUp .6s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.document::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.04) 27px,rgba(0,0,0,.04) 28px);pointer-events:none;z-index:1;}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;position:relative;z-index:3;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;position:relative;z-index:3;}
+.story-text{font-size:13.5px;line-height:2;color:var(--ink);margin-bottom:14px;}
+.quest-box{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.25);border-left:4px solid var(--red);padding:12px 14px;margin:14px 0;font-size:13px;font-weight:500;color:var(--red);line-height:1.7;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.12);}
+
+/* 패턴 */
+.pattern-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+.pattern-card{background:white;border:1px solid rgba(0,0,0,.12);border-radius:4px;padding:8px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+.pattern-card svg{width:100%;height:100%;}
+.pattern-caption{font-size:12px;color:var(--muted);text-align:center;margin-bottom:0;font-style:italic;line-height:1.6;}
+
+/* 힌트 */
+.hint-counter{font-size:10px;color:var(--red);background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.2);padding:3px 10px;border-radius:10px;float:right;}
+.hint-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;margin-bottom:8px;}
+.hint-btn:active{opacity:.8;}
+.hint-btn:disabled{opacity:.4;cursor:default;}
+.hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
+.hint-item.visible{display:block;animation:fadeUp .3s ease;}
+.hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:2px;}
+
+/* 락커 입력 */
+.locker-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
+.locker-input-row{display:flex;gap:6px;margin-bottom:10px;}
+.locker-digit{flex:1;height:52px;background:white;border:2px solid rgba(0,0,0,.2);border-radius:4px;font-family:'Nanum Myeongjo',serif;font-size:24px;text-align:center;color:var(--ink);outline:none;transition:border-color .2s;-moz-appearance:textfield;}
+.locker-digit::-webkit-inner-spin-button,.locker-digit::-webkit-outer-spin-button{-webkit-appearance:none;}
+.locker-digit:focus{border-color:var(--red);}
+.locker-btn{width:100%;padding:14px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;cursor:pointer;border-radius:2px;}
+.locker-btn:active{opacity:.8;}
+#result{display:none;padding:14px;margin-top:10px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:16px;border-radius:4px;}
+#result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
+#result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
+.pin{position:absolute;top:-8px;right:24px;width:16px;height:16px;background:radial-gradient(circle at 40% 35%,#ff6b6b,#c0392b);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.4);z-index:10;}
+.tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
+</style>
+</head>
+<body>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="pin"></div>
+  <div class="doc-header">
+    <div class="chapter-tag">CHAPTER 01</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">백설이의 락커</div>
+      </div>
+      <div class="doc-no">No. 1</div>
+    </div>
+  </div>
+
+  <div class="doc-body">
+    <div class="story-text">
+      <p>탐정님! 코드명 스노우 화이트, 일명 <strong>백설이</strong>가 검거되었습니다.</p>
+      <p>하지만 수상한 점이 한두가지가 아니에요... 우선 백설에 대해 조사해보죠.</p>
+    </div>
+
+    <div class="quest-box">▶ 퀘스트. 백설이의 락커의 비밀번호를 알아내고 락커 안을 조사해보자!</div>
+
+    <div class="tear"></div>
+
+    <!-- 패턴 먼저 -->
+    <div class="section-title">PATTERNS</div>
+    <div class="pattern-grid">
+
+      <!-- 패턴 1: 왼쪽 위아래 점 -->
+      <div class="pattern-card">
+        <svg viewBox="0 0 44 60">
+          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
+        </svg>
+      </div>
+
+      <!-- 패턴 2: ㄴ 모양 점 배치 -->
+      <div class="pattern-card">
+        <svg viewBox="0 0 44 60">
+          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
+        </svg>
+      </div>
+
+      <!-- 패턴 3: 위아래 긴 선 형태 점 -->
+      <div class="pattern-card">
+        <svg viewBox="0 0 44 60">
+          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
+        </svg>
+      </div>
+
+      <!-- 패턴 4: ㄱ 반대 점 배치 -->
+      <div class="pattern-card">
+        <svg viewBox="0 0 44 60">
+          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
+          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
+          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
+        </svg>
+      </div>
+
+    </div>
+    <p class="pattern-caption">이 패턴들은 무엇을 나타내는 걸까?</p>
+
+    <div class="tear"></div>
+
+    <!-- 힌트 -->
+    <div class="section-title">
+      HINTS
+      <span class="hint-counter" id="hint-counter">3회 남음</span>
+    </div>
+
+    <div class="hint-item" id="hint1">
+      <span class="hint-num">힌트 1</span>
+      백설이는 시간을 잘 지킨데
+    </div>
+    <div class="hint-item" id="hint2">
+      <span class="hint-num">힌트 2</span>
+      점을 이어보자
+    </div>
+    <div class="hint-item" id="hint3">
+      <span class="hint-num">힌트 3</span>
+      12369
+    </div>
+
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
+
+    <div class="tear"></div>
+
+    <!-- 락커 입력 -->
+    <div class="section-title">LOCKER CODE</div>
+    <p class="locker-desc">패턴에서 숫자를 찾아 락커 비밀번호 5자리를 입력하세요.</p>
+    <div class="locker-input-row">
+      <input class="locker-digit" type="tel" maxlength="1" id="d1" oninput="moveNext(this,'d2')" placeholder="·"/>
+      <input class="locker-digit" type="tel" maxlength="1" id="d2" oninput="moveNext(this,'d3')" placeholder="·"/>
+      <input class="locker-digit" type="tel" maxlength="1" id="d3" oninput="moveNext(this,'d4')" placeholder="·"/>
+      <input class="locker-digit" type="tel" maxlength="1" id="d4" oninput="moveNext(this,'d5')" placeholder="·"/>
+      <input class="locker-digit" type="tel" maxlength="1" id="d5" oninput="moveNext(this,null)" placeholder="·"/>
+    </div>
+    <button class="locker-btn" onclick="checkCode()">🔓 확인</button>
+    <div id="result"></div>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script>
+const ANSWER = '12369';
+let hintCount = 0;
+const maxHints = 3;
+
+function showHint() {
+  if (hintCount >= maxHints) return;
+  hintCount++;
+  document.getElementById('hint' + hintCount).classList.add('visible');
+  const remaining = maxHints - hintCount;
+  document.getElementById('hint-counter').textContent = remaining + '회 남음';
+  if (hintCount >= maxHints) {
+    const btn = document.getElementById('hint-btn');
+    btn.disabled = true;
+    btn.textContent = '힌트 소진';
+    document.getElementById('hint-counter').textContent = '0회 남음';
+  }
+}
+
+function moveNext(el, nextId) {
+  if (el.value.length > 1) el.value = el.value.slice(-1);
+  if (el.value && nextId) document.getElementById(nextId).focus();
+}
+
+function checkCode() {
+  const code = ['d1','d2','d3','d4','d5'].map(id => document.getElementById(id).value).join('');
+  const result = document.getElementById('result');
+  result.style.display = 'block';
+  if (code === ANSWER) {
+    result.className = 'correct';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">락커를 열고 안을 조사해보세요.</span>';
+    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  } else {
+    result.className = 'wrong';
+    result.innerHTML = '✗ 틀렸습니다. 다시 시도해보세요.';
+    if (navigator.vibrate) navigator.vibrate(200);
+    ['d1','d2','d3','d4','d5'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('d1').focus();
+  }
+}
+</script>
+</body>
+</html>
