@@ -44,7 +44,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 /* 락커 입력 */
 .locker-desc{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
 .locker-input-row{display:flex;gap:6px;margin-bottom:10px;}
-.locker-digit{flex:1;height:52px;background:white;border:2px solid rgba(0,0,0,.2);border-radius:4px;font-family:'Nanum Myeongjo',serif;font-size:24px;text-align:center;color:var(--ink);outline:none;transition:border-color .2s;-moz-appearance:textfield;}
+.locker-digit{flex:1;min-width:0;width:0;height:52px;background:white;border:2px solid rgba(0,0,0,.2);border-radius:4px;font-family:'Nanum Myeongjo',serif;font-size:22px;text-align:center;color:var(--ink);outline:none;transition:border-color .2s;-moz-appearance:textfield;}
 .locker-digit::-webkit-inner-spin-button,.locker-digit::-webkit-outer-spin-button{-webkit-appearance:none;}
 .locker-digit:focus{border-color:var(--red);}
 .locker-btn{width:100%;padding:14px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;cursor:pointer;border-radius:2px;}
@@ -60,7 +60,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <div class="document">
-  <div class="pin"></div>
+  
   <div class="doc-header">
     <div class="chapter-tag">CHAPTER 01</div>
     <div class="doc-meta">
@@ -84,57 +84,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
     <!-- 패턴 먼저 -->
     <div class="section-title">PATTERNS</div>
-    <div class="pattern-grid">
-
-      <!-- 패턴 1: 왼쪽 위아래 점 -->
-      <div class="pattern-card">
-        <svg viewBox="0 0 44 60">
-          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
-        </svg>
-      </div>
-
-      <!-- 패턴 2: ㄴ 모양 점 배치 -->
-      <div class="pattern-card">
-        <svg viewBox="0 0 44 60">
-          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
-        </svg>
-      </div>
-
-      <!-- 패턴 3: 위아래 긴 선 형태 점 -->
-      <div class="pattern-card">
-        <svg viewBox="0 0 44 60">
-          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
-        </svg>
-      </div>
-
-      <!-- 패턴 4: ㄱ 반대 점 배치 -->
-      <div class="pattern-card">
-        <svg viewBox="0 0 44 60">
-          <circle cx="14" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="10" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="30" r="3.5" fill="#1a1410"/>
-          <circle cx="14" cy="50" r="3.5" fill="#1a1410"/>
-          <circle cx="30" cy="50" r="3.5" fill="#1a1410"/>
-        </svg>
-      </div>
-
-    </div>
+    <div style="margin-bottom:4px;"><img src="data:image/png;base64,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" style="width:100%;border-radius:4px;" alt="패턴"/></div>
     <p class="pattern-caption">이 패턴들은 무엇을 나타내는 걸까?</p>
 
     <div class="tear"></div>
