@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>빨대파 : 캣닢의 그림자</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --paper: #f0e8d8;
+  --paper2: #e8dcc8;
+  --ink: #1a1410;
+  --red: #8b1a1a;
+  --stamp: rgba(139,26,26,0.15);
+  --gold: #8b6914;
+  --muted: #5a4a38;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; }
+body {
+  background: #1a1410;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 60px;
+}
+
+/* 경찰 테이프 상단 */
+.tape {
+  width: 100%;
+  background: #f5c518;
+  color: #1a1410;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-align: center;
+  padding: 6px 0;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid #d4a800;
+}
+
+/* 메인 서류 */
+.document {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 36px;
+  background: var(--paper);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.15),
+    4px 4px 20px rgba(0,0,0,0.5),
+    8px 8px 40px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 종이 질감 */
+.document::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 28px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 스탬프 효과 */
+.document::after {
+  content: 'CONFIDENTIAL';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%,-50%) rotate(-25deg);
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: var(--stamp);
+  border: 4px solid var(--stamp);
+  padding: 8px 16px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 서류 헤더 */
+.doc-header {
+  background: var(--paper2);
+  border-bottom: 2px solid rgba(0,0,0,0.15);
+  padding: 14px 18px 10px;
+  position: relative;
+  z-index: 3;
+}
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.doc-name-label {
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.doc-name {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+.doc-no {
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px solid rgba(0,0,0,0.2);
+  padding: 2px 8px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.4);
+}
+.doc-type {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--ink);
+  display: inline-block;
+  padding-bottom: 2px;
+}
+
+/* 서류 본문 */
+.doc-body {
+  padding: 18px 18px 24px;
+  position: relative;
+  z-index: 3;
+}
+.story-text {
+  font-size: 13.5px;
+  line-height: 2;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.story-text p { margin-bottom: 12px; }
+
+/* 포스트잇 */
+.postit {
+  background: #f9e4b7;
+  border: 1px solid #d4b870;
+  padding: 12px 14px;
+  margin: 16px 0;
+  transform: rotate(1.5deg);
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 14px;
+  color: var(--red);
+  line-height: 1.8;
+  position: relative;
+}
+.postit::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 8px;
+  background: rgba(200,180,120,0.7);
+}
+
+/* 찢어진 선 */
+.tear {
+  height: 2px;
+  background: repeating-linear-gradient(90deg,
+    transparent 0px, transparent 6px,
+    rgba(0,0,0,0.12) 6px, rgba(0,0,0,0.12) 8px
+  );
+  margin: 16px 0;
+}
+
+/* 하이라이트 텍스트 */
+.highlight {
+  background: rgba(139,26,26,0.08);
+  border-left: 3px solid var(--red);
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.8;
+  margin: 12px 0;
+}
+
+/* 붉은 긁힌 자국 */
+.scratch {
+  text-align: right;
+  margin: 8px 0;
+}
+.scratch-line {
+  display: inline-block;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--red), var(--red), transparent);
+  margin: 2px 0;
+  transform: rotate(-8deg);
+  opacity: 0.6;
+}
+
+/* 다음 버튼 */
+.next-btn {
+  display: block;
+  width: calc(100% - 36px);
+  margin: 20px 18px 0;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 3;
+  transition: all 0.2s;
+}
+.next-btn:active { opacity: 0.8; }
+
+/* 하단 경찰 테이프 */
+.tape-bottom {
+  width: 100%;
+  max-width: 420px;
+  background: #f5c518;
+  color: #1a1410;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-align: center;
+  padding: 6px 0;
+  border-top: 2px solid #d4a800;
+}
+
+/* 핀 */
+.pin {
+  position: absolute;
+  top: -8px;
+  right: 24px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 40% 35%, #ff6b6b, #c0392b);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+/* 입장 애니메이션 */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.document { animation: fadeUp 0.6s ease both; }
+</style>
+</head>
+<body>
+
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="pin"></div>
+
+  <!-- 헤더 -->
+  <div class="doc-header">
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">NAME</div>
+        <div class="doc-name">빨대파 : 캣닢의 그림자</div>
+      </div>
+      <div class="doc-no">No. 1</div>
+    </div>
+    <div class="doc-type">시놉시스</div>
+  </div>
+
+  <!-- 본문 -->
+  <div class="doc-body">
+    <div class="story-text">
+      <p>최근 루프캣미 빌리지에는 타묘의 빨대를 훔쳐 세력을 키운 범죄 조직, 일명 <strong>'빨대파'</strong>가 기승이었다. 빨대를 빼앗긴 주민들은 음수량이 줄어들었고, 드링크바 주변에서는 매일같이 긴장감이 감돌았다.</p>
+      <p>그리고 얼마 지나지 않아 루프캣미 경찰서의 페너 형사는 빨대파의 보스 <strong>'백설'</strong>, 코드네임 스노우화이트를 검거했다고 발표한다.</p>
+    </div>
+
+    <div class="tear"></div>
+
+    <div class="story-text">
+      <p>빌리지는 환호했다. "역시 페너 형사님!" "우리 마을의 영웅이야!" 사건은 그렇게 끝난 듯 보였다. 하지만... 며칠 뒤 루프캣미 빌리지 지붕에서 정체불명의 초록 가루가 발견되기 시작한다.</p>
+      <p>"이건... 캣닢?"</p>
+      <p>하지만 캣닢은 완모용으로 엄격하게 관리되고 있다. 누군가 몰래 유통하고 있다는 뜻이다. 그때부터였다. 주민들이 하나둘 이상한 이야기를 하기 시작한 건.</p>
+    </div>
+
+    <div class="highlight">
+      "근데 왜... 페너 형사는 단서를 알고 있는 것 같지?"<br/>
+      "스노우화이트는 정말 범인이 맞았던 걸까?"
+    </div>
+
+    <div class="story-text">
+      <p>그리고 어느 날 발견된 의문의 쪽지.</p>
+    </div>
+
+    <div class="postit">
+      눈은 가장 높은 곳에 쌓이기 마련<br/>
+      <span style="font-size:12px;opacity:0.7">— P</span>
+    </div>
+
+    <div class="story-text">
+      <p>설마... 모든 사건은 처음부터 계획된 것이었던 걸까? 이제 루프캣미의 평화를 지킬 수 있는 건 오직 당신뿐.</p>
+    </div>
+
+    <div class="tear"></div>
+
+    <div class="highlight" style="border-color:var(--gold);background:rgba(139,105,20,0.08);">
+      <strong>탐정님,</strong> 루프캣미 빌리지에 잠입하여 아무도 모르게 숨겨진 단서를 모아 진짜 범인을 찾아주세요!
+    </div>
+
+    <div class="scratch">
+      <div class="scratch-line" style="width:80px;transform:rotate(-6deg)"></div><br/>
+      <div class="scratch-line" style="width:50px;transform:rotate(-10deg)"></div><br/>
+      <div class="scratch-line" style="width:65px;transform:rotate(-4deg)"></div>
+    </div>
+  </div>
+
+  <button class="next-btn" onclick="location.href='chapter1.html'">
+    ▶ 챕터 1 시작하기
+  </button>
+  <div style="height:20px;position:relative;z-index:3;"></div>
+</div>
+
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+</body>
+</html>
