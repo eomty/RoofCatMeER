@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 2 — 전설의 타짜</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5),8px 8px 40px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:fadeUp .6s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.document::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.04) 27px,rgba(0,0,0,.04) 28px);pointer-events:none;z-index:1;}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;position:relative;z-index:3;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;position:relative;z-index:3;}
+.story-text{font-size:13.5px;line-height:2;color:var(--ink);margin-bottom:14px;}
+.clue-box{background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.1);border-radius:4px;padding:12px 14px;margin-bottom:12px;}
+.clue-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.6;}
+.clue-item:last-child{margin-bottom:0;}
+.clue-check{color:#c9a84c;font-size:15px;flex-shrink:0;}
+.quest-box{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.25);border-left:4px solid var(--red);padding:12px 14px;margin:14px 0;font-size:13px;font-weight:500;color:var(--red);line-height:1.7;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.12);margin-left:8px;}
+.hint-counter{font-size:10px;color:var(--red);background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.2);padding:3px 10px;border-radius:10px;flex-shrink:0;}
+.hint-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;margin-bottom:8px;}
+.hint-btn:active{opacity:.8;}
+.hint-btn:disabled{opacity:.4;cursor:default;}
+.hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
+.hint-item.visible{display:block;animation:fadeUp .3s ease;}
+.hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
+.ar-btn{width:100%;padding:15px;background:#4f46e5;color:#fff;font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ar-btn:active{opacity:.8;}
+.tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
+</style>
+</head>
+<body>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="doc-header">
+    <div class="chapter-tag">CHAPTER 02</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">전설의 타짜</div>
+      </div>
+      <div class="doc-no">No. 3</div>
+    </div>
+  </div>
+
+  <div class="doc-body">
+    <div class="story-text">
+      <p>저도 들어본적있어요. 다락방 하우스라는 곳을요...</p>
+      <p>뒷세계 돈줄들이 얽히고 섥혔다고 들었는데...예감이 좋치 않군요. 우선 타짜 아저씨가 누구인지 찾아봐야할거같아요!</p>
+      <p>이건 제가 뒷세계에서 수소문한 타짜 아저씨 단서입니다!</p>
+    </div>
+
+    <div class="clue-box">
+      <div class="clue-item"><span class="clue-check">✔</span><span>타짜 아저씨는 간식을 잘 먹는다고 해</span></div>
+      <div class="clue-item"><span class="clue-check">✔</span><span>황금색 노란 빛의 털을 가지고 있더라고</span></div>
+      <div class="clue-item"><span class="clue-check">✔</span><span>손이 누구보다 빨라서 손만은 하얗게 됐데</span></div>
+      <div class="clue-item"><span class="clue-check">✔</span><span>긴박한 상황 속에서도 얼굴은 평온 그 자체래</span></div>
+    </div>
+
+    <div class="quest-box">▶ 사진들 사이에서 타짜를 찾아 AR스캔하자!</div>
+
+    <div class="tear"></div>
+
+    <div class="section-title">
+      HINTS
+      <span class="hint-counter" id="hint-counter">3회 남음</span>
+    </div>
+
+    <div class="hint-item" id="hint1">
+      <span class="hint-num">힌트 1</span>
+      간식을 먹을 수 있는 고양이는 테라스룸의 고양이 프로필에서 볼 수 있어
+    </div>
+    <div class="hint-item" id="hint2">
+      <span class="hint-num">힌트 2</span>
+      이름이 "ㄲ"으로 시작해
+    </div>
+    <div class="hint-item" id="hint3">
+      <span class="hint-num">힌트 3</span>
+      낑깡
+    </div>
+
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
+
+    <div class="tear"></div>
+
+    <button class="ar-btn" onclick="location.href='ar.html?from=chapter2'">
+      📷 AR 스캔하기
+    </button>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script>
+let hintCount = 0;
+const maxHints = 3;
+function showHint() {
+  if (hintCount >= maxHints) return;
+  hintCount++;
+  document.getElementById('hint' + hintCount).classList.add('visible');
+  const remaining = maxHints - hintCount;
+  document.getElementById('hint-counter').textContent = remaining + '회 남음';
+  if (hintCount >= maxHints) {
+    const btn = document.getElementById('hint-btn');
+    btn.disabled = true;
+    btn.textContent = '힌트 소진';
+    document.getElementById('hint-counter').textContent = '0회 남음';
+  }
+}
+</script>
+</body>
+</html>
