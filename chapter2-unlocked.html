@@ -31,47 +31,12 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
 .hint-item.visible{display:block;animation:fadeUp .3s ease;}
 .hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
-
-/* 비밀코드 */
-.code-row{display:flex;gap:8px;margin-bottom:6px;}
-.code-input{flex:1;padding:11px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s;}
-.code-input:focus{border-color:var(--red);}
-.code-btn{padding:11px 16px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:13px;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;}
-.code-hint{font-size:11px;color:var(--muted);margin-bottom:4px;}
-.code-wrong{font-size:12px;color:var(--red);margin-top:6px;display:none;}
-
-/* 대화 버튼 */
-.chat-btn-locked{width:100%;padding:14px;background:rgba(0,0,0,.15);color:rgba(90,74,56,.5);font-family:'Nanum Myeongjo',serif;font-size:14px;border:1px dashed rgba(0,0,0,.15);border-radius:4px;letter-spacing:.06em;cursor:not-allowed;}
-.chat-btn{width:100%;padding:14px;background:#c9a84c;color:#1a1410;font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:4px;cursor:pointer;letter-spacing:.06em;font-weight:700;display:none;animation:fadeUp .4s ease;}
+.evidence-box{background:rgba(76,175,130,.08);border:1px solid rgba(76,175,130,.25);border-radius:4px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.evidence-icon{font-size:24px;}
+.evidence-name{font-size:13px;font-weight:500;color:#2d7a5a;}
+.evidence-desc{font-size:11px;color:var(--muted);}
+.chat-btn{width:100%;padding:15px;background:#c9a84c;color:#1a1410;font-family:'Nanum Myeongjo',serif;font-size:15px;font-weight:700;border:none;border-radius:4px;cursor:pointer;letter-spacing:.06em;}
 .chat-btn:active{opacity:.85;}
-
-/* 채팅 화면 */
-#chat-screen{display:none;position:fixed;inset:0;z-index:200;background:#1a1410;flex-direction:column;}
-.chat-header{background:#12121a;border-bottom:1px solid rgba(255,255,255,.08);padding:14px 16px;display:flex;align-items:center;gap:12px;}
-.chat-back{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0 8px 0 0;}
-.chat-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid #c9a84c;flex-shrink:0;}
-.chat-avatar img{width:100%;height:100%;object-fit:cover;}
-.chat-name{font-size:15px;font-weight:500;color:#fff;}
-.chat-status{font-size:11px;color:rgba(255,255,255,.4);}
-.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
-.msg{max-width:78%;display:flex;flex-direction:column;gap:3px;}
-.msg.them{align-self:flex-start;}
-.msg.me{align-self:flex-end;}
-.msg-bubble{padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.6;font-family:'Noto Sans KR',sans-serif;}
-.msg.them .msg-bubble{background:#1e1e2e;border:1px solid rgba(255,255,255,.08);border-radius:4px 16px 16px 16px;color:#e8e0d0;}
-.msg.me .msg-bubble{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.25);border-radius:16px 4px 16px 16px;color:#e8e0d0;}
-.msg-time{font-size:10px;color:rgba(255,255,255,.25);}
-.msg.me .msg-time{text-align:right;}
-.typing{display:flex;gap:4px;padding:12px 14px;align-items:center;}
-.typing span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);animation:typing 1.2s infinite;}
-.typing span:nth-child(2){animation-delay:.2s;}
-.typing span:nth-child(3){animation-delay:.4s;}
-@keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.chat-input-area{background:#12121a;border-top:1px solid rgba(255,255,255,.08);padding:10px 12px;display:flex;gap:8px;align-items:center;}
-.chat-input{flex:1;background:#1e1e2e;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:10px 16px;font-size:14px;color:#e8e0d0;font-family:'Noto Sans KR',sans-serif;outline:none;}
-.chat-input::placeholder{color:rgba(255,255,255,.25);}
-.chat-send{width:40px;height:40px;border-radius:50%;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.3);color:#c9a84c;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-
 .tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
 </style>
 </head>
@@ -92,8 +57,8 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
   <div class="doc-body">
     <div class="story-text">
-      <p>대화창으로 가서 비밀코드를 넣으면 낑깡과 대화할 수 있어요!</p>
-      <p>대화를 통해 백설이에 대해 파헤쳐봅시다!</p>
+      <p>하얀손 증거를 얻었군요!</p>
+      <p>낑깡이라면 백설이에 대해 알고 있을 거예요.<br/>대화를 통해 다음 행선지를 알아내봅시다!</p>
     </div>
 
     <div class="quest-box">▶ 낑깡에게 백설에 관해 물어보고 다음 행선지를 알아내자!</div>
@@ -112,56 +77,27 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
     <div class="tear"></div>
 
-    <!-- 비밀코드 -->
-    <div class="section-title">SECRET CODE <span class="section-title-line"></span></div>
-    <p class="code-hint">AR 스캔으로 얻은 증거물 키워드를 입력하세요</p>
-    <div class="code-row">
-      <input class="code-input" id="code-input" type="text" placeholder="비밀코드를 입력하세요" onkeydown="if(event.key==='Enter')checkCode()"/>
-      <button class="code-btn" onclick="checkCode()">확인</button>
+    <!-- 획득한 증거 -->
+    <div class="section-title">EVIDENCE <span class="section-title-line"></span></div>
+    <div class="evidence-box">
+      <div class="evidence-icon">🤍</div>
+      <div>
+        <div class="evidence-name">하얀손</div>
+        <div class="evidence-desc">타짜의 증거물 획득 완료</div>
+      </div>
     </div>
-    <div class="code-wrong" id="code-wrong">✗ 올바르지 않은 코드입니다.</div>
 
     <div class="tear"></div>
 
     <!-- 대화 버튼 -->
-    <div id="chat-btn-locked" class="chat-btn-locked">🔒 낑깡이와 대화하기</div>
-    <button class="chat-btn" id="chat-btn" onclick="openChat()">💬 낑깡이와 대화하기</button>
+    <button class="chat-btn" onclick="location.href='nkk-chat.html'">💬 낑깡이와 대화하기</button>
   </div>
 </div>
 
 <div style="height:20px"></div>
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
-<!-- 채팅 화면 -->
-<div id="chat-screen">
-  <div class="chat-header">
-    <button class="chat-back" onclick="closeChat()">←</button>
-    <div class="chat-avatar">
-      <img src="data:image/png;base64,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" alt="낑깡"/>
-    </div>
-    <div>
-      <div class="chat-name">낑깡</div>
-      <div class="chat-status">전설의 타짜 · 암호화됨</div>
-    </div>
-  </div>
-  <div class="chat-messages" id="chat-msgs">
-    <div class="msg them">
-      <div class="msg-bubble">...누구요?</div>
-      <div class="msg-time">방금</div>
-    </div>
-    <div class="msg them">
-      <div class="msg-bubble">하얀손의 소개로 왔군요. 뭘 알고싶은 거요?</div>
-      <div class="msg-time">방금</div>
-    </div>
-  </div>
-  <div class="chat-input-area">
-    <input class="chat-input" id="chat-input" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendChat()"/>
-    <button class="chat-send" onclick="sendChat()">↑</button>
-  </div>
-</div>
-
 <script>
-// 힌트
 let hintCount = 0;
 function showHint() {
   if (hintCount >= 3) return;
@@ -174,99 +110,6 @@ function showHint() {
     document.getElementById('hint-btn').textContent = '힌트 소진';
     document.getElementById('hint-counter').textContent = '0회 남음';
   }
-}
-
-// 비밀코드
-function checkCode() {
-  const val = document.getElementById('code-input').value.trim();
-  const wrong = document.getElementById('code-wrong');
-  if (val === '하얀손') {
-    wrong.style.display = 'none';
-    document.getElementById('chat-btn-locked').style.display = 'none';
-    document.getElementById('chat-btn').style.display = 'block';
-    document.getElementById('code-input').disabled = true;
-    document.querySelector('.code-btn').disabled = true;
-  } else {
-    wrong.style.display = 'block';
-  }
-}
-
-// 채팅
-function openChat() {
-  const screen = document.getElementById('chat-screen');
-  screen.style.display = 'flex';
-  setTimeout(() => {
-    const msgs = document.getElementById('chat-msgs');
-    msgs.scrollTop = msgs.scrollHeight;
-  }, 100);
-}
-
-function closeChat() {
-  document.getElementById('chat-screen').style.display = 'none';
-}
-
-const PERSONA = `당신은 '낑깡'이라는 고양이입니다. 루프캣미 빌리지의 뒷세계에서 활동하는 전설의 타짜예요.
-말투는 짧고 차갑지만, 하얀손의 소개로 온 탐정에게는 정보를 흘려줍니다.
-다음 정보를 알고 있으며, 직접적으로 말하지 않고 돌려서 말합니다:
-- 백설이는 감시를 받고 있다. 이름만큼 결백해.
-- 백설이는 큰 돈이 필요하다고 했고, 낑깡이 이세계의 큰 손들을 소개해줬다.
-- 백설이는 결국 캣렉사무소를 찾아갔다. 그쪽이 돈이 쫌 되거든. 지금도 고양이 구하고 있다고 하니까 전단지를 찾아봐. 소개로만 운영되는 곳이니까 만약 누구 소개냐고 하면 하얀손의 소개를 받았다고 해.
-한국어로 짧게 대화하세요. 절대 정보를 한번에 다 주지 마세요.`;
-
-let chatHistory = [];
-
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  appendMsg('me', text);
-  chatHistory.push({ role: 'user', content: text });
-
-  const typing = appendTyping();
-  const msgs = document.getElementById('chat-msgs');
-  msgs.scrollTop = msgs.scrollHeight;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        system: PERSONA,
-        messages: chatHistory
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || '...';
-    chatHistory.push({ role: 'assistant', content: reply });
-    typing.remove();
-    appendMsg('them', reply);
-  } catch(e) {
-    typing.remove();
-    appendMsg('them', '...지금은 말하기 곤란하군요.');
-  }
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function appendMsg(who, text) {
-  const msgs = document.getElementById('chat-msgs');
-  const div = document.createElement('div');
-  div.className = 'msg ' + who;
-  div.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">방금</div>`;
-  msgs.appendChild(div);
-  return div;
-}
-
-function appendTyping() {
-  const msgs = document.getElementById('chat-msgs');
-  const div = document.createElement('div');
-  div.className = 'msg them';
-  div.innerHTML = `<div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  msgs.appendChild(div);
-  return div;
 }
 </script>
 </body>
