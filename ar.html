@@ -4,11 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>AR 단서 탐색</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <style>
-* { margin:0; padding:0; }
-body { overflow:hidden; font-family:sans-serif; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { overflow:hidden; font-family:sans-serif; background:#000; }
+a-scene { position:fixed!important; top:0; left:0; width:100%!important; height:100%!important; }
+
 .back {
   position:fixed; top:16px; left:16px; z-index:999;
   background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.3);
@@ -61,48 +64,72 @@ body { overflow:hidden; font-family:sans-serif; }
   font-size:11px; color:rgba(255,255,255,0.6);
 }
 .hint-inner img { width:44px; height:44px; border-radius:6px; object-fit:cover; }
+#loading {
+  position:fixed; inset:0; z-index:9998;
+  background:rgba(0,0,0,0.9);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px;
+  color:white; font-size:14px;
+}
+.spinner {
+  width:40px; height:40px;
+  border:3px solid rgba(255,255,255,0.2);
+  border-top-color:#c9a84c;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin { to{ transform:rotate(360deg) } }
 </style>
 </head>
 <body>
 
-<a-scene arjs="sourceType:webcam; debugUIEnabled:false;">
+<div id="loading">
+  <div class="spinner"></div>
+  <div>카메라 준비 중...</div>
+</div>
 
-  <!-- Hiro 테스트 마커 -->
-  <a-marker preset="hiro" id="m-hiro">
-    <a-box position="0 0.5 0" color="#c9a84c"
-      animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear">
-    </a-box>
-    <a-text value="루프" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
-  </a-marker>
+<a-scene
+  mindar-image="imageTargetSrc: nkk.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: no;"
+  color-space="sRGB"
+  renderer="colorManagement: true;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
 
-  <!-- 낑깡 커스텀 마커 -->
-  <a-marker type="pattern" url="pattern-nkk.patt" id="m-nkk">
-    <a-box position="0 0.5 0" color="#f0c040"
-      animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear">
-    </a-box>
-    <a-text value="하얀손" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
-  </a-marker>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <a-entity camera></a-entity>
+  <a-entity mindar-image-target="targetIndex: 0" id="target-nkk">
+    <a-text
+      value="하얀손"
+      align="center"
+      position="0 0.4 0"
+      color="#f0c040"
+      width="2"
+      animation="property:position;from:0 0.3 0;to:0 0.5 0;loop:true;dur:1200;direction:alternate;easing:easeInOutSine">
+    </a-text>
+    <a-ring color="#f0c040" position="0 0 0" rotation="0 0 0"
+      radius-inner="0.3" radius-outer="0.35" opacity="0.5"
+      animation="property:rotation;to:0 0 360;loop:true;dur:3000;easing:linear">
+    </a-ring>
+  </a-entity>
+
 </a-scene>
 
 <button class="back" onclick="history.back()">← 돌아가기</button>
-<div id="status">📷 마커를 찾는 중...</div>
+<div id="status">📷 낑깡을 찾는 중...</div>
 <div id="flash"></div>
 
 <div id="hint-guide">
   <div class="hint-inner">
-    <img src="https://ar-js-org.github.io/AR.js/data/images/HIRO.jpg" alt="hiro"/>
     <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACOAIkDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAABQYEBwIDCAAB/8QAShAAAQMCBAMFBAUHCgQHAAAAAQIDBAURAAYSIRMxQQciUWFxFDKBkRUjQqHRFlJUVXKxwQgkM2KSk5TS4fEXVpXwJjRDU6Kj0//EABoBAAIDAQEAAAAAAAAAAAAAAAMEAQIFAAb/xAAuEQACAgEEAQIEBQUBAAAAAAABAgADEQQSITETIkEyUXGBBRRhocEGI5Gx8OH/2gAMAwEAAhEDEQA/APtMRRmkyU5orlSp0la9QtF1OW3vueW/XBOqZkoCKSum5ZNWkEI0iW9JNtXXUlO5O9hhnVlvJkCYpyv5grVRlabfUtpQ2B1OghWFiexk+lznmqdGzLOk31MJMiMzsR3VCyCR16cumMPyKV7jAdqmwOD+8AZbrKqDKVKaiylrcVf2ZLriEhQ31DexPkcHjnDOeYmHmkrkxmweF34QWNPUatJ3t64Bw2KrNdDb+pM5hzU2EHQEgn3V6kjX090HGcGTLYnyYcyXIjrtpLgaUkLVa3MgG+9r2PqMVDHuDa4xarNApEeoriSEVGOlsmzhQV61H7IA2GN9OyyzDrDCpf0jGiqI0Bxm6woAHdHIjfnywfyl9IqmPrXVILKmkBXF0Js2PJRUkKPlucSZcmTVpf0ouoCqR2VlKG1Oq4Clct02uDboT8TiWtPXtONpAmyFnCJIkqp9Ulz7M3QymMwhrXy97TbzxDrWY2X+BTY0/U0lWpSnNRcbJG+6vT9+JRooQ3wW6c0zJ3UmUytKUNat9Kh7yuu99vDAasUZNCU0t2I3Ulyu6l5pzSU+NwBex87XwvlCZTyO/tJkqvyZcMwl19yQpadIUGrX8LWG/wDpjDLbUw16PDiPJfmrdSG0qQQSb/aHhgdTaZmsT5LMaKaeptrUGSdDjo3Pd8T6+ODOXl1aNVYtZTTpbsthI70h0qN9tlaNynyuMWatfeFRGJ6lh1fs8rLsATZTlIhOt/oyEI36C4HeJNsR6OrNkeFUPbqXNjRW2FBbjcn2cJFvf027x5Yg5qznmSvUj6Pm0eCw4XLNhuIVi4+1rUe78B8cBmX8/wAWInhZYFUYRq1vyWFlZHMkAG1gOtumK+NSQVjJQ59QkKuVahppLUqjtzXKgAUuS5JTsOpsBseYvjXkqs0F5EkVyNPlu2DjMmNdBSRa4JtbEmI3mas0Rc11+hx4Sl6uNMcBebsPdSbXT422wOy7R63mNTT1EpbtTjR3SHHkx+E3ccxqJ7xPL+OKeMjORKFGEf4NaotUfhpSt9GhN3XFIvxD11bW5Wxom8Wne0TqTAadUsk8ZoatI6jwTueuAlSizsvlMN+GKdNWgucNxxKQlO99Ivbl4fLGLdUiw093iLklH1zoVp0KtzTblbxOM59OytkD7SOoHqSqnPeXMqiHVNFZKGg5dW53ATawwW9ob/T6r/c4OT6wELQwunipshttRWypKndRG91Dr6+OPfSdM/5KrPyaxcWMexiSCT7w5mfJKqHRfbvplp6WVhSWpK9CFq5E6feOEwMzZM5TVcZLCUKCkPRmNQQN91K5EHkBgwqPlFENllmmmpEPBYcW8oJCtI32ULg9fTA+roR7ap5D8OM4LJaSqQ6pCDsSUaidO3hbpjTuxn09wepRKz6SCf0hWNUpGXJDrkZbSFyB9ShTSXDpHJSSPd5+N8DK/mmbWYDlLrNQdU06ChaUWQhJ/OV1+A3x8jZlfy262igVFa5T4JfSUh0E78yvcc+nhhigUmnVSoDME+GXZzyBxVPHWNXiBySPC2ITJUdidpqzZFyJl+NUoDbcj29+ElauI2h3SHR4iwAAwUKMl0Fn2WNljQNeo8aUpWo+B02vhskqDUdOq2ySLDYYrbPqkoTqacUXEd+w9d/44qWYDbma1ekqxyMyVX5TNWf1oZjx7jSltIsLDl1vgO/HlRXNaI7KSbd8DwxpgylyGESGbKUvbfcpxgEollbftx1g94ajcEeWOZQO4yigfCJK/KCoRJAdlN8RCRYX5geIwxQKkKlGAZfDJPIW5YS5zbfCXGfQ44oCwJ88R6etyA/oKtKFeBOKmvjiEVgD1LPo9QKEhmclKttN+YOD5WZEYogyiyQCEkklKb+XXnivaHKQ62pl4IvzBScF4k1+E6ltRUWjuhWFW3VnIhzWtowYQzBXK3l6hAor9NqzmmzjDkM3AF+RO3wwnZVzlNy1AfnQoEGa5NWpxTbbq2yySRsUgWtzww5lrFFhRTMm0uc9PcSUMvxXVJKf2kjY/EHCIxmGUsKakx5AjEDUXHuE4sgkpJNtyL4brtygInntUtlLlTI2Y261KzIZbrjUhEkhYOtNmieYss6rDxtiO9TasiW8Y64/DcNlOlesbczsOWDTbVOnzWmykuLd/wDWdfss3HIqO1sG6lBpFPbQiZVIDbQ1ezKbTxNB6+6P33xD3HjIg0rudN4HAg7I8SXQn/pSAae8X18OzrS1K8SoAiw8OWHr8qqt+c1/04fhiukVyMUx0PRAoAhI0OPKSr+sQFAX5dMEfpWmfp0X+2//APpgTEscwXkgJivUZNJaFcp1SjlpsICLLUlxX5xSLaSfC5xFNTq9TjpZYiuuQUOJKELbsAm17cRQ22PI/fhkplBmPvKfdWvgG5KVJun/AFxNi0mXUgYXCbTCaJAIZCb+Pp64fFpAwVjrfh4PwtBeUo7reaXA+SptTKVWWkAIV1ta9xa4vfryxaUF9qOzrABQdlDp8MIAgNUF5zgvOLSbe+q9vG3liRJrLinEs6khGm4I64qW94amnYMGNdTmtltagoaUgnFQ5uqwDjzpuQoaBhkqFSUYTmgkJ8b88VpmB8yJIQDcX6YGFJOY1kAcQ/l+oOIS0Psi2gDa/jfE/MTYgTvpNkWjSu/y2SvkpP8AHESiMR2GdQ2WlGn44YYsVqo5YnU9wBblw4kc9JtzxZlDjbIRyhDCRoVep01tpl5rW77oKfeODjOUIC465Mia8hGnUltIBUknkCcJeTaC9EfckyJAStBu3sSOdrYeozjiXEsSlBCUp4i99j5nywuAV6jJYNNbWXI9MeQpEt1x472I2AHngzHioUhtD8pCQoEhJTfYdcDU1CO48lgFTylHUXCeuxGNTjwEhvvKXwwUK/aPliCM9yQ2OpMrj8KAtuO7J1tuA2AFlC/LCHX0swVBtp8urWPeWQbDnsMEc7sy5UBLqUkPgdwdfXClkej1Ct1tKahrQyyfrCo7nyGIWsDkSjBC25hmMWUoFEeYTOzPFkTW3nw3DZQ8GwSLDUSogAXPMm2BGbcrT6lmB5VJYRAjIADTHG417eCmwU29CcP9UyrMlLEp1qnGC00UxoqbqeUU8ikC9r+dsLaItTg1FSqsw5TXXyFMNyW+6Qnmdx3iedzywxuZF9MwdVqHdjxxBMCnKipZhK9rFUZTxFhpq219l6lbW87HBHTA/Tx/ej8cNyq5WGo7Zafei00sJfVIZSggkp3sFA7gi21uWA/5WUr9az/7hGAFd4zzAAJgcnMD5Yz08/G9mTKSHNNw2pFu747fhg5FzdKjjRraDZ2vpCj+8fuwtZEy5nCTVpruWaWsPwrw3jOUlKGVWuoA296/h88Y5nyPntEWTNceYnqaIKkMNrRwiSAbWT37E/vxtvWMjI7nJrHCnIhmqVdcoq7yFKtqtsARgOJ62mSpwqskG1hsR64SafKrEKqMRXmak48pOpafZl2FjvfUL2t8sM6ll8uNApsoYXsq2x3T6nyjMH1qvSnm+CzdIJIsNrDwxtp1PvE4sgHjKIXYjkOmNvsxekHUgKRsk78sFSloRjY6SAlKfQDAOo5uzPsTUUBtNtR7yj1Bw4ZHjoaW88804psp0d211E+vxwtUpGpQBRqBsSU9Bh4obzDMBatQb0qNwTe9/wDbEqOcyHbjExqUVlDqTDa0pVcuFX2Rbc7Aeu2AzjCZlcXGbcWlLjZQ4CndSfEHoNvHDWw6iTJDSo+tlzZCkG5SSNjhVmRzCYmVVsAPxJTjZBO5QfLy2OONYPInLYRwZqpsEy3iwVqZZGlSFdVJHL7gMSaexIVGkyg/xC4spCkquLX2PywtZSn1OQ4/HaUlT7o4TJPupTyuPhh0oMSOzWZ8RxQEWIhttSr7FWm/xxUVQnlzIKaY7UAVKeDSrEXWT0ty288SI1PVR50Ntn2V9DijxlIUdgOfMDf8MH3vYnUrDdkpABTqG4H/AGcREQm4RDosErJ2v18fvwN1CjiFU7u5CpEqvZNqFQqctjMLdIkJ18aK22tAVq2up3u29LYXe0CpVvMbjE+VNdkU9KOIjirS462k+OgJSOXMi37VsPdbrtYi5QnQGpMduOpvSOKPtHcXvzHwwp5Rps+rsGoVeRGj6vckBgfWWNvf7ukeGKLYoHpP1mTfQyuVEEUuahqiFk1YNezKTwVuBGlKFdCkk6wSL7FP8MFvYKf+sMnf4dP440u06gIedZqlUmJTKcClF4KDTgBuLOW5HxucZcDIX6vjf4v/AEwLI7wZUaazHIjxAyzFypRpApObVUx5SS6+t9NmC5+eR3R0t6DFQV/t6msSfoirUuC440tTYqcRKnUOC+y0pX44zzRS8x1fLml3K8h0xypRVNmh3gpKRc+8VE8+nTFKvw6MhKwzqW/HVYniBFzffY229cejrz4trjPP2/2YndauncFGz9v/ACXbM7ZB9HrWzQ35ccNAKffQpkqJuL90AaT6DlbrsOy7UFZiS1VXmGo6ZJ2LKbpPj9/+5xTtWkFaUQ2JUiQHFAtoeX3SBzTsSLjmPjix8m040aO0yjMsR4qUHOGHUhLVhe3PpfljmUuCTLaZ2scsvQ7juzBspwlSUpsTv0PhbAmoqCXUR0Am5sTa2D8eazIQQhxuQVblSDsfSxxjGpzUielKAU7bm3LGfZXNNLBI7DLjEMPglCl8hq6DocFahRJkulsOomFEVaNbqU7ayCdgRiDJu7NdZv3GNrj7sWBlZtmpZbU0WylKTqbUNiPH+GL6ekWsVlb7fGu6V6tdVdW1Gobr0RSv6MMEX8De4KR8uuA3alTcz0h2PRFyH5r8xsSHXEoAUgX3SdA73y8cWXAhLi10S2IiVyUXKVBISLgHnjBv25quP1Se+y/J0EXG4bFtkb/7+mGvy+xMHuLrqA7ZHUpePV6mVxjTyX+AdRWhtSFBIG6TqAvt9+G+i12vRKa3IXEpTrcuzjiRrStC/wCuSFXNvLDLRp0eq0epREICAuQVghIuTf3h433wpz6RV2m0ltXEbUTZxFzrT525Hl5YC9Zr65h1sVjC82sT5VPDkGoIjym3NfCKQpLpHJI5WHyvtfEhiuVmolll2nqakWssk91Pn9/LAWlsOR0JSuHIdf13SNtI89QGLGyJSqhPlplVOO2y033rJ3KrDkcKGlnMZF6qJozVCcTT3kuI4xDaF8PUU67C58bfDCu5m+mJ4VJgpm07S1Y8SWpxIXe5sgo0i/kPlh9qqT9KqecQBcklJPNOEPtjqWVmAhr8mZEV9NtUtpwlNvG1jYX88JWVjyFZ2pLBBYJ6m5qqbbioimo8+MSEtOstIWpFySAUhIJNh0BGIP05S/1Q/wD9JR/kwz9i8uBRGzVp1DqUxMltKm6iiHraZR5K5fG+Lb/4i5a/Wr/9lP44GzBABtJ+mP5IiQuZviP+Zz3n6q1yi1BUSLUUCjGNxy3GbDa7HYBadIUeXUnmAeWKebn0OfMjU2XluJHiPSwfbFodU82lRAUo6FjX42INrm2GOnOZkqUbhuMyZL5WQFORQDa3IrJFvj8cO+TaJByZmKNVp8KjTKjJ0oCVurdbjXG+nSNOonoAo7mxx6GrajYY4HtPPFRkt/Mxq3Zv2cxqfIkorNWLaGQp1+KtLawrSTYNho2Hqr44ralu5fix1R41OM55wby56myXSPKxt+/zxZfaT2jZmplel02PT41KkaPfK/alJSoEfnBI2PIpBF8L+Sexyv5rYcqdWcRSYrwJbelsL4ryjvcNgju9b3ti9nwt5OO889D68Y/7mEXUGt8U8n6RSGaag3UC0wwWEiyUpQ6SgpHXTuPvxZ+Tam3OivBfceS0lV9BANxztfDDR/5PdAh0VTr0kVaW2lamVOlbKCbd0HSfd9b4ouBXqlRa/MakxkJ4QUCgKITYK+zfp1BxBqBrVl5U9HuMV6t0f+4ZcUSM41GcfQ4j6494nna9tsWb2dpbajOxiAEA6gTYDcbn0xXmRKhCqtEiTE6UXR30qTyN/PrfDS1WjGntlK0WSdLgBtpTzufHliul/tWAmaV58teBGupMMRuIW2ySd9Q2I8h5csJuYWn32XEAgJcBBtzsenph8WoS2EugggpuD0IwLl05CjYotjWsTPUykbBlePJajhCm2tK2wE207KHnifAq8tQLTENQBPeBBud7cz6YaF0Ri5I0k+GN8eltpI0gbciMKGpsxgWCRIFLakrD+jhLP2eh2HyN8NFPaDEYoCfnjRChALHMjnywUd4TEVSlk6kjni3jxzLK3OBEWYh+XVpBuRYaQD1PyxCrkVKIq6px3Yyouy7PKSlY6XtblgsZjRqzi2bLTq2ueuBWeZ8Bqhy20uF5jR9chtBcN+nLpjzGpXLkiegOGo2n5QM3myAymVT586cmG+1d2Gha2wtJHMrCgCDe99tvHCH7Llj9E/8AvX+OAD9fqzta0rU1HjOEXSmylJQBYD3dQ2wT+k8t/ryN/YX+GKqj1ADv95hMzJwP9SCn6UiZpkVSkPx46WPrwy66DpbVeyLH+ktYje/pgk5mCfLfizqnHEdiLKK1FtCGgorR7wSALElA5fxxLqLDipiqiMs1KjwVpS2JMph0pBSn3lLWLJBuPEDxxuTkan5gmxojOZ2UTXPrg1xG5KHjY2SlQWlSuR5IsOu2NRi7EBgRmebNVthI+UTcwoUy9IrWuW+xKdVwoaeQ6hRN9xhu7Os6dp1bh/QuVUh2PTlpLi5DQWG09EXVz9PLG3OvZ3QaTQ3axW80TIkod1mLMUhKn7EbIQk3SB8cLdA7R6zkaK5T6HSY0mm3LixJWhBUs9SrY+m+HFLrXleSR78D78fxGKk2kK55hjtzqfalSKelNbrsswHTwwWSlpCjbkrRbn4HFCKVJkvk8Vxx1e2xN1E+GLCzv2l5vzy41Q6oyy3HRZSmikBA2uFEjntywDok40Crte85AbBL6Q2LrWfzAeVvhhktgfrC4C5x3Cj9Tq2UKdC9ufdEZ86FspdJ0qAvfD3Q8yCdSWXI01MorTcpX7ycVpWcxqzC4ppUBJZSuyG9F9vE3tb5YgOxJkJ3jxSWntOlKWpBKkj80AC2FNmO+4SjVtUAtk6Syp2hLpiWo1SBUxb3rX0euLQotXptVb40SWy6CkGwUNvhjjLK2Znnag1TaoVNkq0tqXtqJFt/xxeuRcjqlEOoe4Kl966XCPjthhNQ6ekjMeFddo3KZeKY7C2yVJHK+NiGWSRy25bYiUTJ02LEQpFdfcVp2ChqT8b4Eh2uqzp+TaYykpSzx1S7HQW722/rXvthxW3DJGIFlweDGbS2ykOEgBOEbtBza1DCY0Rhxxxy9lhGw6Wvi2Y1HYEMJWgLXbmrfCT2gO0eFS5Lc+OhhTQK0r0i1+lsK6stswIzptobJlTxKpNWkqLy2gnmDyt12OA2Z5xzDl6RBy28H1rWA6QkO3t03BthXr7ebq/S5VSgRVsUyNrK1EWDiB4dVfAbYldl017LwLdPUzCU6UlSwm+v0vvfHninv7xvUa4AYXqKsaLWWlKhw48v29J0tuMIGsG9yRpAAA5YKfk32l/pc7++V+OHtTVLDbVWlVV6nmUdRL6y3qJ5gocuB92Pf+GP+ZKb/i2fxxfNidLmZ/nJlyZRz5ljMdAS9Ta3GmuuA3jy1padFud0q388L+d4vZ6nKsr+ZUNqqAKDKaeUa0uncXUjlvub45vp2XanCK6lLo0txekoilTXDTYe8ok7AdNzj5W87LC2abS6XRYadvavZ46Qp165Au8SCRY/O+NWqo0suwnaBjBOR9eeSfvEXtZ1IA5gx2RmWTVxSZjSDqcCC4rutgnkdXL44fsk0OFQ65KptYhxK1IToc9sStD7SQRcpTe6efPrhMn0ibmCREXJdTBCVqZUS5qCVCxJNuXPbx6Y9Xauinvt0uhvpjsMq4apSye90Khbfz2BOLsM8LAV2bTwvMaq72V1TMWZJleo3s7NGW+VyUreSwAv3lpHlhGrNPqrLi5rMmM2lLoSlhtviEJ5X5X6YN5XztIeY9gqJQWGSEl5tZbW6BtcpF7/ADGJlarBcdUGgXGrAWV3iPLff544I+eTLW2hTnERZUBdQe0PVUIV9ouxFICQb9Tv0wSgwKdT6ZIEuYqyjwkOuNqIvzBT5dfhiwHocNnKKZ8puHUSj+iSPeINtjcApI3v6YV6nFo1UjMho+zyE3LJc1ONkHmk2HPlYkdN7jFm47iX5jyHBHETHWKcqS1IFZblLaV9qKoX8ATjo/8Ak/5vpsiO1RajOaalN94a+7qTccr4ocZWeqaggVFELTcFLi0hvhgbnkLeOGWiZfo7dSRPhT36mtpnghCWiI+m1iCtRBVfxF8QMHBji2+D1Azt5mqRwG0JUgJPLfnjOG9DlVB95lxtZbUGjpIJBsCR94xxq9NrsRCGY1fqDKEnWhBqvuEeqTt8sRcq9oVWyBUX5UHMbVXTKdU6/Tysu3WqwK+IeS9h49MOJep9sS6agN1O5vaGQmwXuMUf/KrfbTR6WGZSW3HZJSpvmVgJvsP++Ywpye3+c4wiQxluQ2jTt7Q6lB1G1rgX8dvjiuc350zNWayt+pLaU8lrQlKUn+b33Og32PS5vfCequRhtU5jHnAXHvGHKtLmS0IbZhPvOujUGGUXum258tsZzsn5ijcV0UOQi7rjbbyGgFBBF+Q22O2Ll7KG6W3kqHJpjwafsBMckkB1S7DVc+tuWHFypUymx3G6pUWCtKSvhBWokeQG5xlGkHUirxtgjO7jb9Pn+0MunTxby4+k5OhP0ooSxWafKfdsUhSkhJBHPn9r1542cLLf6irf+Fb/AMuJ3ai6zW86y50WC9T4ShoYSPrC+sclFJsUhXhbbAv2VX6lqP8Aej/LiGBRiF5gRdt4UxnylX815pzpEgUaTGjNTYl3H3UG2jmQ2Olh/HFlU/su7PrCnu0Zcx8kFcjTpJVe5OEyrdnWXKBSJ2bZr1XlSIkdS40gTlB9LgSQFJ06UNgG1gAfXCb2Xo7Te0GgTC52kVKDS0XaUgqU68oDmCrY9eerfD96al1XxWhQDz6c5Hy56/xLptAw4zDvb1lPLNKzHBYotVYbmSSEOwjJTrB2CTYi1ulueESr5LDlfcp9UkAKcY+qW04lQDhtpBN+QF72wm1bLrsOtSYkiZxvZ3inWAQpdjzJO4w6ZBoD1XeVGmT1GOwQpDQR7oN+Sud8MOGdga4LT6OzWXCqj4jNOVcvUyhxXK7VdEtsLIp8Vv3niL2JHr8MAX6XmSt5gSpKUsy56iplpBAUoDayUA9LW+GLgmUWBTtMSLHFydBKlc79eV+vjhvplBo9IpDERqntvOMnjNOuqN0rNje43O9jc33wF9dWis78BTg/WbB/pu+sbmcHMV8kdmEmsZcp30tHnqffVpcQ+pTGhIuAq1u9cC+9sN+XeyHKtFW6xU5siqKSoaQEhCW7Em1+pI2OJX009FqrFQQ9LcWpvvtrfXZR3tvq90He1v3nA/tDz9VaHHgzY1Io8hbzpQ+XkubGxNwkKsfjha3z3U7tEwDZ53DOB+gH8wdv4XXphucZX9OOZLzt2N5VqVODtJaMRzQVhhpX/mCBcA3OK/dyyWKOtiu5fqsVoJ4ReZXwkjwA8B5jCx2udodQzpTnI0krahRwHkR2khsJdSDvcXJHqcJOWhWajOYgmqvqBZDgS86paAn83fl8MaQKlQff9j9phWqrElR1I9cpjUXjNtL9tZTsSlR1uJ6DffAqn1JMZ1CYcaLCULD6xv6y37W/zsMdQ9mvY3TKjSYdbrs5x4SU60MMAJASeV1He/Plgnmr+TtkupR3ZEKVUqe/pJQUOJWi9trpUD++/niEqJJEJWrlfUJQeXY5nQ5T8t53W9dthd0vBDqRq17HYAHf9oYi5VpGZ51SkNtluQWVaFrd209b+NvPfBOOiXFjU5qN7OhLE6RF0KSSFp+qFydjcne/8MWtD7LqvVaPSlQq+qnzHHVOJ4DqkNoSBYk9061HbYgbdcI01uznj/hKbSTtEQ5jvaCwiyYQdRex4bqCfnfESqyc8yGlGdFkqRwgVNx+6q3ht7x8gcHszTK7lGsSqPOmxao9GIu8Y/D1bX5JItgVR81VasOBD0WI3qVYFLij6XBBv88EcrgjMEGYcY6meRJPtikxqe4wxISSrQ8nfX4HqD64aPac+/8AsNf/AA/HCpmmEmItmbKLZmahpcjoU2rxAKte4+GCf09Xv0tP9pX44z3zWfSZDN7if//Z" alt="낑깡"/>
-    <span>마커를 카메라로 비추세요</span>
+    <span>낑깡 사진을 카메라로 비추세요</span>
   </div>
 </div>
 
 <div id="popup">
   <div class="popup-box">
     <div class="pop-label">✦ 증거물 획득 ✦</div>
-    <div class="pop-word" id="pop-word"></div>
-    <div class="pop-desc" id="pop-desc"></div>
+    <div class="pop-word">하얀손</div>
+    <div class="pop-desc">타짜의 증거물을 획득했습니다!</div>
   </div>
 </div>
 
@@ -112,69 +139,49 @@ body { overflow:hidden; font-family:sans-serif; }
 </div>
 
 <script>
-const MARKERS = {
-  hiro: { keyword:'루프', desc:'단서를 획득했습니다!', color:'#c9a84c', next: null },
-  nkk:  { keyword:'하얀손', desc:'타짜의 증거물을 획득했습니다!', color:'#f0c040', next: 'chapter2-unlocked.html' },
-};
-let found = [];
+let found = false;
 let timer = null;
 
-function onFound(key) {
-  const d = MARKERS[key];
-  if (!d) return;
-  document.getElementById('status').textContent = '✅ 인식됨! — ' + d.keyword;
-  const flash = document.getElementById('flash');
-  flash.style.borderColor = d.color;
-  flash.style.opacity = '1';
-  setTimeout(() => flash.style.opacity = '0', 300);
+document.querySelector('a-scene').addEventListener('loaded', () => {
+  document.getElementById('loading').style.display = 'none';
+});
 
-  if (!found.includes(key)) {
-    found.push(key);
+const target = document.getElementById('target-nkk');
+
+target.addEventListener('targetFound', () => {
+  document.getElementById('status').textContent = '✅ 낑깡 발견!';
+  const flash = document.getElementById('flash');
+  flash.style.opacity = '1';
+  setTimeout(() => flash.style.opacity = '0', 400);
+  document.getElementById('hint-guide').style.display = 'none';
+
+  if (!found) {
+    found = true;
     if (navigator.vibrate) navigator.vibrate([80,40,80]);
     const chips = document.getElementById('chips');
-    if (chips.querySelector('span')) chips.innerHTML = '';
+    chips.innerHTML = '';
     const chip = document.createElement('span');
     chip.className = 'chip';
-    chip.textContent = d.keyword;
-    chip.style.color = d.color;
+    chip.textContent = '하얀손';
     chips.appendChild(chip);
     try {
       const clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
-      clues.push(d.keyword);
+      clues.push('하얀손');
       localStorage.setItem('loopcat_clues', JSON.stringify(clues));
     } catch(e) {}
   }
 
-  document.getElementById('pop-word').textContent = d.keyword;
-  document.getElementById('pop-word').style.color = d.color;
-  document.getElementById('pop-desc').textContent = d.desc;
   document.getElementById('popup').style.display = 'flex';
   if (timer) clearTimeout(timer);
-  if (d.next) {
-    timer = setTimeout(() => {
-      document.getElementById('popup').style.display = 'none';
-      location.href = d.next;
-    }, 2500);
-  } else {
-    timer = setTimeout(() => document.getElementById('popup').style.display = 'none', 2500);
-  }
-}
+  timer = setTimeout(() => {
+    document.getElementById('popup').style.display = 'none';
+    location.href = 'chapter2-unlocked.html';
+  }, 2500);
+});
 
-function onLost() {
-  document.getElementById('status').textContent = '📷 마커를 찾는 중...';
-}
-
-document.querySelector('a-scene').addEventListener('loaded', () => {
-  const mHiro = document.getElementById('m-hiro');
-  if (mHiro) {
-    mHiro.addEventListener('markerFound', () => onFound('hiro'));
-    mHiro.addEventListener('markerLost', onLost);
-  }
-  const mNkk = document.getElementById('m-nkk');
-  if (mNkk) {
-    mNkk.addEventListener('markerFound', () => onFound('nkk'));
-    mNkk.addEventListener('markerLost', onLost);
-  }
+target.addEventListener('targetLost', () => {
+  document.getElementById('status').textContent = '📷 낑깡을 찾는 중...';
+  document.getElementById('hint-guide').style.display = 'flex';
 });
 </script>
 </body>
