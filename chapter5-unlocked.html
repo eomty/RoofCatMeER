@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
-<title>챕터 5 — 위험한 편지</title>
+<title>챕터 5 — 수상한 장부</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;}
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#4caf82;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
 .tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
 .document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
 .doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
-.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.unlocked-tag{display:inline-block;background:var(--green);color:#fff;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
 .doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
 .doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
 .doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
@@ -28,7 +28,6 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
 .hint-item.visible{display:block;}
 .hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
-.cipher-img{width:100%;border-radius:4px;border:1px solid rgba(0,0,0,.1);}
 .answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
 .answer-input:focus{border-color:var(--red);}
 .answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
@@ -45,50 +44,42 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
 <div class="document">
   <div class="doc-header">
-    <div class="chapter-tag">CHAPTER 05</div>
+    <div class="unlocked-tag">✓ UNLOCKED</div>
     <div class="doc-meta">
       <div>
         <div class="doc-name-label">CASE FILE</div>
-        <div class="doc-name">위험한 편지</div>
+        <div class="doc-name">수상한 장부</div>
       </div>
-      <div class="doc-no">No. 8</div>
+      <div class="doc-no">No. 9</div>
     </div>
   </div>
 
   <div class="doc-body">
     <div class="story-text">
-      <p>메일박스 안에 장부를 보관하고 있다고 했어요.</p>
-      <p>저기 메일 박스 위에 비밀번호에 대한 단서가 있는거같아요!</p>
+      <p>어디보자...이건아니고...</p>
+      <p>장부 여깄다! 안에 내용을 조사해보시죠!</p>
     </div>
 
-    <div class="quest-box">▶ 메일 박스를 열고 장부를 찾아보자</div>
+    <div class="quest-box">▶ 장부 내용 중 수상한 거래 넘버를 찾아보자</div>
 
     <div class="tear"></div>
 
-    <!-- CIPHER 먼저 -->
-    <div class="section-title">CIPHER</div>
-    <img class="cipher-img" src="data:image/png;base64,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" alt="암호 문제"/>
-
-    <div class="tear"></div>
-
-    <!-- 힌트 -->
     <div class="section-title">
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>단순한 사칙연산이 아니야</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>전자식 숫자 표기</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>103</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>거래자 중 이상한 이름이 있는거 같아</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>백설을 체포했던 사람같은데...</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>NO.3 페너</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
 
-    <!-- 정답 입력 -->
     <div class="section-title">ANSWER</div>
-    <input class="answer-input" id="answer" type="text" placeholder="비밀번호를 입력하세요..."/>
+    <input class="answer-input" id="answer" type="text" placeholder="수상한 거래 넘버를 입력하세요..."/>
     <button class="answer-btn" onclick="checkAnswer()">확인</button>
     <div id="result"></div>
-    <button class="next-btn" id="next-btn" onclick="location.href='chapter5-unlocked.html'">다음으로 →</button>
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter6.html'">다음으로 →</button>
   </div>
 </div>
 
@@ -114,9 +105,9 @@ function checkAnswer() {
   var val = document.getElementById('answer').value.trim();
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val === '103') {
+  if (val === '3' || val === 'NO.3' || val === 'no.3' || val === '페너') {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">메일박스를 열어보세요!</span>';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">수상한 거래를 발견했습니다!</span>';
     document.getElementById('next-btn').style.display = 'block';
     document.getElementById('answer').disabled = true;
     if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
