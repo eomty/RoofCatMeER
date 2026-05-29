@@ -28,16 +28,29 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
 .hint-item.visible{display:block;}
 .hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
-.intercept-btn{width:100%;padding:15px;background:#1e1e2e;color:#c9a84c;font-family:'Nanum Myeongjo',serif;font-size:15px;border:1px solid rgba(201,168,76,.3);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.06em;}
-.intercept-btn:active{background:#2a2a3e;}
-.radio-box{background:#1a1410;border-radius:8px;padding:16px;font-size:13px;line-height:2;color:#e8e0d0;position:relative;display:none;margin-top:12px;animation:fadeUp .4s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.radio-freq{position:absolute;top:10px;right:12px;font-size:10px;color:rgba(255,255,255,.3);}
-.radio-box p{margin-bottom:4px;}
-.sa{color:#c9a84c;}
-.sb{color:#84c9e0;}
-.noise{color:rgba(255,255,255,.3);font-size:11px;margin-top:8px;}
-.next-btn{width:100%;padding:15px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:4px;cursor:pointer;letter-spacing:.08em;}
+
+/* 라디오 UI */
+.radio-box{background:#111820;border-radius:12px;padding:20px;margin-bottom:4px;}
+.freq-label{font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:6px;}
+.freq-display{display:flex;align-items:baseline;gap:6px;margin-bottom:14px;}
+.freq-num{font-size:44px;font-weight:700;color:#c9a84c;font-family:'Nanum Myeongjo',serif;text-shadow:0 0 16px rgba(201,168,76,.4);min-width:100px;}
+.freq-unit{font-size:14px;color:rgba(201,168,76,.6);}
+.signal-bars{display:flex;gap:4px;align-items:flex-end;height:32px;margin-bottom:14px;}
+.bar{flex:1;border-radius:2px;background:rgba(255,255,255,.08);transition:height .1s,background .2s;}
+.slider-range{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);margin-bottom:6px;}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,rgba(201,168,76,.2),rgba(201,168,76,.6),rgba(201,168,76,.2));outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#e8c068,#c9a84c);box-shadow:0 0 10px rgba(201,168,76,.5);cursor:pointer;}
+.radio-status{text-align:center;font-size:12px;color:rgba(255,255,255,.3);margin-top:12px;min-height:36px;line-height:1.7;transition:color .3s;}
+.radio-status.clear{color:#4caf82;}
+
+/* 도청 버튼 */
+.intercept-btn{width:100%;padding:14px;background:rgba(201,168,76,.08);color:#c9a84c;font-family:'Nanum Myeongjo',serif;font-size:15px;border:1px solid rgba(201,168,76,.25);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.06em;margin-top:12px;}
+.intercept-btn:active{background:rgba(201,168,76,.15);}
+.intercept-btn.playing{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.12);}
+
+/* 다음 버튼 */
+.next-btn-locked{width:100%;padding:14px;background:rgba(0,0,0,.08);color:rgba(90,74,56,.35);font-family:'Nanum Myeongjo',serif;font-size:14px;border:1px dashed rgba(0,0,0,.15);border-radius:4px;cursor:not-allowed;}
+.next-btn{width:100%;padding:15px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:4px;cursor:pointer;letter-spacing:.08em;display:none;}
 .next-btn:active{opacity:.85;}
 .tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
 </style>
@@ -63,29 +76,40 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
       <p>한번 들어보죠!</p>
     </div>
 
-    <div class="tear"></div>
-
-    <!-- 도청하기 버튼 -->
-    <button class="intercept-btn" onclick="intercept()">📻 도청하기</button>
-
-    <!-- 라디오 박스 -->
-    <div class="radio-box" id="radio-box">
-      <div class="radio-freq">📻 95.2MHz</div>
-      <p><span class="sa">A.</span> 요즘 츄르 회수율이 영 별로야.</p>
-      <p><span class="sb">B.</span> 그러게 말이야. 스노우가 착하고 일도 빠릿빠릿했는데…아까운 인재였지.</p>
-      <p><span class="sa">A.</span> 장부를 우체통에 숨기자는 아이디어도 스노우가 낸 거였잖아.<br/>덕분에 우린 우체부 하나만 매수하면 됐으니까. 그뿐인 줄 알아?<br/>그 일 덕에 좋은 인연도 생겨서 사업까지 확장됐잖아.</p>
-      <p><span class="sb">B.</span> 흠흠, 정작 무슨 내용인지도 모르고 말이야.<br/>이 세상에 빨대를 누가 그렇게 비싸게 사나? 헛똑똑이었지.</p>
-      <p><span class="sa">A.</span> 이제는 편하게 편지만 보내면 된다 이거지~ 흐하하하</p>
-      <p><span class="sb">B.</span> …근데 오늘따라 왜 이렇게 지직거리지?....쥐새끼가 있나?<br/>아무래도 주파수를 바꾸도록 하지</p>
-      <p class="noise">— 짧은 노이즈 —</p>
-    </div>
-
-    <div class="tear"></div>
-
     <div class="quest-box">▶ 그들의 대화를 듣고 다음 행선지를 찾자</div>
 
     <div class="tear"></div>
 
+    <!-- 라디오 UI -->
+    <div class="section-title">INTERCEPT</div>
+    <div class="radio-box">
+      <div class="freq-label">FREQUENCY</div>
+      <div class="freq-display">
+        <span class="freq-num" id="freq-num">0.0</span>
+        <span class="freq-unit">MHz</span>
+      </div>
+      <div class="signal-bars" id="signal-bars">
+        <div class="bar" id="b1"></div>
+        <div class="bar" id="b2"></div>
+        <div class="bar" id="b3"></div>
+        <div class="bar" id="b4"></div>
+        <div class="bar" id="b5"></div>
+        <div class="bar" id="b6"></div>
+        <div class="bar" id="b7"></div>
+        <div class="bar" id="b8"></div>
+      </div>
+      <div class="slider-range"><span>0.0</span><span>200.0</span></div>
+      <input type="range" id="freq-slider" min="0" max="2000" value="0" step="1"/>
+      <div class="radio-status" id="radio-status">지직— 지직—<br/>주파수를 조정하세요</div>
+      <button class="intercept-btn" id="intercept-btn" onclick="togglePlay()">
+        <span id="play-icon">📻</span>
+        <span id="play-text">도청 시작</span>
+      </button>
+    </div>
+
+    <div class="tear"></div>
+
+    <!-- 힌트 -->
     <div class="section-title">
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
@@ -97,7 +121,8 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
     <div class="tear"></div>
 
-    <button class="next-btn" onclick="location.href='chapter5.html'">다음으로 →</button>
+    <div class="next-btn-locked" id="next-locked">🔒 다음으로</div>
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter5.html'">다음으로 →</button>
   </div>
 </div>
 
@@ -105,16 +130,153 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script>
-var intercepted = false;
-function intercept() {
-  if (intercepted) return;
-  intercepted = true;
-  var box = document.getElementById('radio-box');
-  box.style.display = 'block';
-  if (navigator.vibrate) navigator.vibrate([50,30,50,30,50]);
+var TARGET = 952; // 95.2 MHz
+var isPlaying = false;
+var audioCtx = null;
+var audioSource = null;
+var noiseSource = null;
+var noiseGain = null;
+var audioGain = null;
+var audioBuffer = null;
+var audioLoaded = false;
+var audioEnded = false;
+var hintCount = 0;
+
+// 오디오 미리 로드
+function loadAudio() {
+  var ctx = new (window.AudioContext || window.webkitAudioContext)();
+  fetch('audio.mp3')
+    .then(function(r) { return r.arrayBuffer(); })
+    .then(function(buf) { return ctx.decodeAudioData(buf); })
+    .then(function(decoded) {
+      audioBuffer = decoded;
+      audioLoaded = true;
+      ctx.close();
+    })
+    .catch(function(e) { console.log('오디오 로드 실패:', e); });
+}
+loadAudio();
+
+// 슬라이더
+var slider = document.getElementById('freq-slider');
+slider.addEventListener('input', function() {
+  var val = parseInt(this.value);
+  var freq = (val / 10).toFixed(1);
+  document.getElementById('freq-num').textContent = freq;
+  updateSignal(val);
+  if (isPlaying) updateAudioEffect(val);
+});
+
+function getStrength(val) {
+  var diff = Math.abs(val - TARGET);
+  if (diff === 0) return 1.0;
+  if (diff <= 3) return 0.95;
+  if (diff <= 10) return 0.8;
+  if (diff <= 30) return 0.5;
+  if (diff <= 80) return 0.25;
+  return 0.05;
 }
 
-var hintCount = 0;
+function updateSignal(val) {
+  var s = getStrength(val);
+  var heights = [8,14,20,28,28,20,14,8];
+  for (var i = 1; i <= 8; i++) {
+    var bar = document.getElementById('b' + i);
+    var h = Math.max(4, heights[i-1] * s);
+    bar.style.height = h + 'px';
+    if (s > 0.8) bar.style.background = '#4caf82';
+    else if (s > 0.4) bar.style.background = '#c9a84c';
+    else bar.style.background = 'rgba(255,255,255,.1)';
+  }
+  var status = document.getElementById('radio-status');
+  if (s > 0.85) {
+    status.className = 'radio-status clear';
+    status.textContent = '📻 95.2 MHz — 신호 선명';
+  } else if (s > 0.4) {
+    status.className = 'radio-status';
+    status.style.color = '#c9a84c';
+    status.innerHTML = '지직— 신호 잡히는 중...<br/>조금 더 조정해보세요';
+  } else {
+    status.className = 'radio-status';
+    status.style.color = 'rgba(255,255,255,.3)';
+    status.innerHTML = '지직— 지직—<br/>주파수를 조정하세요';
+  }
+}
+
+function togglePlay() {
+  if (!isPlaying) startPlay();
+  else stopPlay();
+}
+
+function startPlay() {
+  if (!audioBuffer && !audioLoaded) {
+    alert('오디오 로드 중입니다. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // 음성 재생
+  audioSource = audioCtx.createBufferSource();
+  audioSource.buffer = audioBuffer;
+  audioGain = audioCtx.createGain();
+  audioGain.gain.value = 0.1;
+  audioSource.connect(audioGain);
+  audioGain.connect(audioCtx.destination);
+  audioSource.start(0);
+  audioSource.onended = function() {
+    audioEnded = true;
+    document.getElementById('next-locked').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'block';
+    stopPlay();
+  };
+
+  // 노이즈 생성
+  var bufSize = audioCtx.sampleRate * 3;
+  var noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  var d = noiseBuf.getChannelData(0);
+  for (var i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+  noiseSource = audioCtx.createBufferSource();
+  noiseSource.buffer = noiseBuf;
+  noiseSource.loop = true;
+  var noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.value = 800;
+  noiseGain = audioCtx.createGain();
+  noiseGain.gain.value = 0.8;
+  noiseSource.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noiseSource.start(0);
+
+  isPlaying = true;
+  document.getElementById('intercept-btn').classList.add('playing');
+  document.getElementById('play-icon').textContent = '⏹';
+  document.getElementById('play-text').textContent = '도청 중...';
+
+  updateAudioEffect(parseInt(slider.value));
+}
+
+function stopPlay() {
+  if (audioCtx) {
+    try { audioSource && audioSource.stop(); } catch(e){}
+    try { noiseSource && noiseSource.stop(); } catch(e){}
+    audioCtx.close();
+    audioCtx = null;
+  }
+  isPlaying = false;
+  document.getElementById('intercept-btn').classList.remove('playing');
+  document.getElementById('play-icon').textContent = '📻';
+  document.getElementById('play-text').textContent = '도청 시작';
+}
+
+function updateAudioEffect(val) {
+  if (!audioCtx || !audioGain || !noiseGain) return;
+  var s = getStrength(val);
+  // 신호 강할수록 음성 크고 노이즈 작음
+  audioGain.gain.setTargetAtTime(s * 1.2, audioCtx.currentTime, 0.2);
+  noiseGain.gain.setTargetAtTime((1 - s) * 0.9, audioCtx.currentTime, 0.2);
+}
+
 function showHint() {
   if (hintCount >= 3) return;
   hintCount++;
@@ -127,6 +289,8 @@ function showHint() {
     document.getElementById('hint-counter').textContent = '0회 남음';
   }
 }
+
+updateSignal(0);
 </script>
 </body>
 </html>
