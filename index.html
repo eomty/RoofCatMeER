@@ -410,55 +410,58 @@ a-scene{position:fixed!important;inset:0;width:100%!important;height:100%!import
 </nav>
 
 <!-- ══════════ 홈 화면 ══════════ -->
-<div id="screen-home" class="screen active">
-  <div class="hero-cat">🐱</div>
-  <div class="hero-title">루프캣 미스터리</div>
-  <div class="hero-sub">Secret of Loopcat</div>
-  <p class="hero-desc">이 마을엔 오래된 비밀이 있다.<br/>단서를 모아 진실에 다가가라.</p>
-  <button class="action-btn primary" style="width:100%;max-width:340px;margin-bottom:16px;padding:18px 20px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:17px;font-family:var(--serif);color:var(--gold);border:1px solid rgba(201,168,76,.5);background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));letter-spacing:.06em;" onclick="location.href='synopsis.html'">
-    🔍 방탈출 시작하기
-  </button>
-  <div class="main-actions">
-    <button class="action-btn primary" onclick="location.href='ar.html'">
-      <div class="btn-icon gold">📷</div>
-      <div class="btn-text">
-        <div class="btn-title">AR 단서 탐색</div>
-        <div class="btn-desc">카메라로 숨겨진 키워드를 찾아라</div>
-      </div>
-      <div class="btn-arrow">›</div>
-    </button>
-    <button class="action-btn" onclick="showScreen('chat', document.querySelector('.nav-btn:nth-child(5)'))">
-      <div class="btn-icon pink">💬</div>
-      <div class="btn-text">
-        <div class="btn-title">??? 와 대화</div>
-        <div class="btn-desc">의문의 인물이 메시지를 보냈다</div>
-      </div>
-      <div class="btn-arrow">›</div>
-    </button>
-    <button class="action-btn" onclick="showScreen('progress', document.querySelector('.nav-btn:nth-child(3)'))">
-      <div class="btn-icon blue">📊</div>
-      <div class="btn-text">
-        <div class="btn-title">진행도 확인</div>
-        <div class="btn-desc">신뢰도 · 해금 현황</div>
-      </div>
-      <div class="btn-arrow">›</div>
-    </button>
-    <button class="action-btn" onclick="showScreen('hint', document.querySelector('.nav-btn:nth-child(4)'))">
-      <div class="btn-icon green">💡</div>
-      <div class="btn-text">
-        <div class="btn-title">힌트</div>
-        <div class="btn-desc">최대 3개 · 특정 행동으로 해금</div>
-      </div>
-      <div class="btn-arrow">›</div>
-    </button>
-  </div>
-  <div class="progress-mini">
-    <div class="prog-row">
-      <span class="prog-label">전체 진행도</span>
-      <span class="prog-val" id="home-prog-val">0%</span>
+<div id="screen-home" class="screen active" style="background:var(--bg);min-height:100vh;display:flex;flex-direction:column;padding:0;">
+
+  <!-- 상단 경찰 테이프 -->
+  <div class="tape" style="position:relative;top:auto;font-size:10px;letter-spacing:.25em;">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+  <!-- 메인 -->
+  <div style="flex:1;padding:28px 20px 24px;display:flex;flex-direction:column;align-items:center;">
+
+    <!-- 로고 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:11px;letter-spacing:.3em;color:rgba(201,168,76,.5);text-transform:uppercase;margin-bottom:4px;">CASE FILE NO.1</div>
+      <div style="font-size:24px;font-weight:700;color:var(--gold);font-family:var(--serif);letter-spacing:.05em;">빨대파 : 캣닢의 그림자</div>
     </div>
-    <div class="prog-bar"><div class="prog-fill" id="home-prog-fill" style="width:0%"></div></div>
+
+    <!-- 사건 파일 카드 -->
+    <div style="background:#f0e8d8;border-radius:4px;padding:20px;width:100%;max-width:400px;position:relative;box-shadow:3px 3px 0 rgba(201,168,76,.2);">
+      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.05) 27px,rgba(0,0,0,.05) 28px);border-radius:4px;pointer-events:none;"></div>
+      <div style="position:absolute;top:-8px;right:20px;width:14px;height:14px;background:radial-gradient(circle at 40% 35%,#ff6b6b,#c0392b);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.4);"></div>
+
+      <div style="position:relative;">
+        <div style="font-size:11px;letter-spacing:.15em;color:#8b1a1a;text-transform:uppercase;margin-bottom:10px;font-weight:700;">시놉시스</div>
+
+        <p style="font-size:13px;line-height:2;color:#1a1410;margin-bottom:12px;">최근 루프캣미 빌리지에는 타묘의 빨대를 훔쳐 세력을 키운 범죄 조직, 일명 <strong>'빨대파'</strong>가 기승이었다.</p>
+
+        <p style="font-size:13px;line-height:2;color:#1a1410;margin-bottom:12px;">사건은 그렇게 끝난 듯 보였다. 하지만... 며칠 뒤 루프캣미 빌리지 지붕에서 정체불명의 초록 가루가 발견되기 시작한다.</p>
+
+        <div style="background:#f9e4b7;border:1px solid #d4b870;padding:10px 12px;transform:rotate(1.5deg);margin:12px 0;font-family:var(--serif);font-size:13px;color:#8b1a1a;line-height:1.8;">
+          눈은 가장 높은 곳에 쌓이기 마련<br/>
+          <span style="font-size:11px;opacity:.7;">— P</span>
+        </div>
+
+        <p style="font-size:13px;line-height:2;color:#1a1410;margin-top:12px;">이제 루프캣미의 평화를 지킬 수 있는 건 오직 당신뿐.</p>
+
+        <div style="border-top:1px dashed rgba(0,0,0,.15);margin:16px 0;"></div>
+
+        <p style="font-size:12px;line-height:1.8;color:#5a4a38;font-style:italic;">탐정님, 루프캣미 빌리지에 잠입하여 아무도 모르게 숨겨진 단서를 모아 진짜 범인을 찾아주세요!</p>
+      </div>
+    </div>
+
+    <!-- 시작 버튼 -->
+    <div style="width:100%;max-width:400px;margin-top:24px;display:flex;flex-direction:column;gap:10px;">
+      <button onclick="location.href='chapter1.html'" style="width:100%;padding:16px;background:transparent;color:var(--gold);font-family:var(--serif);font-size:16px;font-weight:700;border:1px solid rgba(201,168,76,.4);border-radius:40px;letter-spacing:.1em;cursor:pointer;">
+        ▶ 수사 시작하기
+      </button>
+
+    </div>
+
   </div>
+
+  <!-- 하단 경찰 테이프 -->
+  <div style="background:#f5c518;padding:5px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:.25em;color:#1a1410;">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
 </div>
 
 <!-- ══════════ AR 화면 ══════════ -->
