@@ -161,6 +161,11 @@ loadAudio();
 var slider = document.getElementById('freq-slider');
 slider.addEventListener('input', function() {
   var val = parseInt(this.value);
+  // 95.0~95.4 구간 스냅
+  if (val >= 950 && val <= 954) {
+    val = 952;
+    this.value = 952;
+  }
   var freq = (val / 10).toFixed(1);
   document.getElementById('freq-num').textContent = freq;
   updateSignal(val);
@@ -230,21 +235,35 @@ function startPlay() {
     stopPlay();
   };
 
-  // 노이즈 생성
-  var bufSize = audioCtx.sampleRate * 3;
+  // 노이즈 생성 - FM 지직 느낌
+  var bufSize = audioCtx.sampleRate * 2;
   var noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
   var d = noiseBuf.getChannelData(0);
-  for (var i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+  // 랜덤 스파이크로 지직 느낌
+  for (var i = 0; i < bufSize; i++) {
+    var r = Math.random();
+    if (r > 0.97) d[i] = (Math.random() * 2 - 1) * 3; // 강한 스파이크
+    else d[i] = (Math.random() * 2 - 1) * 0.3;
+  }
   noiseSource = audioCtx.createBufferSource();
   noiseSource.buffer = noiseBuf;
   noiseSource.loop = true;
-  var noiseFilter = audioCtx.createBiquadFilter();
-  noiseFilter.type = 'bandpass';
-  noiseFilter.frequency.value = 800;
+
+  // 고주파 필터로 지직 느낌 강조
+  var noiseFilter1 = audioCtx.createBiquadFilter();
+  noiseFilter1.type = 'highpass';
+  noiseFilter1.frequency.value = 2000;
+
+  var noiseFilter2 = audioCtx.createBiquadFilter();
+  noiseFilter2.type = 'peaking';
+  noiseFilter2.frequency.value = 4000;
+  noiseFilter2.gain.value = 10;
+
   noiseGain = audioCtx.createGain();
   noiseGain.gain.value = 0.8;
-  noiseSource.connect(noiseFilter);
-  noiseFilter.connect(noiseGain);
+  noiseSource.connect(noiseFilter1);
+  noiseFilter1.connect(noiseFilter2);
+  noiseFilter2.connect(noiseGain);
   noiseGain.connect(audioCtx.destination);
   noiseSource.start(0);
 
