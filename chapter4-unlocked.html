@@ -165,9 +165,11 @@ slider.addEventListener('input', function() {
   if (val >= 950 && val <= 954) {
     val = 952;
     this.value = 952;
+    document.getElementById('freq-num').textContent = '95.2';
+  } else {
+    var freq = (val / 10).toFixed(1);
+    document.getElementById('freq-num').textContent = freq;
   }
-  var freq = (val / 10).toFixed(1);
-  document.getElementById('freq-num').textContent = freq;
   updateSignal(val);
   if (isPlaying) updateAudioEffect(val);
 });
@@ -175,11 +177,11 @@ slider.addEventListener('input', function() {
 function getStrength(val) {
   var diff = Math.abs(val - TARGET);
   if (diff === 0) return 1.0;
-  if (diff <= 3) return 0.95;
-  if (diff <= 10) return 0.8;
-  if (diff <= 30) return 0.5;
-  if (diff <= 80) return 0.25;
-  return 0.05;
+  if (diff <= 2) return 0.95;
+  if (diff <= 5) return 0.7;
+  if (diff <= 10) return 0.35;
+  if (diff <= 20) return 0.1;
+  return 0.02;
 }
 
 function updateSignal(val) {
