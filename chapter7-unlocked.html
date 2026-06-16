@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>페너의 폰</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;font-family:'Noto Sans KR',sans-serif;min-height:100vh;max-width:420px;margin:0 auto;display:flex;flex-direction:column;position:relative;overflow:hidden;height:100vh;}
+
+/* 폰 화면 (상단 고정) */
+#phone{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+
+/* 상태바 */
+.status-bar{background:#000;padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;z-index:10;}
+.status-time{color:#fff;font-size:15px;font-weight:500;}
+.status-icons{display:flex;gap:6px;align-items:center;color:#fff;font-size:11px;}
+
+/* 홈화면 */
+#home-screen{flex:1;display:flex;flex-direction:column;padding:20px 24px 0;background:#000;}
+.phone-label{color:rgba(255,255,255,.25);font-size:10px;letter-spacing:.15em;text-align:center;margin-bottom:4px;}
+.phone-title{color:rgba(255,255,255,.12);font-size:9px;text-align:center;margin-bottom:32px;}
+.app-grid{display:flex;gap:32px;justify-content:center;}
+.app-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.app-icon{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;}
+.app-icon.looptalk{background:linear-gradient(135deg,#6b21a8,#a855f7);}
+.app-icon.message{background:linear-gradient(135deg,#1d4ed8,#3b82f6);}
+.app-name{color:#fff;font-size:11px;}
+
+/* 루프톡 화면 */
+#looptalk-screen{display:none;flex:1;flex-direction:column;background:#e8e4f0;}
+.lt-header{background:#6b21a8;padding:12px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.lt-avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.lt-name{color:#fff;font-size:14px;font-weight:500;}
+.lt-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;}
+.lt-date{text-align:center;font-size:10px;color:#888;margin:4px 0;}
+.lt-bubble{max-width:72%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;}
+.lt-them{background:#fff;color:#111;border-radius:3px 14px 14px 14px;align-self:flex-start;}
+.lt-me{background:#6b21a8;color:#fff;border-radius:14px 3px 14px 14px;align-self:flex-end;}
+.lt-old{opacity:.35;}
+
+/* 메시지 화면 */
+#message-screen{display:none;flex:1;flex-direction:column;background:#f5f5f5;}
+.msg-header{background:#1d4ed8;padding:12px 14px;flex-shrink:0;}
+.msg-header-title{color:#fff;font-size:14px;font-weight:500;}
+.msg-list{flex:1;overflow-y:auto;}
+.msg-item{padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06);font-size:12px;color:#333;line-height:1.8;white-space:pre-line;}
+.msg-item .sender{font-size:10px;color:#888;margin-bottom:2px;}
+.msg-item.tappable{cursor:pointer;transition:background .15s;}
+.msg-item.tappable:active{background:#ede8f5;}
+
+/* 하단 해커 말풍선 오버레이 */
+#hacker-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top, rgba(0,0,0,.98) 60%, transparent);
+  padding:16px 14px 28px;
+  z-index:50;
+  display:flex;flex-direction:column;gap:8px;
+}
+.hacker-bubble{
+  background:#1e1e2e;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px 14px 14px 14px;
+  padding:10px 14px;
+  font-size:13px;color:#e8e0d0;line-height:1.7;
+  display:none;
+  max-width:90%;
+}
+.hacker-bubble.show{display:block;}
+.me-bubble{
+  background:rgba(107,33,168,.35);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:14px 4px 14px 14px;
+  padding:10px 14px;
+  font-size:13px;color:#e8e0d0;line-height:1.7;
+  display:none;
+  max-width:90%;
+  align-self:flex-end;
+}
+.me-bubble.show{display:block;}
+.choices-wrap{display:flex;flex-direction:column;gap:6px;display:none;}
+.choices-wrap.show{display:flex;}
+.choice-btn{
+  padding:10px 16px;
+  background:rgba(107,33,168,.15);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:20px;
+  color:#a855f7;font-size:13px;
+  font-family:'Noto Sans KR',sans-serif;
+  text-align:left;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.choice-btn:active{background:rgba(107,33,168,.3);}
+
+.next-btn{
+  width:100%;padding:13px;
+  background:#8b1a1a;color:#f0e8d8;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:14px;border:none;border-radius:8px;
+  cursor:pointer;display:none;
+  letter-spacing:.04em;
+}
+.next-btn.show{display:block;}
+
+/* 타이핑 인디케이터 */
+.typing-ind{
+  background:#1e1e2e;border:1px solid rgba(255,255,255,.1);
+  border-radius:4px 14px 14px 14px;
+  padding:10px 14px;font-size:18px;color:rgba(255,255,255,.4);
+  display:none;width:60px;
+}
+.typing-ind.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="phone">
+  <div class="status-bar">
+    <span class="status-time" id="status-time">12:00</span>
+    <div class="status-icons"><span>WiFi</span><span>●●●</span><span>🔋</span></div>
+  </div>
+
+  <!-- 홈화면 -->
+  <div id="home-screen">
+    <div class="phone-label">HACKED DEVICE</div>
+    <div class="phone-title">페너 경감의 휴대폰</div>
+    <div class="app-grid">
+      <div class="app-item" id="lt-icon">
+        <div class="app-icon looptalk">💬</div>
+        <div class="app-name">루프톡</div>
+      </div>
+      <div class="app-item" id="msg-icon">
+        <div class="app-icon message">✉️</div>
+        <div class="app-name">메시지</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 루프톡 화면 -->
+  <div id="looptalk-screen">
+    <div class="lt-header">
+      <div class="lt-avatar">🐱</div>
+      <div class="lt-name">아인</div>
+    </div>
+    <div class="lt-messages">
+      <div class="lt-date lt-old">4월 22일</div>
+      <div class="lt-bubble lt-them lt-old">잘 지내고 있지?</div>
+      <div class="lt-bubble lt-me lt-old">네, 잘 지내고 있습니다.</div>
+      <div class="lt-date lt-old">5월 3일</div>
+      <div class="lt-bubble lt-them lt-old">준비는 됐어?</div>
+      <div class="lt-bubble lt-me lt-old">언제든지 가능합니다.</div>
+      <div class="lt-date">5월 9일</div>
+      <div class="lt-bubble lt-them">Plan A</div>
+      <div class="lt-bubble lt-me">금방 보내겠습니다.</div>
+    </div>
+  </div>
+
+  <!-- 메시지 화면 -->
+  <div id="message-screen">
+    <div class="msg-header"><div class="msg-header-title">최근 문자</div></div>
+    <div class="msg-list">
+      <div class="msg-item"><div class="sender">절미</div>05/09 22:14&#10;경감님 내일 회의 자료 준비됐습니다.&#10;확인 부탁드립니다.</div>
+      <div class="msg-item"><div class="sender">[Web발신] KB국민카드</div>05/09 18:32&#10;[KB국민카드 승인]&#10;카드번호: 9424-****&#10;경찰청내부자판기&#10;1,200원&#10;누적 969,200원</div>
+      <div class="msg-item"><div class="sender">S.W</div>05/09 21:03&#10;준비됐어. 늦지마.</div>
+      <div class="msg-item tappable" id="key-msg"><div class="sender">[Web발신] KB국민카드</div>[KB국민카드 승인]&#10;카드번호: 9424-****&#10;05/09 23:41&#10;경찰청내부자판기&#10;1,200원&#10;누적 970,400원</div>
+      <div class="msg-item"><div class="sender">절미</div>05/10 09:22&#10;경감님 어제 당직 고생하셨습니다!&#10;커피 한잔 갖다드릴까요?</div>
+      <div class="msg-item"><div class="sender">[Web발신] KB국민카드</div>05/10 12:15&#10;[KB국민카드 승인]&#10;카드번호: 9424-****&#10;경찰청구내식당&#10;6,500원&#10;누적 976,900원</div>
+    </div>
+  </div>
+
+  <!-- 해커 오버레이 -->
+  <div id="hacker-overlay">
+    <div class="typing-ind" id="typing">···</div>
+    <div class="hacker-bubble" id="hacker-msg"></div>
+    <div class="me-bubble" id="me-msg"></div>
+    <div class="choices-wrap" id="choices"></div>
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter8.html'">수사 마무리하러 가기 →</button>
+  </div>
+</div>
+
+<script>
+// 시계
+function updateTime(){
+  var d=new Date();
+  document.getElementById('status-time').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+setInterval(updateTime,1000);updateTime();
+
+var typing=document.getElementById('typing');
+var hackerMsg=document.getElementById('hacker-msg');
+var meMsg=document.getElementById('me-msg');
+var choicesWrap=document.getElementById('choices');
+
+function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+function showTyping(){typing.classList.add('show');}
+function hideTyping(){typing.classList.remove('show');}
+
+function showHacker(text){
+  return new Promise(async function(resolve){
+    showTyping();
+    hackerMsg.classList.remove('show');
+    await wait(1200);
+    hideTyping();
+    hackerMsg.textContent=text;
+    hackerMsg.classList.add('show');
+    resolve();
+  });
+}
+
+function showMe(text, duration){
+  meMsg.textContent=text;
+  meMsg.classList.add('show');
+  return wait(duration||2000);
+}
+
+function clearMe(){meMsg.classList.remove('show');}
+
+function showChoices(options){
+  return new Promise(function(resolve){
+    choicesWrap.innerHTML='';
+    options.forEach(function(opt){
+      var btn=document.createElement('button');
+      btn.className='choice-btn';
+      btn.textContent='💬 '+opt;
+      btn.onclick=function(){
+        choicesWrap.classList.remove('show');
+        resolve(opt);
+      };
+      choicesWrap.appendChild(btn);
+    });
+    choicesWrap.classList.add('show');
+  });
+}
+
+function showScreen(name){
+  document.getElementById('home-screen').style.display='none';
+  document.getElementById('looptalk-screen').style.display='none';
+  document.getElementById('message-screen').style.display='none';
+  if(name==='home'){
+    document.getElementById('home-screen').style.display='flex';
+  } else if(name==='looptalk'){
+    document.getElementById('looptalk-screen').style.display='flex';
+  } else if(name==='message'){
+    document.getElementById('message-screen').style.display='flex';
+  }
+}
+
+async function run(){
+  // 1. 해커 첫 메시지
+  await wait(800);
+  await showHacker('너 화면에서 볼 수 있게 해줄게.\n뭐가 보고 싶어?');
+  await showChoices(['루프톡 보여줘']);
+  await showMe('루프톡 보여줘');
+  clearMe();
+
+  // 2. 루프톡 열기
+  await showHacker('알겠어.');
+  await wait(600);
+  showScreen('looptalk');
+
+  // 3. 수상하다 코멘트
+  await wait(800);
+  await showHacker('흠... 5월 9일 내용이 수상한걸?');
+  await showChoices(['Plan A가 뭘까?']);
+  await showMe('Plan A가 뭘까?');
+  clearMe();
+
+  // 4. 메시지 제안
+  await showHacker('여기서 더 알 수 있는 건 없군.\n메시지 내역을 한번 볼까?');
+  await showChoices(['부탁해']);
+  await showMe('부탁해');
+  clearMe();
+
+  // 5. 홈 → 메시지
+  await showHacker('알겠어.');
+  await wait(500);
+  showScreen('home');
+  await wait(700);
+  showScreen('message');
+
+  // 6. 카드내역 코멘트
+  await wait(800);
+  await showHacker('카드 사용내역이잖아.\n중요한 걸 알아낼 수 있겠어.\n보고 싶은 부분 탭해봐.');
+
+  // 7. 5/9 탭 활성화
+  document.getElementById('key-msg').onclick=async function(){
+    document.getElementById('key-msg').style.background='#ede8f5';
+    document.getElementById('key-msg').onclick=null;
+
+    await showMe('이 부분이 수상해!\n페너는 5월 9일 당직이 맞아.\n딜리셔스 호텔에서 찍혔던 건 다른 고양이가 분명해!', 3000);
+    clearMe();
+
+    await showHacker('원하는 자료는 얻은 것 같네.\n요금은 하얀손 앞으로 청구하지.\n고생했어.');
+    await showChoices(['도와줘서 고마워']);
+    await showMe('도와줘서 고마워');
+    clearMe();
+
+    await showHacker('···');
+    await wait(1000);
+    hackerMsg.classList.remove('show');
+    document.getElementById('next-btn').classList.add('show');
+    if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  };
+}
+
+run();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 7 — 전화</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#22c55e;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;}
+.story-text{font-size:13.5px;line-height:2;color:var(--ink);margin-bottom:14px;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+.call-btn{width:100%;padding:16px;background:var(--green);color:#fff;font-family:'Nanum Myeongjo',serif;font-size:16px;font-weight:700;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.06em;}
+.call-btn:active{opacity:.85;}
+.tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
+
+/* 다이얼 */
+#dial-screen{display:none;position:fixed;inset:0;z-index:200;background:#111;flex-direction:column;align-items:center;justify-content:space-between;padding:50px 20px 60px;}
+.dial-number{font-size:36px;color:#fff;letter-spacing:.15em;font-weight:300;min-height:50px;text-align:center;margin-bottom:4px;}
+.dial-status{font-size:12px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:20px;}
+.dial-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:280px;}
+.dial-key{aspect-ratio:1;border-radius:50%;background:#1e1e1e;border:1px solid rgba(255,255,255,.1);color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.dial-key:active{background:#333;}
+.dial-key.empty{background:transparent;border:none;cursor:default;}
+.dial-actions{display:flex;align-items:center;justify-content:center;gap:50px;width:100%;max-width:280px;}
+.dial-del{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;}
+.dial-call{width:70px;height:70px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,.4);}
+.dial-close{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;}
+
+/* 통화 화면 */
+#call-screen{display:none;position:fixed;inset:0;z-index:201;background:#0a0a12;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:16px;}
+.call-avatar{width:80px;height:80px;border-radius:50%;background:#1a1a2e;border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:36px;}
+.call-name{font-size:18px;color:#fff;font-weight:500;}
+.call-sub{font-size:13px;color:rgba(255,255,255,.4);}
+.call-msg{background:#1e1e2e;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 20px;font-size:14px;color:#e8e0d0;line-height:1.9;text-align:center;max-width:320px;width:100%;display:none;white-space:pre-line;}
+.call-input-wrap{width:100%;max-width:320px;display:none;flex-direction:column;gap:10px;}
+.call-input-label{font-size:13px;color:rgba(255,255,255,.5);text-align:center;}
+.call-input{width:100%;padding:12px 16px;background:#1e1e2e;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:15px;color:#fff;font-family:'Noto Sans KR',sans-serif;outline:none;text-align:center;}
+.call-input::placeholder{color:rgba(255,255,255,.25);}
+.call-confirm{width:100%;padding:13px;background:var(--green);color:#fff;font-size:15px;border:none;border-radius:8px;cursor:pointer;font-family:'Nanum Myeongjo',serif;letter-spacing:.06em;}
+
+/* 선택지 버튼 */
+.call-choices{width:100%;max-width:320px;display:none;flex-direction:column;gap:10px;}
+.call-choice{width:100%;padding:13px 16px;background:#1e1e2e;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;color:#e8e0d0;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-align:left;line-height:1.5;}
+.call-choice:active{background:#2a2a3e;}
+
+.call-final{font-size:13px;color:#e8e0d0;line-height:2;text-align:center;max-width:320px;display:none;}
+.next-btn{padding:14px 32px;background:var(--red);color:#f0e8d8;font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:4px;cursor:pointer;display:none;letter-spacing:.08em;}
+.end-call{width:64px;height:64px;border-radius:50%;background:#ef4444;border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 0 20px rgba(239,68,68,.4);}
+</style>
+</head>
+<body>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="doc-header">
+    <div class="chapter-tag">CHAPTER 07</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">완벽한 알리바이</div>
+      </div>
+      <div class="doc-no">No. 12</div>
+    </div>
+  </div>
+  <div class="doc-body">
+    <div class="story-text">
+      <p>이전에 받아뒀던 그 번호... 한번 눌러볼까.</p>
+    </div>
+    <div class="tear"></div>
+    <button class="call-btn" onclick="openDial()">📞 전화 걸기</button>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<!-- 다이얼 -->
+<div id="dial-screen">
+  <div style="width:100%;max-width:320px;text-align:center;">
+    <div class="dial-number" id="dial-number">　</div>
+    <div class="dial-status">번호를 입력하고 통화 버튼을 누르세요</div>
+  </div>
+  <div class="dial-pad">
+    <button class="dial-key" onclick="pressKey('1')">1</button>
+    <button class="dial-key" onclick="pressKey('2')">2</button>
+    <button class="dial-key" onclick="pressKey('3')">3</button>
+    <button class="dial-key" onclick="pressKey('4')">4</button>
+    <button class="dial-key" onclick="pressKey('5')">5</button>
+    <button class="dial-key" onclick="pressKey('6')">6</button>
+    <button class="dial-key" onclick="pressKey('7')">7</button>
+    <button class="dial-key" onclick="pressKey('8')">8</button>
+    <button class="dial-key" onclick="pressKey('9')">9</button>
+    <button class="dial-key empty"></button>
+    <button class="dial-key" onclick="pressKey('0')">0</button>
+    <button class="dial-key empty"></button>
+  </div>
+  <div class="dial-actions">
+    <button class="dial-del" onclick="delKey()">⌫</button>
+    <button class="dial-call" onclick="makeCall()">📞</button>
+    <button class="dial-close" onclick="closeDial()">✕</button>
+  </div>
+</div>
+
+<!-- 통화 화면 -->
+<div id="call-screen">
+  <div class="call-avatar" id="call-avatar">🏪</div>
+  <div class="call-name" id="call-name">연결 중...</div>
+  <div class="call-sub" id="call-sub"></div>
+  <div class="call-msg" id="call-msg"></div>
+  <div class="call-input-wrap" id="call-input-wrap">
+    <div class="call-input-label">코드를 입력하세요</div>
+    <input class="call-input" id="code-input" placeholder="코드를 입력하세요..."/>
+    <button class="call-confirm" onclick="confirmCode()">확인</button>
+  </div>
+  <div class="call-choices" id="call-choices"></div>
+  <div class="call-final" id="call-final"></div>
+  <button class="next-btn" id="next-btn" onclick="location.href='chapter7-unlocked.html'">페너의 폰 확인하기 →</button>
+  <button class="end-call" id="end-call-btn" onclick="endCall()">📵</button>
+</div>
+
+<script>
+var TARGET = '0195971778';
+var dialNum = '';
+var wrongCount = 0;
+var codeVerified = false;
+
+// 다른말 할때 해커 반응 (카페 직원 모드)
+var CAFE_RESPONSES = [
+  '감사합니다, 예약하시는 걸까요?',
+  '손님~ 매장이 바빠서 관련 질문 없으시면 끊겠습니다, 필요하신 거 있으면 말씀 부탁드립니다!',
+  '전화주셔서 감사합니다!'
+];
+
+function openDial() {
+  dialNum = '';
+  updateDial();
+  document.getElementById('dial-screen').style.display = 'flex';
+}
+function closeDial() {
+  document.getElementById('dial-screen').style.display = 'none';
+}
+function pressKey(k) {
+  if (dialNum.length >= 11) return;
+  dialNum += k;
+  if (navigator.vibrate) navigator.vibrate(30);
+  updateDial();
+}
+function delKey() {
+  dialNum = dialNum.slice(0,-1);
+  updateDial();
+}
+function updateDial() {
+  var n = dialNum;
+  var display = '';
+  if (n.length <= 3) display = n;
+  else if (n.length <= 7) display = n.slice(0,3) + '-' + n.slice(3);
+  else display = n.slice(0,3) + '-' + n.slice(3,7) + '-' + n.slice(7);
+  document.getElementById('dial-number').textContent = display || '　';
+}
+function makeCall() {
+  if (!dialNum) return;
+  closeDial();
+  resetCallScreen();
+  document.getElementById('call-screen').style.display = 'flex';
+  if (dialNum === TARGET) startHackerCall();
+  else startWrongCall();
+}
+
+function resetCallScreen() {
+  wrongCount = 0;
+  document.getElementById('call-name').textContent = '연결 중...';
+  document.getElementById('call-sub').textContent = '';
+  document.getElementById('call-msg').style.display = 'none';
+  document.getElementById('call-msg').textContent = '';
+  document.getElementById('call-input-wrap').style.display = 'none';
+  document.getElementById('call-choices').style.display = 'none';
+  document.getElementById('call-choices').innerHTML = '';
+  document.getElementById('call-final').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('end-call-btn').style.display = 'block';
+  document.getElementById('code-input').value = '';
+}
+
+function startWrongCall() {
+  document.getElementById('call-name').textContent = '없는 번호';
+  var msg = document.getElementById('call-msg');
+  setTimeout(function(){
+    msg.style.display = 'block';
+    msg.textContent = '두-- 두-- 두--\n\n없는 번호입니다.';
+    setTimeout(function(){
+      document.getElementById('call-screen').style.display = 'none';
+      openDial();
+    }, 3000);
+  }, 1500);
+}
+
+function startHackerCall() {
+  setTimeout(function(){
+    document.getElementById('call-name').textContent = '루프캣미 홍대점';
+    document.getElementById('call-sub').textContent = '통화 중';
+    document.getElementById('call-avatar').textContent = '🏪';
+    var msg = document.getElementById('call-msg');
+    msg.style.display = 'block';
+    msg.textContent = '안녕하세요, 루프캣미 홍대점입니다~';
+    setTimeout(function(){
+      document.getElementById('call-input-wrap').style.display = 'flex';
+    }, 1200);
+  }, 2000);
+}
+
+function confirmCode() {
+  var code = document.getElementById('code-input').value.trim();
+  if (!code) return;
+  document.getElementById('code-input').value = '';
+  var msg = document.getElementById('call-msg');
+
+  if (code === '검은손') {
+    // 정답 코드
+    document.getElementById('call-input-wrap').style.display = 'none';
+    document.getElementById('call-avatar').textContent = '🖥️';
+    msg.textContent = '...확인했어. 뭐가 필요해.';
+    setTimeout(function(){
+      showChoices1();
+    }, 1000);
+  } else {
+    // 오답 — 카페 직원 반응
+    wrongCount++;
+    if (wrongCount < 3) {
+      msg.textContent = CAFE_RESPONSES[wrongCount - 1];
+    } else {
+      // 3번째 — 통화 종료
+      document.getElementById('call-input-wrap').style.display = 'none';
+      msg.textContent = CAFE_RESPONSES[2];
+      setTimeout(function(){
+        document.getElementById('call-screen').style.display = 'none';
+        openDial();
+      }, 2500);
+    }
+  }
+}
+
+function showChoices1() {
+  var choices = document.getElementById('call-choices');
+  choices.innerHTML = '';
+  choices.style.display = 'flex';
+  var btn = document.createElement('button');
+  btn.className = 'call-choice';
+  btn.textContent = '💬 이 마을 페너 경감 폰 해킹해줘';
+  btn.onclick = function(){ selectChoice1(); };
+  choices.appendChild(btn);
+}
+
+function selectChoice1() {
+  document.getElementById('call-choices').style.display = 'none';
+  var msg = document.getElementById('call-msg');
+  msg.textContent = '페너. 경감. ...공직자네. 요금 올라가. 그래도 해?';
+  setTimeout(function(){
+    showChoices2();
+  }, 1000);
+}
+
+function showChoices2() {
+  var choices = document.getElementById('call-choices');
+  choices.innerHTML = '';
+  choices.style.display = 'flex';
+  var btn = document.createElement('button');
+  btn.className = 'call-choice';
+  btn.textContent = '💬 응, 해줘';
+  btn.onclick = function(){ selectChoice2(); };
+  choices.appendChild(btn);
+}
+
+function selectChoice2() {
+  document.getElementById('call-choices').style.display = 'none';
+  var msg = document.getElementById('call-msg');
+  msg.textContent = '...기다려.';
+  setTimeout(function(){
+    msg.textContent = '너 화면에서도 볼 수 있게 해줬어. 확인해.';
+    document.getElementById('end-call-btn').style.display = 'none';
+    setTimeout(function(){
+      document.getElementById('next-btn').style.display = 'block';
+      if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    }, 1200);
+  }, 3000);
+}
+
+function endCall() {
+  document.getElementById('call-screen').style.display = 'none';
+  dialNum = '';
+}
+</script>
+</body>
+</html>

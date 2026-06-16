@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
-<title>챕터 5 — 수상한 장부</title>
+<title>챕터 7 — 완벽한 알리바이</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#4caf82;}
@@ -12,7 +12,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
 .document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
 .doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
-.unlocked-tag{display:inline-block;background:var(--green);color:#fff;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
 .doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
 .doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
 .doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
@@ -31,11 +31,14 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
 .answer-input:focus{border-color:var(--red);}
 .answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
-.answer-btn:active{opacity:.85;}
 #result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;border-radius:4px;}
 #result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
 #result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
-.next-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:10px;display:none;letter-spacing:.08em;}
+
+/* 정답 후 전환 스토리 */
+#after-story{display:none;margin-top:16px;font-size:13.5px;line-height:2;color:var(--ink);background:rgba(139,26,26,.04);border:1px solid rgba(139,26,26,.15);border-radius:4px;padding:14px;}
+
+.dial-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:12px;display:none;letter-spacing:.08em;}
 .tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
 </style>
 </head>
@@ -44,23 +47,23 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
 <div class="document">
   <div class="doc-header">
-    <div class="unlocked-tag">✓ UNLOCKED</div>
+    <div class="chapter-tag">CHAPTER 07</div>
     <div class="doc-meta">
       <div>
         <div class="doc-name-label">CASE FILE</div>
-        <div class="doc-name">수상한 장부</div>
+        <div class="doc-name">완벽한 알리바이</div>
       </div>
-      <div class="doc-no">No. 9</div>
+      <div class="doc-no">No. 12</div>
     </div>
   </div>
 
   <div class="doc-body">
     <div class="story-text">
-      <p>여기 수상한 QR코드가 있어요.</p>
-      <p>이 코드를 스캔하면 장부를 획득할 수 있을거에요.</p>
+      <p>5월 9일, 페너 경감은 어디에 있었을까요?</p>
+      <p>경찰서에 가서 근무표를 확인해봅시다.</p>
     </div>
 
-    <div class="quest-box">▶ QR코드를 스캔하여 장부에 접속, 수상한 거래자를 찾자</div>
+    <div class="quest-box">▶ 근무표에서 5월 9일 페너의 근무 상태를 확인하자</div>
 
     <div class="tear"></div>
 
@@ -68,18 +71,23 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>거래자 중 이상한 이름이 있는거 같아</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>백설을 체포했던 사람같은데...</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>NO.3 페너</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>근무표에서 페너 경감의 이름을 찾아봐</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>5월 9일 페너 경감의 근무 상태를 확인해봐</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>5월 9일, 페너는 당직이었어</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
 
     <div class="section-title">ANSWER</div>
-    <input class="answer-input" id="answer" type="text" placeholder="수상한 거래 넘버를 입력하세요..."/>
+    <input class="answer-input" id="answer" type="text" placeholder="5월 9일 페너의 근무 상태는?..."/>
     <button class="answer-btn" onclick="checkAnswer()">확인</button>
     <div id="result"></div>
-    <button class="next-btn" id="next-btn" onclick="location.href='chapter6.html'">다음으로 →</button>
+
+    <div id="after-story">
+      <p>당직 중에 호텔 체크인이라니... 그럼 호텔 체크인에 찍혀있던 묘는 도대체 누구인 거야?</p>
+      <p>페너의 속사정을 더 파봐야겠어. 그러고 보니 이전에 뭐든지 알아내주는 친구 번호를 받았었지. 한번 연락해볼까?</p>
+    </div>
+    <button class="dial-btn" id="dial-btn" onclick="location.href='chapter7-call.html'">📞 전화 걸기</button>
   </div>
 </div>
 
@@ -105,15 +113,19 @@ function checkAnswer() {
   var val = document.getElementById('answer').value.trim();
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val === '3' || val === 'NO.3' || val === 'no.3' || val === '페너') {
+  if (val === '당직') {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!';
-    document.getElementById('next-btn').style.display = 'block';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">5월 9일, 페너는 당직 중이었어요. 근데 호텔에 체크인을?!</span>';
     document.getElementById('answer').disabled = true;
+    setTimeout(function(){
+      document.getElementById('after-story').style.display = 'block';
+      document.getElementById('dial-btn').style.display = 'block';
+      document.getElementById('after-story').scrollIntoView({behavior:'smooth'});
+    }, 800);
     if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
   } else {
     result.className = 'wrong';
-    result.textContent = '✗ 틀렸습니다. 다시 시도해보세요.';
+    result.textContent = '✗ 틀렸습니다. 근무표를 다시 확인해보세요.';
     if (navigator.vibrate) navigator.vibrate(200);
   }
 }
