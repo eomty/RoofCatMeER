@@ -129,6 +129,8 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
 </head>
 <body>
 
+<audio id="bgm" src="background.mp3" loop autoplay preload="auto"></audio>
+
 <div id="app">
   <div id="penner-area">
     <div id="penner-image"><span>페너 이미지</span><img id="penner-img-tag"/></div>
@@ -156,6 +158,17 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
   </div>
 </div>
 
+<script>
+var bgm = document.getElementById('bgm');
+bgm.volume = 0.4;
+bgm.play().catch(function(){
+  // 모바일 브라우저는 자동재생을 막는 경우가 있어 첫 탭에서 재생 시도
+  document.body.addEventListener('click', function once(){
+    bgm.play().catch(function(){});
+    document.body.removeEventListener('click', once);
+  });
+});
+</script>
 <script>
 var evidenceEls = {
   ledger: document.getElementById('ev-ledger'),
