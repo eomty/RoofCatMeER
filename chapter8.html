@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 8 — 최종담판</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#0a0a0a;font-family:'Noto Sans KR',sans-serif;}
+body{min-height:100vh;padding:60px 28px 120px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+
+#location{
+  text-align:center;font-size:10px;
+  color:rgba(255,255,255,.2);
+  letter-spacing:.25em;
+  font-family:'Nanum Myeongjo',serif;
+  margin-bottom:32px;
+  min-height:16px;
+  transition:opacity .4s;
+}
+
+#lines{
+  display:flex;flex-direction:column;
+  gap:20px;
+  max-width:360px;
+  margin:0 auto;
+}
+
+.line{
+  display:flex;flex-direction:column;gap:4px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s ease, transform .5s ease;
+}
+.line.show{opacity:1;transform:translateY(0);}
+
+.speaker{font-size:10px;letter-spacing:.15em;font-family:'Nanum Myeongjo',serif;}
+.detective{color:#8b1a1a;}
+.penner{color:#3b5998;}
+.staff{color:#2d6b3a;}
+.narration-spk{color:rgba(255,255,255,.2);font-style:italic;}
+
+.line-text{font-size:14px;color:rgba(255,255,255,.85);line-height:1.9;font-weight:300;}
+.line-text.narr{font-size:12px;color:rgba(255,255,255,.35);font-style:italic;}
+
+#tap-hint{
+  position:fixed;bottom:32px;left:0;right:0;
+  text-align:center;font-size:10px;
+  color:rgba(255,255,255,.15);letter-spacing:.1em;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.8;}}
+
+#next-btn{
+  position:fixed;bottom:24px;left:28px;right:28px;
+  background:#8b1a1a;color:#f0e8d8;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:15px;letter-spacing:.08em;
+  border:none;border-radius:4px;
+  padding:14px;cursor:pointer;
+  display:none;
+}
+
+#overlay{
+  position:fixed;inset:0;background:#0a0a0a;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;z-index:999;
+}
+#overlay.on{opacity:1;pointer-events:all;}
+</style>
+</head>
+<body>
+
+<div id="overlay"></div>
+<div id="location"></div>
+<div id="lines"></div>
+<div id="tap-hint">화면을 탭하면 다음 대사</div>
+<button id="next-btn" onclick="goNext()">담판 시작하기 →</button>
+
+<script>
+var S = [
+  {t:'loc', v:'— 경찰서 —'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"안녕하십니까. 페너 경감님."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"예. 무슨 일이시죠?"'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"경감님께선 오랫동안 이 마을을 지켜오셨다고 들었습니다."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"그게 제 일입니다."'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"그렇죠.\n누군가는 범인을 쫓고,\n누군가는 주민들을 지키고,\n누군가는 진실을 밝혀야 하니까요."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"그래서?"'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"한 사람이 너무 오랫동안 진실을 관리하게 되면...\n그 사람이 진실을 지키는 건지,\n아니면 진실을 결정하는 건지.\n본인조차 그 차이를 잊어버릴 수도 있겠지요."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"..."'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"다행히 저는 그 답을 찾은 것 같습니다.\n잠시 시간 좀 내주시죠."'},
+  {t:'loc', v:'— 루프캣미 카페 —'},
+  {t:'line', sp:'staff', sn:'직원', v:'"어서오세요~ 루프캣미입니다!"'},
+  {t:'line', sp:'narration', sn:'', v:'...어디서 많이 들어본 목소리인걸.'},
+  {t:'line', sp:'staff', sn:'직원', v:'"몇 분이세요?"'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"두 명이요."'},
+  {t:'line', sp:'staff', sn:'직원', v:'"음료는 뭘로 드릴까요?"'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"경감님, 편하게 고르세요.\n제가 사드리는 커피인데, 오늘이 마지막이 될 수도 있으니까요."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"...무슨 소리요?"'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"아, 이런 자리가 다시 있겠냐는 뜻입니다.\n제일 비싼 걸로 두 잔 주세요."'},
+  {t:'line', sp:'staff', sn:'직원', v:'"네~ 잠시만요!"'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"...빨리 합시다."'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"서두르지 마세요, 경감님.\n오늘 대화가 꽤 길어질 것 같으니까요."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"..."'},
+  {t:'line', sp:'detective', sn:'탐정', v:'"그럼 바로 본론으로."'},
+  {t:'end'}
+];
+
+var idx = 0;
+var container = document.getElementById('lines');
+var locEl = document.getElementById('location');
+var overlay = document.getElementById('overlay');
+
+function addLine(item) {
+  var div = document.createElement('div');
+  div.className = 'line';
+  var isNarr = item.sp === 'narration';
+  var html = '';
+  if (!isNarr) {
+    html += '<div class="speaker ' + item.sp + '">' + item.sn + '</div>';
+  }
+  html += '<div class="line-text' + (isNarr ? ' narr' : '') + '">' + item.v.replace(/\n/g, '<br/>') + '</div>';
+  div.innerHTML = html;
+  container.appendChild(div);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      div.classList.add('show');
+    });
+  });
+  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+}
+
+function changeLoc(text) {
+  overlay.classList.add('on');
+  setTimeout(function() {
+    container.innerHTML = '';
+    locEl.textContent = text;
+    overlay.classList.remove('on');
+  }, 500);
+}
+
+function next() {
+  if (idx >= S.length) return;
+  var s = S[idx];
+  idx++;
+
+  if (s.t === 'loc') {
+    changeLoc(s.v);
+    return;
+  }
+
+  if (s.t === 'end') {
+    document.getElementById('tap-hint').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'block';
+    document.body.onclick = null;
+    return;
+  }
+
+  if (s.t === 'line') {
+    addLine(s);
+    if (navigator.vibrate) navigator.vibrate(20);
+  }
+}
+
+document.body.addEventListener('click', function(e) {
+  if (e.target.id === 'next-btn') return;
+  next();
+});
+
+function goNext() {
+  overlay.classList.add('on');
+  setTimeout(function() {
+    location.href = 'chapter8-unlocked.html';
+  }, 600);
+}
+
+setTimeout(function() { next(); }, 600);
+</script>
+</body>
+</html>
