@@ -35,7 +35,7 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
   overflow:hidden;
 }
 #penner-image span{font-size:11px;color:rgba(255,255,255,.2);}
-#penner-image img{width:100%;height:100%;object-fit:cover;display:none;}
+#penner-image img{width:100%;height:100%;object-fit:cover;object-position:center top;display:none;}
 
 .penner-bubble{
   background:#064e3b;border:1px solid #059669;
@@ -186,8 +186,16 @@ var promptText = document.getElementById('prompt-text');
 
 function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
-function setPenner(text){
+var pennerImgTag = document.getElementById('penner-img-tag');
+var pennerImgSpan = document.querySelector('#penner-image span');
+
+function setPenner(text, imgKey){
   pennerBubble.textContent = text;
+  if(imgKey){
+    pennerImgTag.src = 'penner-images/' + imgKey + '.jpg';
+    pennerImgTag.style.display = 'block';
+    if(pennerImgSpan) pennerImgSpan.style.display = 'none';
+  }
 }
 
 function setNarr(text){
@@ -289,6 +297,8 @@ async function pickChoice(options, correctText, wrongMap){
 }
 
 async function run(){
+  setPenner('무슨 용건인지나 말하시죠.', 'penner-relaxed');
+  await wait(400);
   setNarr('탐정: "급하시긴. 그럼 바로 본론으로."');
   await wait(800);
 
@@ -298,7 +308,7 @@ async function run(){
     'S.T.R.A.W 장부라고 들어보셨습니까?', R1_WRONG
   );
   await wait(800);
-  setPenner('...잠복수사 중이었소.');
+  setPenner('...잠복수사 중이었소.', 'penner-tense');
   await wait(1600);
   setNarr('탐정: "아, 잠복수사요." (수첩 넘기는 척) "그렇군요.\n그런데 잠복수사 중에 누군가와 실거래를 하셨다는 게 좀 걸리는군요."');
   await wait(2200);
@@ -309,11 +319,11 @@ async function run(){
   await waitForEvidence('ledger');
   promptText.style.display = 'none';
 
-  setPenner('그건...!');
+  setPenner('그건...!', 'penner-shocked');
   await wait(1400);
   setNarr('탐정: "그날 경감님은 당직이셨으니, 거래하러 가실 수 없었을테니 말이죠."');
   await wait(2200);
-  setPenner('...');
+  setPenner('...', 'penner-tense');
   await wait(1000);
   setNarr('탐정: "그렇다면 그 자리에 있었던 건 누구였을까요."');
   await wait(2000);
@@ -321,7 +331,7 @@ async function run(){
   // ===== 2라운드 — 숙박리스트+CCTV+근무표 (통합) =====
   setNarr('탐정: "딜리셔스 호텔 5월 9일 체크인도 같은 경우겠군요."');
   await wait(2000);
-  setPenner('누명이오! 누군가 제 이름을 도용한 겁니다!');
+  setPenner('누명이오! 누군가 제 이름을 도용한 겁니다!', 'penner-angry');
   await wait(1800);
   setNarr('탐정: "도용." (메모하는 척) "흥미로운 표현이네요.\n딜리셔스 호텔 CCTV를 확인해봤는데 말이죠."');
   await wait(2200);
@@ -338,7 +348,7 @@ async function run(){
   await waitForEvidence('cctv');
   promptText.style.display = 'none';
 
-  setPenner('그건 조작된 겁니다! 당직이었으니까 호텔엔 갈 수가 없었소! 그게 바로 제 알리바이요!');
+  setPenner('그건 조작된 겁니다! 당직이었으니까 호텔엔 갈 수가 없었소! 그게 바로 제 알리바이요!', 'penner-confused');
   await wait(2600);
   setNarr('탐정: "맞습니다. 바로 그게 문제입니다."');
   await wait(1600);
@@ -358,11 +368,11 @@ async function run(){
   await waitForEvidence('schedule');
   promptText.style.display = 'none';
 
-  setPenner('그, 그 누군가가 누구란 말이오!');
+  setPenner('그, 그 누군가가 누구란 말이오!', 'penner-furious');
   await wait(1800);
   setNarr('탐정: "그러게요.\n경감님은 모르신다고 하시겠죠.\n하지만 그 누군가는 경감님을 알고 있는 것 같더군요."');
   await wait(2400);
-  setPenner('...!');
+  setPenner('...!', 'penner-furious');
   await wait(1200);
 
   // ===== 3라운드 — 루프톡+카드내역 (해킹 증거) =====
@@ -385,7 +395,7 @@ async function run(){
 
   setNarr('탐정: "5월 9일, 아인이 보낸 \'Plan A\'라는 메시지에\n경감님은 \'금방 보내겠습니다\'라고 답했더군요."');
   await wait(2400);
-  setPenner('...!');
+  setPenner('...!', 'penner-shocked');
   await wait(1200);
 
   promptText.style.display = 'block';
@@ -396,11 +406,11 @@ async function run(){
 
   setNarr('탐정: "그리고 같은 날 23시 41분, 경찰청 내부 자판기 사용 기록.\n경감님은 분명 그 자리, 경찰서에 계셨습니다."');
   await wait(2600);
-  setPenner('그건...! 불법 아니오?!');
+  setPenner('그건...! 불법 아니오?!', 'penner-angry');
   await wait(1800);
   setNarr('탐정: "글쎄요."  "범죄묘한테 설명할 이유는 없어요."');
   await wait(2000);
-  setPenner('...!');
+  setPenner('...!', 'penner-shocked');
   await wait(1200);
   setNarr('탐정: "자, 마지막입니다."');
   await wait(1600);
@@ -408,7 +418,7 @@ async function run(){
   // ===== 4라운드 — 가족관계증명서 =====
   setNarr('탐정: "서류엔 꽤 흥미로운 내용이 있더군요."');
   await wait(1800);
-  setPenner('무, 무슨 서류요?');
+  setPenner('무, 무슨 서류요?', 'penner-tense');
   await wait(1400);
   setNarr('탐정: "경감님도 아시는 서류입니다."');
   await wait(1400);
@@ -425,11 +435,11 @@ async function run(){
   await waitForEvidence('family');
   promptText.style.display = 'none';
 
-  setPenner('그건... 그건...');
+  setPenner('그건... 그건...', 'penner-breaking');
   await wait(2000);
   setNarr('탐정: "..."');
   await wait(1400);
-  setPenner('(긴 침묵)');
+  setPenner('(긴 침묵)', 'penner-broken');
   await wait(1800);
   setNarr('탐정: "...이 정도면 충분하겠죠.\n경감님.\n오랫동안 수고 많으셨습니다."');
   await wait(1000);
