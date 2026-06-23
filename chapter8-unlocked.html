@@ -368,11 +368,11 @@ async function run(){
   await waitForEvidence('schedule');
   promptText.style.display = 'none';
 
-  setPenner('그, 그 누군가가 누구란 말이오!', 'penner-furious');
+  setPenner('그, 그 누군가가 누구란 말이오!', 'penner-angry');
   await wait(1800);
   setNarr('탐정: "그러게요.\n경감님은 모르신다고 하시겠죠.\n하지만 그 누군가는 경감님을 알고 있는 것 같더군요."');
   await wait(2400);
-  setPenner('...!', 'penner-furious');
+  setPenner('...!', 'penner-angry');
   await wait(1200);
 
   // ===== 3라운드 — 루프톡+카드내역 (해킹 증거) =====
@@ -395,7 +395,7 @@ async function run(){
 
   setNarr('탐정: "5월 9일, 아인이 보낸 \'Plan A\'라는 메시지에\n경감님은 \'금방 보내겠습니다\'라고 답했더군요."');
   await wait(2400);
-  setPenner('...!', 'penner-breaking');
+  setPenner('...!', 'penner-angry');
   await wait(1200);
 
   promptText.style.display = 'block';
