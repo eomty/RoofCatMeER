@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#2e2c29;font-family:'Noto Sans KR',sans-serif;}
-body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x:hidden;padding-bottom:80px;}
+body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x:hidden;padding-bottom:24px;}
 
 .tape{width:100%;background:#d4a800;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.25em;text-align:center;padding:8px 0;}
 
@@ -39,7 +39,7 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x
 
 .mission-box{background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.3);border-left:3px solid #8b1a1a;padding:12px 14px;margin-top:16px;font-size:13px;color:#8b1a1a;font-weight:500;line-height:1.7;}
 
-.rules-card{margin:0 16px 20px;background:#1a1410;border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:16px 16px 18px;}
+.rules-card{margin:0 16px 12px;background:#1a1410;border:1px solid rgba(201,168,76,.25);border-radius:6px;padding:16px 16px 18px;}
 .rules-title{font-family:'Nanum Myeongjo',serif;font-size:13px;color:#c9a84c;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .rules-title::before{content:'';width:6px;height:6px;background:#c9a84c;border-radius:50%;}
 .rule-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;}
@@ -47,7 +47,7 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x
 .rule-text{font-size:12px;color:#cfc8b8;line-height:1.6;}
 .rule-text b{color:#e8e4d8;}
 
-.start-btn{display:block;width:calc(100% - 32px);margin:8px 16px 0;padding:15px;background:#8b1a1a;color:#f0e8d8;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;border-radius:4px;cursor:pointer;}
+.start-btn{display:block;width:calc(100% - 32px);margin:0 16px;padding:15px;background:#8b1a1a;color:#f0e8d8;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;border-radius:4px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -101,22 +101,26 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x
 </div>
 
 <div class="rules-card">
-  <div class="rules-title">수사 진행 방법</div>
+  <div class="rules-title">기록 측정 안내</div>
   <div class="rule-row">
-    <div class="rule-icon">🔍</div>
-    <div class="rule-text"><b>증거 수집</b> — 곳곳에 숨겨진 단서를 찾아 인벤토리에 모으세요.</div>
-  </div>
-  <div class="rule-row">
-    <div class="rule-icon">📷</div>
-    <div class="rule-text"><b>AR 스캔</b> — 현실의 마커를 카메라로 비추면 새로운 단서가 나타납니다.</div>
+    <div class="rule-icon">⏱</div>
+    <div class="rule-text"><b>수사 시작</b> — '수사 시작하기'를 누른 순간부터 시간이 측정됩니다.</div>
   </div>
   <div class="rule-row">
     <div class="rule-icon">💡</div>
-    <div class="rule-text"><b>힌트 사용</b> — 막히면 챕터별 힌트를 최대 3회까지 확인할 수 있어요.</div>
+    <div class="rule-text"><b>힌트 사용</b> — 힌트1은 +1분, 힌트2는 +2분, 힌트3은 +3분 30초가 추가됩니다. 힌트3은 해당 챕터 입장 2분 후부터 사용할 수 있어요.</div>
   </div>
   <div class="rule-row">
-    <div class="rule-icon">📋</div>
-    <div class="rule-text"><b>최종 심문</b> — 모은 증거로 범인을 직접 추궁해 사건을 종결하세요.</div>
+    <div class="rule-icon">✗</div>
+    <div class="rule-text"><b>오답 페널티</b> — 답을 틀릴 때마다 5초가 추가됩니다.</div>
+  </div>
+  <div class="rule-row">
+    <div class="rule-icon">🏁</div>
+    <div class="rule-text"><b>기록 종료</b> — 챕터7까지의 기록으로 등급이 결정되며, 최종담판(챕터8)부터는 시간이 집계되지 않아요.</div>
+  </div>
+  <div class="rule-row">
+    <div class="rule-icon">🏆</div>
+    <div class="rule-text"><b>랭크 보상</b> — 힌트를 적게 쓰고 빠르게 풀수록 높은 등급과 더 좋은 보상을 받을 수 있어요.</div>
   </div>
 </div>
 
