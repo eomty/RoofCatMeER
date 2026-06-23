@@ -60,6 +60,38 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 </style>
 </head>
 <body>
+<style>
+#timer-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#12100c;border-bottom:1px solid rgba(201,168,76,.2);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;}
+#timer-bar .rec-dot{width:6px;height:6px;border-radius:50%;background:#e24b4a;margin-right:5px;display:inline-block;animation:pulse-rec 1.4s ease-in-out infinite;}
+@keyframes pulse-rec{0%,100%{opacity:1;}50%{opacity:.3;}}
+#timer-bar .rec-label{font-size:9px;color:#c9a84c;letter-spacing:.12em;font-family:monospace;vertical-align:1px;}
+#timer-bar .clock{font-size:14px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;}
+#timer-bar .chip-label{font-size:9px;color:#776e5e;font-family:monospace;letter-spacing:.05em;}
+#penalty-toast{position:fixed;top:38px;left:50%;transform:translateX(-50%) translateY(-10px);background:#8b1a1a;color:#f0e8d8;font-family:monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:3px;letter-spacing:.05em;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
+#penalty-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.hint-btn .hint-cost{float:right;font-size:11px;opacity:.7;}
+.tape{top:34px !important;}
+body{padding-top:64px !important;}
+</style>
+<div id="timer-bar">
+  <div><span class="rec-dot"></span><span class="rec-label">RECORDING</span></div>
+  <div class="clock" id="elapsed-clock">00:00</div>
+  <div class="chip-label" id="chapter-chip">CHAPTER 03</div>
+</div>
+<div id="penalty-toast"></div>
+<script src="timer.js"></script>
+<script>
+var THIS_CHAPTER_ID = 'chapter3';
+RCMTimer.enterChapter(THIS_CHAPTER_ID);
+function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
+setInterval(refreshClock, 1000); refreshClock();
+function flashPenalty(sec){
+  var toast = document.getElementById('penalty-toast');
+  toast.textContent = '+' + RCMTimer.formatTime(sec) + ' 페널티';
+  toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 1400);
+}
+</script>
 <div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <div class="document">
@@ -147,16 +179,31 @@ var hintCount = 0;
 
 function showHint() {
   if (hintCount >= 3) return;
+  if (hintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
   hintCount++;
   document.getElementById('hint' + hintCount).classList.add('visible');
   var remaining = 3 - hintCount;
   document.getElementById('hint-counter').textContent = remaining + '회 남음';
-  if (hintCount >= 3) {
-    document.getElementById('hint-btn').disabled = true;
-    document.getElementById('hint-btn').textContent = '힌트 소진';
-    document.getElementById('hint-counter').textContent = '0회 남음';
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount);
+  if (cost !== null) flashPenalty(cost);
+  renderHintBtn();
+}
+var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+function renderHintBtn(){
+  var btn = document.getElementById('hint-btn');
+  if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
+  var nextIdx = hintCount;
+  if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
+    var remain = RCMTimer.hint3RemainingSec(THIS_CHAPTER_ID);
+    btn.disabled = true;
+    btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
   }
 }
+renderHintBtn();
+setInterval(renderHintBtn, 1000);
 
 function openDial() {
   dialNum = '';

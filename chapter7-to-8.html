@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>수사 종료 안내</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#4caf82;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
+.chapter-tag{display:inline-block;background:var(--green);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+
+.assistant-bubble{background:rgba(76,175,130,.08);border:1px solid rgba(76,175,130,.3);border-radius:4px 16px 16px 16px;padding:14px 16px;margin-bottom:6px;}
+.assistant-name{font-family:'Nanum Myeongjo',serif;font-size:11px;color:#2d7a5a;font-weight:700;letter-spacing:.05em;margin-bottom:6px;}
+.assistant-text{font-size:13.5px;line-height:1.9;color:var(--ink);}
+
+.notice-box{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.35);border-radius:4px;padding:14px 16px;margin:16px 0;}
+.notice-title{font-family:'Nanum Myeongjo',serif;font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.notice-title::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;}
+.notice-text{font-size:13px;line-height:1.85;color:var(--muted);}
+
+.record-summary{background:#12100c;border-radius:6px;padding:14px 16px;margin:16px 0;}
+.record-label{font-size:10px;color:#776e5e;letter-spacing:.1em;font-family:monospace;margin-bottom:6px;}
+.record-time{font-size:28px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;}
+.record-sub{font-size:11px;color:#c9a84c;font-family:'Nanum Myeongjo',serif;margin-top:4px;}
+
+.start-btn{width:100%;padding:16px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:16px;border:none;border-radius:4px;cursor:pointer;margin-top:8px;letter-spacing:.08em;}
+.tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
+</style>
+</head>
+<body>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="doc-header">
+    <div class="chapter-tag">✓ 수사 완료</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">최종담판 준비</div>
+      </div>
+      <div class="doc-no">No. 13</div>
+    </div>
+  </div>
+
+  <div class="doc-body">
+
+    <div class="assistant-bubble">
+      <div class="assistant-name">조수</div>
+      <div class="assistant-text">범인을 거의 밝혀낸 것 같습니다, 감사합니다, 탐정님!! 마지막으로 힘을 합쳐서 이야기를 끝낼까요?</div>
+    </div>
+
+    <div class="tear"></div>
+
+    <div class="record-summary">
+      <div class="record-label">FINAL RECORD · 챕터 1~7</div>
+      <div class="record-time" id="final-time">--:--</div>
+      <div class="record-sub" id="final-rank">기록 집계 중...</div>
+    </div>
+
+    <div class="notice-box">
+      <div class="notice-title">안내</div>
+      <div class="notice-text">문제 풀이가 종료되었습니다.<br/>남은 엔딩은 시간 집계가 되지 않는 점 안내드리며, 마지막까지 범인을 찾아서 루프캣미 빌리지의 비밀을 밝혀주세요!</div>
+    </div>
+
+    <button class="start-btn" onclick="goToChapter8()">최종담판 시작 →</button>
+
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script src="timer.js"></script>
+<script>
+var finalSec = RCMTimer.stopTimer();
+document.getElementById('final-time').textContent = RCMTimer.formatTime(finalSec);
+var rank = RCMTimer.getRank(finalSec);
+document.getElementById('final-rank').textContent = rank.grade + ' 랭크 페이스 · ' + rank.reward;
+
+function goToChapter8(){
+  location.href = 'chapter8.html';
+}
+</script>
+</body>
+</html>
