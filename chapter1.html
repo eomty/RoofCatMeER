@@ -9,7 +9,7 @@
 :root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
-.tape{width:100%;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 .document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5),8px 8px 40px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:fadeUp .6s ease both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .document::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.04) 27px,rgba(0,0,0,.04) 28px);pointer-events:none;z-index:1;}
@@ -53,7 +53,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 #result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
 #result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
 .pin{position:absolute;top:-8px;right:24px;width:16px;height:16px;background:radial-gradient(circle at 40% 35%,#ff6b6b,#c0392b);border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,.4);z-index:10;}
-.tape-bottom{width:100%;max-width:420px;background:#f5c518;color:#1a1410;font-size:11px;font-weight:700;letter-spacing:.3em;text-align:center;padding:6px 0;border-top:2px solid #d4a800;}
+.tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 </style>
 </head>
 <body>
@@ -67,7 +67,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 #penalty-toast{position:fixed;top:38px;left:50%;transform:translateX(-50%) translateY(-10px);background:#8b1a1a;color:#f0e8d8;font-family:monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:3px;letter-spacing:.05em;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
 #penalty-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .hint-btn .hint-cost{float:right;font-size:11px;opacity:.7;}
-.tape{top:34px !important;}
+.tape{top:34px !important;white-space:nowrap;overflow:hidden;}
 body{padding-top:64px !important;}
 </style>
 <div id="timer-bar">
@@ -79,6 +79,7 @@ body{padding-top:64px !important;}
 <script src="timer.js"></script>
 <script>
 var THIS_CHAPTER_ID = 'chapter1';
+var PAGE_ID = 'chapter1';
 RCMTimer.enterChapter(THIS_CHAPTER_ID);
 function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
 setInterval(refreshClock, 1000); refreshClock();
@@ -174,7 +175,7 @@ function showHint() {
   document.getElementById('hint' + hintCount).classList.add('visible');
   var remaining = 3 - hintCount;
   document.getElementById('hint-counter').textContent = remaining + '회 남음';
-  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount);
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount, PAGE_ID);
   if (cost !== null) flashPenalty(cost);
   renderHintBtn();
 }
