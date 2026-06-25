@@ -31,10 +31,9 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
 /* 라디오 UI */
 .radio-box{background:#111820;border-radius:12px;padding:20px;margin-bottom:4px;}
-.freq-label{font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:6px;}
-.freq-display{display:flex;align-items:baseline;gap:6px;margin-bottom:14px;}
-.freq-num{font-size:44px;font-weight:700;color:#c9a84c;font-family:'Nanum Myeongjo',serif;text-shadow:0 0 16px rgba(201,168,76,.4);min-width:100px;}
-.freq-unit{font-size:14px;color:rgba(201,168,76,.6);}
+.freq-display{display:flex;align-items:baseline;gap:4px;justify-content:flex-end;}
+.freq-num{font-size:26px;font-weight:700;color:#c9a84c;font-family:'Nanum Myeongjo',serif;}
+.freq-unit{font-size:11px;color:rgba(201,168,76,.6);}
 .signal-bars{display:flex;gap:4px;align-items:flex-end;height:32px;margin-bottom:14px;}
 .bar{flex:1;border-radius:2px;background:rgba(255,255,255,.08);transition:height .1s,background .2s;}
 .slider-range{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.25);margin-bottom:6px;}
@@ -47,6 +46,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .intercept-btn{width:100%;padding:14px;background:rgba(201,168,76,.08);color:#c9a84c;font-family:'Nanum Myeongjo',serif;font-size:15px;border:1px solid rgba(201,168,76,.25);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.06em;margin-top:12px;}
 .intercept-btn:active{background:rgba(201,168,76,.15);}
 .intercept-btn.playing{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.12);}
+
+/* 채널 다이얼 + 주파수 통합 헤더 */
+.tuner-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.tuner-label{font-size:9px;letter-spacing:.15em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:2px;}
+.channel-text{flex-shrink:0;}
+.channel-value{font-size:13px;color:#c9a84c;font-weight:700;}
+.freq-text{flex:1;text-align:right;min-width:0;}
+.dial-wrap{position:relative;width:48px;height:48px;touch-action:none;flex-shrink:0;}
+.dial-ring{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 28%,#3a3a45,#13131a 70%);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 0 0 1px rgba(201,168,76,.2);cursor:grab;}
+.dial-ring:active{cursor:grabbing;}
+.dial-tick{position:absolute;width:1px;height:4px;background:rgba(201,168,76,.3);left:23.5px;top:2px;transform-origin:0.5px 22px;}
+.dial-tick.active{background:#c9a84c;height:5px;width:1.5px;}
+.dial-knob{position:absolute;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#1c1c22;box-shadow:0 1px 3px rgba(0,0,0,.5),inset 0 0 0 1.5px rgba(201,168,76,.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.dial-knob-num{font-size:11px;font-weight:700;color:#c9a84c;font-family:'Nanum Myeongjo',serif;}
+.dial-pointer{position:absolute;top:-2px;left:50%;width:0;height:0;border-left:2px solid transparent;border-right:2px solid transparent;border-bottom:4px solid #c9a84c;transform:translateX(-50%);}
+
+.answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
+.answer-input:focus{border-color:var(--red);}
+.answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
+#result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;border-radius:4px;}
+#result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
+#result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
 
 /* 다음 버튼 */
 .next-btn-locked{width:100%;padding:14px;background:rgba(0,0,0,.08);color:rgba(90,74,56,.35);font-family:'Nanum Myeongjo',serif;font-size:14px;border:1px dashed rgba(0,0,0,.15);border-radius:4px;cursor:not-allowed;}
@@ -116,10 +137,25 @@ function flashPenalty(sec){
     <!-- 라디오 UI -->
     <div class="section-title">INTERCEPT</div>
     <div class="radio-box">
-      <div class="freq-label">FREQUENCY</div>
-      <div class="freq-display">
-        <span class="freq-num" id="freq-num">0.0</span>
-        <span class="freq-unit">MHz</span>
+      <div class="tuner-row">
+        <div class="dial-wrap" id="dial-wrap">
+          <div class="dial-pointer"></div>
+          <div class="dial-ring" id="dial-ring">
+            <div class="dial-ticks" id="dial-ticks"></div>
+          </div>
+          <div class="dial-knob"><span class="dial-knob-num" id="channel-num">0</span></div>
+        </div>
+        <div class="channel-text">
+          <div class="tuner-label">CHANNEL</div>
+          <div class="channel-value">CH <span id="channel-display">0</span></div>
+        </div>
+        <div class="freq-text">
+          <div class="tuner-label">FREQUENCY</div>
+          <div class="freq-display">
+            <span class="freq-num" id="freq-num">0.0</span>
+            <span class="freq-unit">MHz</span>
+          </div>
+        </div>
       </div>
       <div class="signal-bars" id="signal-bars">
         <div class="bar" id="b1"></div>
@@ -131,9 +167,9 @@ function flashPenalty(sec){
         <div class="bar" id="b7"></div>
         <div class="bar" id="b8"></div>
       </div>
-      <div class="slider-range"><span>0.0</span><span>200.0</span></div>
-      <input type="range" id="freq-slider" min="0" max="2000" value="0" step="1"/>
-      <div class="radio-status" id="radio-status">지직— 지직—<br/>주파수를 조정하세요</div>
+      <div class="slider-range"><span>0.0</span><span>100.0</span></div>
+      <input type="range" id="freq-slider" min="0" max="1000" value="0" step="1"/>
+      <div class="radio-status" id="radio-status">지직— 지직—<br/>채널과 주파수를 조정하세요</div>
       <button class="intercept-btn" id="intercept-btn" onclick="togglePlay()">
         <span id="play-icon">📻</span>
         <span id="play-text">도청 시작</span>
@@ -147,14 +183,20 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>우체통을 찾자!</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>우체통은 파크 가장 안쪽에 있지</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>루프존으로 가자!</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>채널과 주파수, 두 가지를 다 맞춰야 들려</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>그들이 "우체부"라는 말을 자주 하는 것 같던데</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>우체통</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
 
-    <div class="next-btn-locked" id="next-locked">🔒 다음으로</div>
+    <div class="section-title">ANSWER</div>
+    <input class="answer-input" id="answer" type="text" placeholder="다음 행선지는 어디일까요?..." disabled/>
+    <button class="answer-btn" onclick="checkAnswer()" id="answer-btn" disabled>확인</button>
+    <div id="result"></div>
+
+    <div class="tear"></div>
+
     <button class="next-btn" id="next-btn" onclick="location.href='chapter5.html'">다음으로 →</button>
   </div>
 </div>
@@ -163,7 +205,9 @@ function flashPenalty(sec){
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script>
-var TARGET = 952; // 95.2 MHz
+var TARGET_CHANNEL = 2;
+var TARGET_FREQ = 950; // 95.0 MHz (슬라이더 값 기준, 0~1000 = 0.0~100.0MHz)
+var currentChannel = 0;
 var isPlaying = false;
 var audioCtx = null;
 var audioSource = null;
@@ -174,6 +218,7 @@ var audioBuffer = null;
 var audioLoaded = false;
 var audioEnded = false;
 var hintCount = 0;
+var puzzleSolved = false;
 
 // 오디오 미리 로드
 function loadAudio() {
@@ -190,15 +235,92 @@ function loadAudio() {
 }
 loadAudio();
 
+// 회전형 채널 다이얼: 0~9 눈금 생성
+var dialTicksEl = document.getElementById('dial-ticks');
+for (var t = 0; t < 10; t++) {
+  var tick = document.createElement('div');
+  tick.className = 'dial-tick';
+  tick.id = 'tick' + t;
+  tick.style.transform = 'rotate(' + (t * 36) + 'deg)';
+  dialTicksEl.appendChild(tick);
+}
+
+var dialAngle = 0; // 0~9 -> 0~324도 (36도 간격)
+function setChannelFromAngle(angle) {
+  angle = ((angle % 360) + 360) % 360;
+  var ch = Math.round(angle / 36) % 10;
+  if (ch !== currentChannel) {
+    currentChannel = ch;
+    document.getElementById('channel-num').textContent = currentChannel;
+    document.getElementById('channel-display').textContent = currentChannel;
+    for (var i = 0; i < 10; i++) {
+      document.getElementById('tick' + i).classList.toggle('active', i === currentChannel);
+    }
+    // 채널이 바뀌어도 주파수는 유지, 새 채널 기준으로 신호만 재계산
+    if (isPlaying) stopPlay();
+    updateSignal(parseInt(slider.value));
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+  dialAngle = ch * 36;
+  document.getElementById('dial-ring').style.transform = 'rotate(' + dialAngle + 'deg)';
+}
+
+(function initDial(){
+  var dialEl = document.getElementById('dial-ring');
+  var wrapEl = document.getElementById('dial-wrap');
+  var dragging = false;
+
+  function getAngle(clientX, clientY) {
+    var rect = wrapEl.getBoundingClientRect();
+    var cx = rect.left + rect.width/2;
+    var cy = rect.top + rect.height/2;
+    var dx = clientX - cx;
+    var dy = clientY - cy;
+    var rad = Math.atan2(dx, -dy); // 12시 방향이 0도
+    return rad * 180 / Math.PI;
+  }
+
+  function onMove(clientX, clientY) {
+    var angle = getAngle(clientX, clientY);
+    setChannelFromAngle(angle);
+  }
+
+  wrapEl.addEventListener('mousedown', function(e){
+    dragging = true;
+    onMove(e.clientX, e.clientY);
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!dragging) return;
+    onMove(e.clientX, e.clientY);
+  });
+  window.addEventListener('mouseup', function(){ dragging = false; });
+
+  wrapEl.addEventListener('touchstart', function(e){
+    dragging = true;
+    var touch = e.touches[0];
+    onMove(touch.clientX, touch.clientY);
+    e.preventDefault();
+  }, {passive:false});
+  wrapEl.addEventListener('touchmove', function(e){
+    if (!dragging) return;
+    var touch = e.touches[0];
+    onMove(touch.clientX, touch.clientY);
+    e.preventDefault();
+  }, {passive:false});
+  wrapEl.addEventListener('touchend', function(){ dragging = false; });
+
+  // 초기 활성 tick
+  document.getElementById('tick0').classList.add('active');
+})();
+
 // 슬라이더
 var slider = document.getElementById('freq-slider');
 slider.addEventListener('input', function() {
   var val = parseInt(this.value);
-  // 95.0~95.4 구간 스냅
-  if (val >= 950 && val <= 954) {
-    val = 952;
-    this.value = 952;
-    document.getElementById('freq-num').textContent = '95.2';
+  if (currentChannel === TARGET_CHANNEL && val >= TARGET_FREQ-2 && val <= TARGET_FREQ+2) {
+    val = TARGET_FREQ;
+    this.value = TARGET_FREQ;
+    document.getElementById('freq-num').textContent = (TARGET_FREQ/10).toFixed(1);
   } else {
     var freq = (val / 10).toFixed(1);
     document.getElementById('freq-num').textContent = freq;
@@ -208,7 +330,8 @@ slider.addEventListener('input', function() {
 });
 
 function getStrength(val) {
-  var diff = Math.abs(val - TARGET);
+  if (currentChannel !== TARGET_CHANNEL) return 0.02;
+  var diff = Math.abs(val - TARGET_FREQ);
   if (diff === 0) return 1.0;
   if (diff <= 2) return 0.95;
   if (diff <= 5) return 0.7;
@@ -231,7 +354,7 @@ function updateSignal(val) {
   var status = document.getElementById('radio-status');
   if (s > 0.85) {
     status.className = 'radio-status clear';
-    status.textContent = '📻 95.2 MHz — 신호 선명';
+    status.textContent = '📻 CH.' + currentChannel + ' / ' + (TARGET_FREQ/10).toFixed(1) + ' MHz — 신호 선명';
   } else if (s > 0.4) {
     status.className = 'radio-status';
     status.style.color = '#c9a84c';
@@ -239,7 +362,7 @@ function updateSignal(val) {
   } else {
     status.className = 'radio-status';
     status.style.color = 'rgba(255,255,255,.3)';
-    status.innerHTML = '지직— 지직—<br/>주파수를 조정하세요';
+    status.innerHTML = '지직— 지직—<br/>채널과 주파수를 조정하세요';
   }
 }
 
@@ -263,15 +386,13 @@ function startPlay() {
   audioSource.connect(audioGain);
   audioGain.connect(audioCtx.destination);
   audioSource.start(0);
-  // 20초 후 다음 버튼 해금
+  // 20초 후 정답 입력창 해금
   setTimeout(function() {
-    document.getElementById('next-locked').style.display = 'none';
-    document.getElementById('next-btn').style.display = 'block';
+    unlockAnswer();
   }, 20000);
   audioSource.onended = function() {
     audioEnded = true;
-    document.getElementById('next-locked').style.display = 'none';
-    document.getElementById('next-btn').style.display = 'block';
+    unlockAnswer();
     stopPlay();
   };
 
@@ -335,6 +456,34 @@ function updateAudioEffect(val) {
   audioGain.gain.setTargetAtTime(s * 1.2, audioCtx.currentTime, 0.2);
   noiseGain.gain.setTargetAtTime((1 - s) * 0.9, audioCtx.currentTime, 0.2);
 }
+
+function unlockAnswer(){
+  document.getElementById('answer').disabled = false;
+  document.getElementById('answer-btn').disabled = false;
+}
+
+function checkAnswer() {
+  var val = document.getElementById('answer').value.trim();
+  var result = document.getElementById('result');
+  result.style.display = 'block';
+  if (val === '우체통') {
+    result.className = 'correct';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">우체통으로 가보죠!</span>';
+    document.getElementById('answer').disabled = true;
+    document.getElementById('answer-btn').disabled = true;
+    document.getElementById('next-btn').style.display = 'block';
+    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  } else {
+    result.className = 'wrong';
+    result.textContent = '✗ 틀렸습니다. 다시 확인해보세요.';
+    RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
+    flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+document.getElementById('answer').addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && !document.getElementById('answer').disabled) checkAnswer();
+});
 
 function showHint() {
   if (hintCount >= 3) return;
