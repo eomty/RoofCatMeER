@@ -44,6 +44,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .cctv-cell.selected{border-color:var(--red);}
 .cctv-cell.correct-sel{border-color:var(--green) !important;}
 .cctv-cell svg{width:100%;height:100%;position:absolute;top:0;left:0;}
+.cctv-cell img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;}
 .submit-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;margin-top:6px;}
 #cctv-result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:14px;border-radius:4px;}
 #cctv-result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
@@ -119,7 +120,7 @@ function flashPenalty(sec){
     </div>
     <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>페너와 닮았지만 다른 묘가 섞여 있어</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>빨간 테두리가 다른 묘야</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>3개를 골라야 해</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>2개를 골라야 해</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
   </div>
 </div>
@@ -128,8 +129,8 @@ function flashPenalty(sec){
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script>
-// 정답 인덱스: 아인이(빨간) — 2, 5, 7
-var ANSWER_IDX = [2, 5, 7];
+// 정답 인덱스: 아인이 — 넘버패드 7(좌상단,idx0) / 3(우하단,idx8)
+var ANSWER_IDX = [0, 8];
 var cells = [];
 var grid = document.getElementById('cctv-grid');
 
@@ -140,19 +141,8 @@ for (var i = 0; i < 9; i++) {
     cell.className = 'cctv-cell';
     cell.dataset.ain = isAin ? '1' : '0';
 
-    var bgColor = isAin ? '#3a0a0a' : '#0a2a0a';
-    var boxColor = isAin ? '#8b1a1a' : '#1a4a1a';
     var camNum = String(idx+1).padStart(2,'0');
-
-    cell.innerHTML =
-      '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-        '<rect width="100" height="100" fill="' + bgColor + '"/>' +
-        '<rect x="20" y="15" width="60" height="45" rx="22" fill="' + boxColor + '" opacity="0.7"/>' +
-        '<circle cx="50" cy="35" r="16" fill="' + boxColor + '"/>' +
-        '<ellipse cx="50" cy="70" rx="22" ry="14" fill="' + boxColor + '" opacity="0.5"/>' +
-        '<rect x="3" y="3" width="8" height="8" rx="1" fill="#ff2222" opacity="0.9"/>' +
-        '<text x="50" y="93" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.4)" font-family="monospace">CAM_' + camNum + '</text>' +
-      '</svg>';
+    cell.innerHTML = '<img src="cctv-images/cam' + camNum + '.jpg" alt="CAM ' + camNum + '">';
 
     cell.onclick = function(){
       cell.classList.toggle('selected');
