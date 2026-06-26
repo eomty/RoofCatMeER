@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 4 — 영업 사무소</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;}
+.story-text{font-size:13.5px;line-height:2;color:var(--ink);margin-bottom:14px;}
+.quest-box{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.25);border-left:4px solid var(--red);padding:12px 14px;margin:14px 0;font-size:13px;font-weight:500;color:var(--red);line-height:1.7;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.hint-counter{font-size:10px;color:var(--red);background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.2);padding:3px 10px;border-radius:10px;}
+.hint-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;margin-bottom:8px;}
+.hint-btn:disabled{opacity:.4;cursor:default;}
+.hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
+.hint-item.visible{display:block;}
+.hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
+.cipher-img{width:100%;border-radius:4px;border:1px solid rgba(0,0,0,.1);}
+.answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
+.answer-input:focus{border-color:var(--red);}
+.answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
+.answer-btn:active{opacity:.85;}
+#result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;border-radius:4px;}
+#result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
+#result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
+.next-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:10px;display:none;letter-spacing:.08em;}
+.tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+</style>
+</head>
+<body>
+<style>
+#timer-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#12100c;border-bottom:1px solid rgba(201,168,76,.2);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;}
+#timer-bar .rec-dot{width:6px;height:6px;border-radius:50%;background:#e24b4a;margin-right:5px;display:inline-block;animation:pulse-rec 1.4s ease-in-out infinite;}
+@keyframes pulse-rec{0%,100%{opacity:1;}50%{opacity:.3;}}
+#timer-bar .rec-label{font-size:9px;color:#c9a84c;letter-spacing:.12em;font-family:monospace;vertical-align:1px;}
+#timer-bar .clock{font-size:14px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;}
+#timer-bar .chip-label{font-size:9px;color:#776e5e;font-family:monospace;letter-spacing:.05em;}
+#penalty-toast{position:fixed;top:38px;left:50%;transform:translateX(-50%) translateY(-10px);background:#8b1a1a;color:#f0e8d8;font-family:monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:3px;letter-spacing:.05em;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
+#penalty-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.hint-btn .hint-cost{float:right;font-size:11px;opacity:.7;}
+.tape{top:34px !important;white-space:nowrap;overflow:hidden;}
+body{padding-top:64px !important;}
+</style>
+<div id="timer-bar">
+  <div><span class="rec-dot"></span><span class="rec-label">RECORDING</span></div>
+  <div class="clock" id="elapsed-clock">00:00</div>
+  <div class="chip-label" id="chapter-chip">CHAPTER 04</div>
+</div>
+<div id="penalty-toast"></div>
+<script src="timer.js"></script>
+<script>
+var THIS_CHAPTER_ID = 'chapter4';
+var PAGE_ID = 'chapter4-call';
+RCMTimer.enterChapter(THIS_CHAPTER_ID);
+function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
+setInterval(refreshClock, 1000); refreshClock();
+function flashPenalty(sec){
+  var toast = document.getElementById('penalty-toast');
+  toast.textContent = '+' + RCMTimer.formatTime(sec) + ' 페널티';
+  toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 1400);
+}
+</script>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="doc-header">
+    <div class="chapter-tag">CHAPTER 04</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">영업 사무소</div>
+      </div>
+      <div class="doc-no">No. 6</div>
+    </div>
+  </div>
+
+  <div class="doc-body">
+    <div class="story-text">
+      <p>탐정님! 여기가 영업사무소인가봐요!</p>
+      <p>저기 일하는 고양이들이 보여요...<br/>그들끼리 특정 주파수를 사용하여 교신하는 거 같아요.<br/>저희도 그들의 이야기를 들어보죠!</p>
+    </div>
+
+    <div class="quest-box">▶ 주파수 암호를 해독하여 그들의 대화를 도청하자!</div>
+
+    <div class="tear"></div>
+
+    <!-- CIPHER 먼저 -->
+    <div class="section-title">CIPHER</div>
+    <img class="cipher-img" src="data:image/png;base64,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" alt="주파수 암호"/>
+
+    <div class="tear"></div>
+
+    <!-- 힌트 나중에 -->
+    <div class="section-title">
+      HINTS
+      <span class="hint-counter" id="hint-counter">3회 남음</span>
+    </div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다이얼을 유심히 보자</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>주파수는 세자리!</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>95.2</div>
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
+
+    <div class="tear"></div>
+
+    <!-- 정답 입력 -->
+    <div class="section-title">ANSWER</div>
+    <input class="answer-input" id="answer" type="text" placeholder="주파수를 입력하세요..."/>
+    <button class="answer-btn" onclick="checkAnswer()">확인</button>
+    <div id="result"></div>
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter4-unlocked.html'">다음 장소로 →</button>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script>
+var hintCount = 0;
+var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+function renderHintBtn(){
+  var btn = document.getElementById('hint-btn');
+  if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
+  var nextIdx = hintCount;
+  if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
+    var remain = RCMTimer.hint3RemainingSec(THIS_CHAPTER_ID);
+    btn.disabled = true;
+    btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
+  }
+}
+function showHint() {
+  if (hintCount >= 3) return;
+  if (hintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
+  hintCount++;
+  document.getElementById('hint' + hintCount).classList.add('visible');
+  var remaining = 3 - hintCount;
+  document.getElementById('hint-counter').textContent = remaining + '회 남음';
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount, PAGE_ID);
+  if (cost !== null) flashPenalty(cost);
+  renderHintBtn();
+}
+renderHintBtn();
+setInterval(renderHintBtn, 1000);
+
+function checkAnswer() {
+  var val = document.getElementById('answer').value.trim();
+  var result = document.getElementById('result');
+  result.style.display = 'block';
+  if (val === '95.2') {
+    result.className = 'correct';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">주파수를 맞췄습니다!</span>';
+    document.getElementById('next-btn').style.display = 'block';
+    document.getElementById('answer').disabled = true;
+    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  } else {
+    result.className = 'wrong';
+    result.textContent = '✗ 틀렸습니다. 다시 시도해보세요.';
+    RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
+    flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+
+document.getElementById('answer').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkAnswer();
+});
+</script>
+</body>
+</html>

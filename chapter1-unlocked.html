@@ -35,6 +35,12 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .hint-img{width:100%;border-radius:4px;display:block;}
 .next-btn{width:100%;padding:15px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
 .next-btn:active{opacity:.8;}
+.answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
+.answer-input:focus{border-color:var(--red);}
+.answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
+#result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;border-radius:4px;}
+#result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
+#result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 </style>
 </head>
@@ -120,12 +126,42 @@ function flashPenalty(sec){
 
     <div class="tear"></div>
 
-    <button class="next-btn" onclick="location.href='chapter2.html'">다음 장소로 →</button>
+    <div class="section-title">ANSWER</div>
+    <input class="answer-input" id="answer" type="text" placeholder="다음 장소는 어디일까요?..." />
+    <button class="answer-btn" onclick="checkAnswer()">확인</button>
+    <div id="result"></div>
+
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter2.html'" style="display:none;">다음 장소로 →</button>
   </div>
 </div>
 
 <div style="height:20px"></div>
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script>
+function checkAnswer() {
+  var val = document.getElementById('answer').value.trim();
+  var result = document.getElementById('result');
+  result.style.display = 'block';
+  if (val === '다락방') {
+    result.className = 'correct';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">다락방으로 가보죠.</span>';
+    document.getElementById('answer').disabled = true;
+    document.querySelector('.answer-btn').disabled = true;
+    document.getElementById('next-btn').style.display = 'block';
+    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  } else {
+    result.className = 'wrong';
+    result.textContent = '✗ 틀렸습니다. 다시 확인해보세요.';
+    RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
+    flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+document.getElementById('answer').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') checkAnswer();
+});
+</script>
 
 <script>
 let hintCount = 0;

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 4 — 영업 사무소</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#4caf82;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
+.tape{width:100%;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
+.chapter-tag{display:inline-block;background:var(--red);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;}
+.story-text{font-size:13.5px;line-height:2;color:var(--ink);margin-bottom:14px;}
+.quest-box{background:rgba(139,26,26,.06);border:1px solid rgba(139,26,26,.25);border-left:4px solid var(--red);padding:12px 14px;margin:14px 0;font-size:13px;font-weight:500;color:var(--red);line-height:1.7;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
+.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.hint-counter{font-size:10px;color:var(--red);background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.2);padding:3px 10px;border-radius:10px;}
+.hint-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;margin-bottom:8px;}
+.hint-btn:disabled{opacity:.4;cursor:default;}
+.hint-item{background:rgba(139,105,20,.08);border:1px solid rgba(139,105,20,.25);border-radius:4px;padding:10px 14px;margin-bottom:6px;font-size:13px;color:var(--ink);line-height:1.7;display:none;}
+.hint-item.visible{display:block;}
+.hint-num{font-family:'Nanum Myeongjo',serif;font-size:11px;color:var(--gold);font-weight:700;display:block;margin-bottom:4px;}
+
+/* 암호 종이 */
+.cipher-paper{background:#fdf6e3;border:1px solid rgba(0,0,0,.15);border-radius:2px;padding:18px 16px;margin:14px 0;text-align:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);transform:rotate(-1deg);}
+.cipher-text{font-family:'Nanum Myeongjo',serif;font-size:17px;letter-spacing:.08em;color:var(--ink);font-weight:700;line-height:2;word-break:break-all;}
+.cipher-sub{font-size:10px;color:var(--muted);margin-top:8px;letter-spacing:.1em;}
+
+.answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
+.answer-input:focus{border-color:var(--red);}
+.answer-btn{width:100%;padding:13px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;letter-spacing:.08em;border:none;border-radius:2px;cursor:pointer;}
+#result{display:none;padding:12px 14px;margin-top:8px;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;border-radius:4px;}
+#result.correct{background:rgba(76,175,130,.15);border:1px solid #4caf82;color:#2d7a5a;}
+#result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
+.next-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:10px;display:none;letter-spacing:.08em;}
+.tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+</style>
+</head>
+<body>
+<style>
+#timer-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#12100c;border-bottom:1px solid rgba(201,168,76,.2);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;}
+#timer-bar .rec-dot{width:6px;height:6px;border-radius:50%;background:#e24b4a;margin-right:5px;display:inline-block;animation:pulse-rec 1.4s ease-in-out infinite;}
+@keyframes pulse-rec{0%,100%{opacity:1;}50%{opacity:.3;}}
+#timer-bar .rec-label{font-size:9px;color:#c9a84c;letter-spacing:.12em;font-family:monospace;vertical-align:1px;}
+#timer-bar .clock{font-size:14px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;}
+#timer-bar .chip-label{font-size:9px;color:#776e5e;font-family:monospace;letter-spacing:.05em;}
+#penalty-toast{position:fixed;top:38px;left:50%;transform:translateX(-50%) translateY(-10px);background:#8b1a1a;color:#f0e8d8;font-family:monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:3px;letter-spacing:.05em;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
+#penalty-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.hint-btn .hint-cost{float:right;font-size:11px;opacity:.7;}
+.tape{top:34px !important;white-space:nowrap;overflow:hidden;}
+body{padding-top:64px !important;}
+</style>
+<div id="timer-bar">
+  <div><span class="rec-dot"></span><span class="rec-label">RECORDING</span></div>
+  <div class="clock" id="elapsed-clock">00:00</div>
+  <div class="chip-label" id="chapter-chip">CHAPTER 04</div>
+</div>
+<div id="penalty-toast"></div>
+<script src="timer.js"></script>
+<script>
+var THIS_CHAPTER_ID = 'chapter4';
+var PAGE_ID = 'chapter4-puzzle';
+RCMTimer.enterChapter(THIS_CHAPTER_ID);
+function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
+setInterval(refreshClock, 1000); refreshClock();
+function flashPenalty(sec){
+  var toast = document.getElementById('penalty-toast');
+  toast.textContent = '+' + RCMTimer.formatTime(sec) + ' 페널티';
+  toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 1400);
+}
+</script>
+<div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<div class="document">
+  <div class="doc-header">
+    <div class="chapter-tag">CHAPTER 04</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">영업 사무소</div>
+      </div>
+      <div class="doc-no">No. 6</div>
+    </div>
+  </div>
+
+  <div class="doc-body">
+    <div class="story-text">
+      <p>주소 대신... 알 수 없는 글자가 도착했어요.</p>
+      <p>이게 뭘 의미하는 걸까요?</p>
+    </div>
+
+    <div class="quest-box">▶ 암호를 해독하여 위치를 알아내자!</div>
+
+    <div class="cipher-paper">
+      <div class="cipher-text">ㅂㅣㅈㄴㅜㅁㅇㅏㅊㄴㅏㄹㅏ<br/>ㅍㄴㅡㄴㅣㅇㅗㅂㅣㅇㄲㅏㅂ</div>
+      <div class="cipher-sub">— 수신된 암호문 —</div>
+    </div>
+
+    <div class="tear"></div>
+
+    <div class="section-title">
+      HINTS
+      <span class="hint-counter" id="hint-counter">3회 남음</span>
+    </div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>해체된 주소</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>역순으로 완성해봐!</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>밖이 보이는 파란 창문집</div>
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
+
+    <div class="tear"></div>
+
+    <div class="section-title">ANSWER</div>
+    <input class="answer-input" id="answer" type="text" placeholder="암호를 해독해보세요..."/>
+    <button class="answer-btn" onclick="checkAnswer()">확인</button>
+    <div id="result"></div>
+    <button class="next-btn" id="next-btn" onclick="location.href='chapter4-call.html'">다음 장소로 →</button>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+<div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
+
+<script>
+var hintCount = 0;
+var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+function renderHintBtn(){
+  var btn = document.getElementById('hint-btn');
+  if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
+  var nextIdx = hintCount;
+  if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
+    var remain = RCMTimer.hint3RemainingSec(THIS_CHAPTER_ID);
+    btn.disabled = true;
+    btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
+  }
+}
+function showHint() {
+  if (hintCount >= 3) return;
+  if (hintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
+  hintCount++;
+  document.getElementById('hint' + hintCount).classList.add('visible');
+  var remaining = 3 - hintCount;
+  document.getElementById('hint-counter').textContent = remaining + '회 남음';
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount, PAGE_ID);
+  if (cost !== null) flashPenalty(cost);
+  renderHintBtn();
+}
+renderHintBtn();
+setInterval(renderHintBtn, 1000);
+
+function checkAnswer() {
+  var val = document.getElementById('answer').value.trim().replace(/\s/g,'');
+  var result = document.getElementById('result');
+  result.style.display = 'block';
+  if (val === '밖이보이는파란창문집') {
+    result.className = 'correct';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">암호를 해독했어요. 영업부장의 사무실로 가보죠!</span>';
+    document.getElementById('answer').disabled = true;
+    document.querySelector('.answer-btn').disabled = true;
+    document.getElementById('next-btn').style.display = 'block';
+    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  } else {
+    result.className = 'wrong';
+    result.textContent = '✗ 틀렸습니다. 다시 확인해보세요.';
+    RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
+    flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+document.getElementById('answer').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') checkAnswer();
+});
+</script>
+</body>
+</html>
