@@ -128,7 +128,7 @@ var AFTER = [
 
 var A1 = "나도 감시를 받고 있는지라...\n다만 이건 말해줄 수 있어. 백설이는 이름만큼 결백해.";
 var A2 = "큰 돈이 필요하다고 했어.\n그래서 내가 알고 있는 이세계의 큰 손들을 소개해줬지.";
-var A3 = "결국 캣렉사무소를 찾아간걸로 알아.\n그쪽이 돈이 쫌 되거든. 지금도 고양이 구하고 있다고 하니까 전단지를 찾아봐.\n소개로만 운영되는 곳이니까 누구 소개냐고 하면 하얀손의 소개를 받았다고 해.\n\n아 참, 그리고 나중에 뭔가 막히는 게 생기면... 이전에 뭐든지 알아내주는 친구가 있어.\n019-597-1778 로 전화해봐. 필요할 수 있으니 꼭 기억해두는 게 좋을 거야.\n근데 전화하면 좀 이상하게 받을 거야. 당황하지 말고 검은손 이라고만 해. 알아들을 거야.";
+var A3 = "결국 캣력사무소를 찾아간걸로 알아.\n그쪽이 돈이 쫌 되거든. 지금도 고양이 구하고 있다고 하니까 전단지를 찾아봐.\n소개로만 운영되는 곳이니까 누구 소개냐고 하면 하얀손의 소개를 받았다고 해.\n\n아 참, 그리고 나중에 뭔가 막히는 게 생기면... 이전에 뭐든지 알아내주는 친구가 있어.\n019-597-1778 로 전화해봐. 필요할 수 있으니 꼭 기억해두는 게 좋을 거야.\n근데 전화하면 좀 이상하게 받을 거야. 당황하지 말고 검은손 이라고만 해. 알아들을 거야.";
 
 function rand(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -220,7 +220,7 @@ function selectQ(qId) {
       var nb = document.createElement('button');
       nb.className = 'next-btn';
       nb.style.display = 'block';
-      nb.textContent = '캣렉사무소 전단지 찾으러 가기 →';
+      nb.textContent = '캣력사무소 전단지 찾으러 가기 →';
       nb.onclick = function() { location.href = 'chapter3.html'; };
       msgs.appendChild(nb);
       msgs.scrollTop = msgs.scrollHeight;

@@ -277,23 +277,10 @@ function startValidCall() {
     document.getElementById('call-sub').textContent = '통화 중';
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
-    msg.textContent = '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.';
-    var count = 10;
-    var cd = document.getElementById('call-countdown');
-    cd.textContent = count + '초 후 연결됩니다...';
-    var timer = setInterval(function() {
-      count--;
-      if (count > 0) {
-        cd.textContent = count + '초 후 연결됩니다...';
-      } else {
-        clearInterval(timer);
-        cd.textContent = '';
-        msg.textContent = '아직 끊지않으셨군요.\n신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
-        setTimeout(function() {
-          document.getElementById('call-input-wrap').style.display = 'flex';
-        }, 800);
-      }
-    }, 1000);
+    msg.textContent = '아직 끊지않으셨군요.\n신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
+    setTimeout(function() {
+      document.getElementById('call-input-wrap').style.display = 'flex';
+    }, 800);
   }, 2000);
 }
 

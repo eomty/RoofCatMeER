@@ -256,9 +256,8 @@ function setChannelFromAngle(angle) {
     for (var i = 0; i < 10; i++) {
       document.getElementById('tick' + i).classList.toggle('active', i === currentChannel);
     }
-    // 채널이 바뀌어도 주파수는 유지, 새 채널 기준으로 신호만 재계산
+    // 채널이 바뀌어도 주파수는 유지. 도청 시작 전까지는 신호 판정 노출 안 함
     if (isPlaying) stopPlay();
-    updateSignal(parseInt(slider.value));
     if (navigator.vibrate) navigator.vibrate(15);
   }
   dialAngle = ch * 36;
@@ -317,6 +316,11 @@ function setChannelFromAngle(angle) {
 var slider = document.getElementById('freq-slider');
 slider.addEventListener('input', function() {
   var val = parseInt(this.value);
+  if (!isPlaying) {
+    // 도청 시작 전엔 다이얼만 움직일 뿐, 정답 판정/신호 표시에 영향 없음
+    document.getElementById('freq-num').textContent = (val / 10).toFixed(1);
+    return;
+  }
   if (currentChannel === TARGET_CHANNEL && val >= TARGET_FREQ-2 && val <= TARGET_FREQ+2) {
     val = TARGET_FREQ;
     this.value = TARGET_FREQ;
@@ -326,7 +330,7 @@ slider.addEventListener('input', function() {
     document.getElementById('freq-num').textContent = freq;
   }
   updateSignal(val);
-  if (isPlaying) updateAudioEffect(val);
+  updateAudioEffect(val);
 });
 
 function getStrength(val) {
@@ -433,6 +437,7 @@ function startPlay() {
   document.getElementById('play-icon').textContent = '⏹';
   document.getElementById('play-text').textContent = '도청 중...';
 
+  updateSignal(parseInt(slider.value));
   updateAudioEffect(parseInt(slider.value));
 }
 

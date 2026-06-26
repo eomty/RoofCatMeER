@@ -37,6 +37,28 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 #result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
 .next-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:10px;display:none;letter-spacing:.08em;}
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+
+/* QR 스캐너 */
+.scan-box{background:#0a0a0a;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1;margin-bottom:10px;display:none;}
+.scan-box video{width:100%;height:100%;object-fit:cover;display:block;}
+.scan-frame{position:absolute;inset:18%;border:2px solid rgba(76,175,130,.7);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35);pointer-events:none;}
+.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:22px;height:22px;border:3px solid #4caf82;}
+.scan-frame::before{top:-2px;left:-2px;border-right:none;border-bottom:none;}
+.scan-frame::after{bottom:-2px;right:-2px;border-left:none;border-top:none;}
+.scan-status{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#fff;font-size:12px;background:rgba(0,0,0,.4);padding:4px 0;}
+.scan-btn{width:100%;padding:14px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.06em;border:none;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.scan-btn:active{opacity:.85;}
+.scan-error{display:none;background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);font-size:12px;padding:10px 12px;border-radius:4px;margin-top:8px;line-height:1.6;}
+
+/* 장부 */
+.ledger{display:none;background:#fdf8ec;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:14px;margin:14px 0;}
+.ledger-title{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:16px;text-align:center;letter-spacing:.1em;color:var(--ink);}
+.ledger-sub{text-align:center;font-size:9px;color:var(--muted);letter-spacing:.05em;margin-bottom:10px;font-style:italic;}
+.ledger-table{width:100%;border-collapse:collapse;font-size:10.5px;}
+.ledger-table th,.ledger-table td{border:1px solid rgba(0,0,0,.18);padding:5px 3px;text-align:center;color:var(--ink);}
+.ledger-table th{background:rgba(0,0,0,.06);font-weight:700;font-size:9.5px;}
+.ledger-table tr.suspect td{background:rgba(139,26,26,.1);font-weight:700;color:var(--red);}
+.ledger-note{font-size:9px;color:var(--muted);margin-top:8px;text-align:right;}
 </style>
 </head>
 <body>
@@ -59,6 +81,7 @@ body{padding-top:64px !important;}
   <div class="chip-label" id="chapter-chip">CHAPTER 05</div>
 </div>
 <div id="penalty-toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script src="timer.js"></script>
 <script>
 var THIS_CHAPTER_ID = 'chapter5';
@@ -97,6 +120,35 @@ function flashPenalty(sec){
 
     <div class="tear"></div>
 
+    <!-- QR 스캔 -->
+    <div id="scan-section">
+      <button class="scan-btn" id="scan-start-btn" onclick="startScan()">📷 QR 스캔하기</button>
+      <div class="scan-box" id="scan-box">
+        <video id="scan-video" playsinline muted autoplay></video>
+        <div class="scan-frame"></div>
+        <div class="scan-status" id="scan-status">QR코드를 사각형 안에 맞춰주세요</div>
+      </div>
+      <div class="scan-error" id="scan-error"></div>
+    </div>
+
+    <!-- 장부 (스캔 성공 시 노출) -->
+    <div class="ledger" id="ledger">
+      <div class="ledger-title">S.T.R.A.W</div>
+      <div class="ledger-sub">Secret Transport Route For A Whisker</div>
+      <table class="ledger-table">
+        <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>거래장소</th><th>일시</th></tr>
+        <tr><td>1</td><td>데헬</td><td>페너</td><td>3g</td><td>테라스홀</td><td>08.19</td></tr>
+        <tr><td>2</td><td>부성</td><td>페너</td><td>8g</td><td>다낭박하우스</td><td>08.21</td></tr>
+        <tr class="suspect"><td>3</td><td>페너</td><td>S.W</td><td>30g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
+        <tr><td>4</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+        <tr><td>5</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+      </table>
+      <div class="ledger-note">*전 거래에도 페너가 등장함</div>
+    </div>
+
+    <div class="tear" id="tear-after-ledger" style="display:none;"></div>
+
+    <div id="hints-answer-section" style="display:none;">
     <div class="section-title">
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
@@ -113,12 +165,87 @@ function flashPenalty(sec){
     <button class="answer-btn" onclick="checkAnswer()">확인</button>
     <div id="result"></div>
     <button class="next-btn" id="next-btn" onclick="location.href='chapter6.html'">다음으로 →</button>
+    </div>
   </div>
 </div>
 
 <div style="height:20px"></div>
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
+<script>
+// QR 스캔에 사용되는 정답 코드. 실제 방탈출장에는 이 텍스트가 담긴 QR코드를 인쇄해서 비치해야 합니다.
+var EXPECTED_QR_TOKEN = 'ROOFCATME-LEDGER-05';
+
+var scanStream = null;
+var scanRAF = null;
+var scanCanvas = document.createElement('canvas');
+var scanCtx = scanCanvas.getContext('2d');
+
+function startScan() {
+  document.getElementById('scan-error').style.display = 'none';
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showScanError('이 브라우저에서는 카메라를 사용할 수 없어요. 카메라 권한이 있는 브라우저(크롬/사파리)로 다시 시도해주세요.');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(function(stream) {
+      scanStream = stream;
+      var video = document.getElementById('scan-video');
+      video.srcObject = stream;
+      document.getElementById('scan-box').style.display = 'block';
+      document.getElementById('scan-start-btn').style.display = 'none';
+      video.play();
+      scanRAF = requestAnimationFrame(scanTick);
+    })
+    .catch(function(err) {
+      showScanError('카메라 권한이 필요해요. 브라우저 설정에서 카메라 접근을 허용한 뒤 다시 시도해주세요.');
+    });
+}
+
+function showScanError(msg) {
+  var el = document.getElementById('scan-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function scanTick() {
+  var video = document.getElementById('scan-video');
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    scanCanvas.width = video.videoWidth;
+    scanCanvas.height = video.videoHeight;
+    scanCtx.drawImage(video, 0, 0, scanCanvas.width, scanCanvas.height);
+    var imageData = scanCtx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+    var code = null;
+    try { code = jsQR(imageData.data, imageData.width, imageData.height); } catch(e) {}
+    if (code) {
+      if (code.data === EXPECTED_QR_TOKEN) {
+        onScanSuccess();
+        return;
+      } else {
+        document.getElementById('scan-status').textContent = '다른 QR코드예요. 정확한 코드를 스캔해주세요';
+      }
+    }
+  }
+  scanRAF = requestAnimationFrame(scanTick);
+}
+
+function stopScanStream() {
+  if (scanRAF) { cancelAnimationFrame(scanRAF); scanRAF = null; }
+  if (scanStream) {
+    scanStream.getTracks().forEach(function(t){ t.stop(); });
+    scanStream = null;
+  }
+}
+
+function onScanSuccess() {
+  stopScanStream();
+  document.getElementById('scan-section').style.display = 'none';
+  document.getElementById('ledger').style.display = 'block';
+  document.getElementById('tear-after-ledger').style.display = 'block';
+  document.getElementById('hints-answer-section').style.display = 'block';
+  if (navigator.vibrate) navigator.vibrate([80,40,80]);
+}
+</script>
 <script>
 var hintCount = 0;
 function showHint() {
