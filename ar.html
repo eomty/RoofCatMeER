@@ -95,6 +95,8 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 </style>
 </head>
 <body>
+<script src="debug-config.js"></script>
+<script src="flow-guard.js"></script>
 
 <a-scene arjs="sourceType:webcam; debugUIEnabled:false;">
   <a-marker preset="hiro" id="m-hiro">
@@ -190,6 +192,7 @@ function onFound(key) {
   if (d.next) {
     timer = setTimeout(function() {
       document.getElementById('popup').style.display = 'none';
+      if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
       location.href = d.next;
     }, 2500);
   } else {
