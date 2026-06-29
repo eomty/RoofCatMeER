@@ -39,9 +39,6 @@
   function currentFile(){
     return location.pathname.split('/').pop() || 'index.html';
   }
-  function isDebug(){
-    return typeof RCM_DEBUG_MODE !== 'undefined' && RCM_DEBUG_MODE === true;
-  }
 
   // 각 페이지가 "여기까지 깼다"고 알려줄 때 호출.
   // 보통 인자 없이 호출(현재 파일을 스스로 인식)하지만, 다른 페이지를 거쳐서 완료되는
@@ -62,9 +59,9 @@
     try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
   }
 
-  // 페이지 로드 즉시 실행: 이전 단계 안 깼으면 그 페이지로 돌려보냄
+  // 페이지 로드 즉시 실행: 이전 단계 안 깼으면 그 페이지로 돌려보냄.
+  // (디버그 모드 여부와 무관하게 항상 적용 — 디버그탭 보이는 것과 잠금은 별개)
   function guard(){
-    if (isDebug()) return; // 디버그 모드면 잠금 자체를 적용 안 함
     var cur = currentFile();
     var idx = FLOW.indexOf(cur);
     if (idx <= 0) return; // 첫 페이지거나 흐름에 없는 페이지면 통과

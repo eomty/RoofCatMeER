@@ -48,8 +48,8 @@
     var theme = starred
       ? 'color:#c9a84c;background:rgba(201,168,76,.1);'
       : 'color:rgba(255,255,255,.6);background:rgba(255,255,255,.05);';
-    return '<a href="' + href + '" style="' + theme +
-      'font-size:12px;padding:6px 10px;border-radius:6px;text-decoration:none;">' +
+    return '<a href="javascript:void(0)" data-rcm-jump="' + href + '" style="' + theme +
+      'font-size:12px;padding:6px 10px;border-radius:6px;text-decoration:none;display:block;">' +
       label + '</a>';
   }
 
@@ -82,6 +82,17 @@
     location.reload();
   }
 
+  // 디버그탭으로 특정 페이지에 점프할 때, 그 앞 단계까지 전부 완료 처리해서
+  // 도착 페이지의 잠금 체크를 정당하게 통과시킨다.
+  function jumpTo(targetFile){
+    var FLOW = (window.RCMFlow && RCMFlow.FLOW) || [];
+    var idx = FLOW.indexOf(targetFile);
+    if (window.RCMFlow && RCMFlow.markComplete && idx > 0) {
+      for (var i = 0; i < idx; i++) RCMFlow.markComplete(FLOW[i]);
+    }
+    location.href = targetFile;
+  }
+
   function goNext(){
     var FLOW = (window.RCMFlow && RCMFlow.FLOW) || [];
     var cur = location.pathname.split('/').pop() || 'index.html';
@@ -90,13 +101,20 @@
       alert('다음 챕터 정보를 찾을 수 없어요.');
       return;
     }
-    location.href = FLOW[idx + 1];
+    jumpTo(FLOW[idx + 1]);
   }
 
   function mount(){
     var wrap = document.createElement('div');
     wrap.innerHTML = panelHtml;
     document.body.appendChild(wrap.firstChild);
+
+    var links = document.querySelectorAll('[data-rcm-jump]');
+    for (var i = 0; i < links.length; i++) {
+      links[i].onclick = (function(target){
+        return function(){ jumpTo(target); };
+      })(links[i].getAttribute('data-rcm-jump'));
+    }
 
     document.getElementById('rcm-debug-reset-timer').onclick = resetTimer;
     document.getElementById('rcm-debug-reset-progress').onclick = resetProgress;
