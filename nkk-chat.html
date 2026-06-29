@@ -50,6 +50,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#1a1410;font-family:
 <body>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
+<script src="debug-panel.js"></script>
 <div id="timer-bar">
   <div><span class="rec-dot"></span><span class="rec-label">RECORDING</span></div>
   <div class="clock" id="elapsed-clock">00:00</div>
@@ -284,57 +285,6 @@ document.getElementById('inp').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') sendMsg();
 });
 </script>
-<div id="rcm-debug-panel" style="position:fixed;bottom:16px;right:16px;z-index:500;">
-  <details>
-    <summary style="background:rgba(0,0,0,.7);color:rgba(255,255,255,.4);font-size:11px;padding:6px 12px;border-radius:20px;cursor:pointer;list-style:none;border:1px solid rgba(255,255,255,.1);">🛠 디버그</summary>
-    <div style="background:rgba(0,0,0,.85);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px;margin-top:6px;display:flex;flex-direction:column;gap:6px;min-width:170px;max-height:60vh;overflow-y:auto;">
-      <a href="synopsis-story.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">시놉시스</a>
-      <a href="chapter1.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터1 — 백설이의 락커</a>
-      <a href="chapter1-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터1 — 일기</a>
-      <a href="chapter2.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터2 — 전설의 타짜</a>
-      <a href="chapter2-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터2 — 언락</a>
-      <a href="nkk-chat.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">낑깡이 대화</a>
-      <a href="chapter3.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터3 — 캣력사무소 ★</a>
-      <a href="chapter4.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터4 — 영업사무소 ★</a>
-      <a href="chapter4-puzzle.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터4 — 암호</a>
-      <a href="chapter4-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터4 — 도청</a>
-      <a href="chapter5.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터5 — 위험한 편지 ★</a>
-      <a href="chapter5-unlocked.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터5 — 수상한 장부 ★</a>
-      <a href="chapter6.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터6 — 딜리셔스 호텔의 밤 ★</a>
-      <a href="chapter6-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터6 — CCTV 확인</a>
-      <a href="chapter7.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터7 — 완벽한 알리바이 ★</a>
-      <a href="chapter7-call.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터7 — 해커 전화</a>
-      <a href="chapter7-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터7 — 페너의 폰</a>
-      <a href="chapter7-to-8.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터7→8 — 수사 종료 안내</a>
-      <a href="chapter8.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">챕터8 — 최종담판 ★</a>
-      <a href="chapter8-unlocked.html" style="color:rgba(255,255,255,.6);font-size:12px;padding:6px 10px;background:rgba(255,255,255,.05);border-radius:6px;text-decoration:none;">챕터8 — 담판 진행</a>
-      <a href="result.html" style="color:#c9a84c;font-size:12px;padding:6px 10px;background:rgba(201,168,76,.1);border-radius:6px;text-decoration:none;">결과 페이지 ★</a>
-      <div style="border-top:1px solid rgba(255,255,255,.15);margin:4px 0 2px;"></div>
-      <button onclick="rcmDebugResetTimer()" style="color:#ff9a9a;font-size:12px;padding:6px 10px;background:rgba(139,26,26,.18);border:1px solid rgba(139,26,26,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">⏱ 소요시간 초기화</button>
-      <button onclick="rcmDebugNext()" style="color:#9ad8ff;font-size:12px;padding:6px 10px;background:rgba(40,100,160,.18);border:1px solid rgba(40,100,160,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">⏭ 다음 챕터로</button>
-    </div>
-  </details>
-</div>
-<script>
-(function(){
-  if (typeof RCM_DEBUG_MODE !== 'undefined' && RCM_DEBUG_MODE === false) {
-    var panel = document.getElementById('rcm-debug-panel');
-    if (panel) panel.style.display = 'none';
-    return;
-  }
-  var RCM_FLOW = window.RCMFlow.FLOW;
-  window.rcmDebugNext = function(){
-    var cur = location.pathname.split('/').pop() || 'index.html';
-    var idx = RCM_FLOW.indexOf(cur);
-    if (idx === -1 || idx >= RCM_FLOW.length-1) { alert('다음 챕터 정보를 찾을 수 없어요.'); return; }
-    location.href = RCM_FLOW[idx+1];
-  };
-  window.rcmDebugResetTimer = function(){
-    if (!confirm('소요시간/힌트/오답 기록을 전부 초기화할까요?')) return;
-    try { if (window.RCMTimer && RCMTimer.resetAll) RCMTimer.resetAll(); else localStorage.removeItem('rcm_timer'); } catch(e){}
-    location.reload();
-  };
-})();
-</script>
+
 </body>
 </html>

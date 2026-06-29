@@ -57,6 +57,11 @@
     return !!done[filename];
   }
 
+  // 챕터 클리어 기록만 초기화 (소요시간/힌트 기록은 안 건드림 — 그건 RCMTimer.resetAll()의 역할)
+  function resetProgress(){
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+  }
+
   // 페이지 로드 즉시 실행: 이전 단계 안 깼으면 그 페이지로 돌려보냄
   function guard(){
     if (isDebug()) return; // 디버그 모드면 잠금 자체를 적용 안 함
@@ -75,6 +80,7 @@
     FLOW: FLOW,
     markComplete: markComplete,
     isComplete: isComplete,
+    resetProgress: resetProgress,
     currentFile: currentFile
   };
 })();
