@@ -84,7 +84,7 @@ body{padding-top:64px !important;}
   <div class="chip-label" id="chapter-chip">CHAPTER 05</div>
 </div>
 <div id="penalty-toast"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script src="jsQR.js"></script>
 <script src="timer.js"></script>
 <script>
 var THIS_CHAPTER_ID = 'chapter5';
@@ -186,6 +186,10 @@ var scanCtx = scanCanvas.getContext('2d');
 
 function startScan() {
   document.getElementById('scan-error').style.display = 'none';
+  if (typeof jsQR === 'undefined') {
+    showScanError('QR 인식 모듈을 불러오지 못했어요. 페이지를 새로고침한 뒤 다시 시도해주세요.');
+    return;
+  }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showScanError('이 브라우저에서는 카메라를 사용할 수 없어요. 카메라 권한이 있는 브라우저(크롬/사파리)로 다시 시도해주세요.');
     return;
