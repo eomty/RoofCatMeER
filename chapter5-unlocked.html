@@ -50,15 +50,39 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .scan-btn:active{opacity:.85;}
 .scan-error{display:none;background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);font-size:12px;padding:10px 12px;border-radius:4px;margin-top:8px;line-height:1.6;}
 
-/* 장부 */
-.ledger{display:none;background:#fdf8ec;border:1px solid rgba(0,0,0,.15);border-radius:4px;padding:14px;margin:14px 0;}
-.ledger-title{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:16px;text-align:center;letter-spacing:.1em;color:var(--ink);}
-.ledger-sub{text-align:center;font-size:9px;color:var(--muted);letter-spacing:.05em;margin-bottom:10px;font-style:italic;}
-.ledger-table{width:100%;border-collapse:collapse;font-size:10.5px;}
-.ledger-table th,.ledger-table td{border:1px solid rgba(0,0,0,.18);padding:5px 3px;text-align:center;color:var(--ink);}
-.ledger-table th{background:rgba(0,0,0,.06);font-weight:700;font-size:9.5px;}
-.ledger-table tr.suspect td{background:rgba(139,26,26,.1);font-weight:700;color:var(--red);}
-.ledger-note{font-size:9px;color:var(--muted);margin-top:8px;text-align:right;}
+/* 장부 표지 (스캔 성공 시 노출, 탭하면 모달 확장) */
+.ledger-cover-wrap{display:none;margin:14px 0;}
+.ledger-cover{position:relative;width:100%;aspect-ratio:3/4;border-radius:6px;overflow:hidden;cursor:pointer;background:linear-gradient(135deg,#3d2f1a,#241c0f);box-shadow:inset 0 0 60px rgba(0,0,0,.5),2px 2px 10px rgba(0,0,0,.4);}
+.ledger-vign-tl{position:absolute;top:0;left:0;width:60px;height:60px;background:radial-gradient(circle at 0 0,rgba(0,0,0,.45),transparent 70%);}
+.ledger-vign-br{position:absolute;bottom:0;right:0;width:70px;height:70px;background:radial-gradient(circle at 100% 100%,rgba(0,0,0,.4),transparent 70%);}
+.ledger-vign-tr{position:absolute;top:0;right:0;width:40px;height:40px;background:radial-gradient(circle at 100% 0,rgba(0,0,0,.3),transparent 70%);}
+.ledger-cover-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;}
+.ledger-cover-ring{width:40px;height:40px;border-radius:50%;border:2px solid #c9a84c;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.ledger-cover-dot{width:18px;height:18px;border-radius:50%;background:#c9a84c;opacity:.5;}
+.ledger-cover-title{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:20px;letter-spacing:.1em;color:#e8d9a8;margin-bottom:6px;}
+.ledger-cover-sub{font-size:9px;color:#a89868;letter-spacing:.04em;line-height:1.6;}
+.ledger-cover-hint{margin-top:18px;font-size:8px;color:#6a5d40;letter-spacing:.2em;}
+
+/* 모달 */
+#ledger-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);align-items:center;justify-content:center;z-index:999;transition:background .25s ease,backdrop-filter .25s ease;}
+#ledger-modal{width:90%;max-width:340px;position:relative;transform:scale(.85);opacity:0;transition:transform .25s ease,opacity .25s ease;}
+.ledger-close-btn{position:absolute;top:-42px;right:0;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:17px;cursor:pointer;}
+.ledger-track-wrap{position:relative;height:440px;overflow:hidden;border-radius:6px;box-shadow:6px 6px 24px rgba(0,0,0,.6);}
+#ledger-track{display:flex;width:300%;height:100%;transition:transform .35s ease;}
+.ledger-page{width:33.333%;position:relative;box-sizing:border-box;border-right:1px solid rgba(0,0,0,.15);}
+.ledger-page:last-child{border-right:none;}
+.ledger-page-cover{background:linear-gradient(135deg,#3d2f1a,#241c0f);padding:30px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.ledger-page-data{background:#f0e8d0;padding:18px 14px;}
+.ledger-page-label{position:relative;font-size:9px;color:#8b7a4a;letter-spacing:.1em;margin-bottom:10px;text-align:center;}
+.ledger-modal-table{position:relative;width:100%;border-collapse:collapse;font-size:10.5px;color:#3a2e1a;}
+.ledger-modal-table th,.ledger-modal-table td{padding:6px 2px;text-align:center;}
+.ledger-modal-table th{color:#8b7a4a;font-size:8.5px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.15);}
+.ledger-modal-table td{border-bottom:1px solid rgba(0,0,0,.1);}
+.ledger-modal-table tr.suspect td{background:rgba(139,26,26,.1);color:#8b1a1a;font-weight:700;}
+.ledger-modal-note{position:relative;font-size:9px;color:#8b7a4a;margin-top:10px;text-align:center;}
+.ledger-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+.ledger-dot{width:8px;height:8px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.25);cursor:pointer;}
+.ledger-dot.active{background:#c9a84c;}
 </style>
 </head>
 <body>
@@ -134,19 +158,68 @@ function flashPenalty(sec){
       <div class="scan-error" id="scan-error"></div>
     </div>
 
-    <!-- 장부 (스캔 성공 시 노출) -->
-    <div class="ledger" id="ledger">
-      <div class="ledger-title">S.T.R.A.W</div>
-      <div class="ledger-sub">Secret Transport Route For A Whisker</div>
-      <table class="ledger-table">
-        <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>거래장소</th><th>일시</th></tr>
-        <tr><td>1</td><td>데헬</td><td>페너</td><td>3g</td><td>테라스홀</td><td>08.19</td></tr>
-        <tr><td>2</td><td>부성</td><td>페너</td><td>8g</td><td>다낭박하우스</td><td>08.21</td></tr>
-        <tr class="suspect"><td>3</td><td>페너</td><td>S.W</td><td>30g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
-        <tr><td>4</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
-        <tr><td>5</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
-      </table>
-      <div class="ledger-note">*전 거래에도 페너가 등장함</div>
+    <!-- 장부 표지 (스캔 성공 시 노출, 탭하면 모달로 확장) -->
+    <div class="ledger-cover-wrap" id="ledger-cover-wrap">
+      <div class="ledger-cover" id="ledger-cover" onclick="openLedgerModal()">
+        <div class="ledger-vign-tl"></div>
+        <div class="ledger-vign-br"></div>
+        <div class="ledger-vign-tr"></div>
+        <div class="ledger-cover-inner">
+          <div class="ledger-cover-ring"><div class="ledger-cover-dot"></div></div>
+          <div class="ledger-cover-title">S.T.R.A.W</div>
+          <div class="ledger-cover-sub">Secret Transport<br/>Route For A Whisker</div>
+          <div class="ledger-cover-hint">▸ 탭하여 펼쳐서 확인 ▸</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 장부 모달 -->
+    <div id="ledger-overlay">
+      <div id="ledger-modal">
+        <button class="ledger-close-btn" onclick="closeLedgerModal()">✕</button>
+        <div class="ledger-track-wrap">
+          <div id="ledger-track">
+
+            <div class="ledger-page ledger-page-cover">
+              <div class="ledger-vign-tl"></div>
+              <div class="ledger-vign-br"></div>
+              <div class="ledger-cover-ring" style="position:relative;width:48px;height:48px;margin-bottom:18px;"><div class="ledger-cover-dot" style="width:24px;height:24px;"></div></div>
+              <div class="ledger-cover-title" style="position:relative;font-size:26px;margin-bottom:8px;">S.T.R.A.W</div>
+              <div class="ledger-cover-sub" style="position:relative;font-size:10px;">Secret Transport<br/>Route For A Whisker</div>
+              <div class="ledger-cover-hint" style="position:relative;margin-top:24px;font-size:9px;">▸ 넘겨서 내용 확인 ▸</div>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.35),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 1 / 2</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>1</td><td>데헬</td><td>페너</td><td>3g</td><td>테라스홀</td><td>08.19</td></tr>
+                <tr><td>2</td><td>부성</td><td>페너</td><td>8g</td><td>다낭박하우스</td><td>08.21</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tr" style="background:radial-gradient(circle at 100% 0,rgba(120,90,40,.35),transparent 70%);"></div>
+              <div class="ledger-vign-tl" style="top:auto;bottom:0;left:0;background:radial-gradient(circle at 0 100%,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 2 / 2</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr class="suspect"><td>3</td><td>페너</td><td>S.W</td><td>30g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
+                <tr><td colspan="6" style="color:#bbb;">- 이하 공백 -</td></tr>
+              </table>
+              <div class="ledger-modal-note">*전 거래에도 페너가 등장함</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="ledger-dots">
+          <button class="ledger-dot active" id="ledger-dot0" onclick="ledgerGoTo(0)"></button>
+          <button class="ledger-dot" id="ledger-dot1" onclick="ledgerGoTo(1)"></button>
+          <button class="ledger-dot" id="ledger-dot2" onclick="ledgerGoTo(2)"></button>
+        </div>
+      </div>
     </div>
 
     <div class="tear" id="tear-after-ledger" style="display:none;"></div>
@@ -247,11 +320,55 @@ function stopScanStream() {
 function onScanSuccess() {
   stopScanStream();
   document.getElementById('scan-section').style.display = 'none';
-  document.getElementById('ledger').style.display = 'block';
+  document.getElementById('ledger-cover-wrap').style.display = 'block';
   document.getElementById('tear-after-ledger').style.display = 'block';
   document.getElementById('hints-answer-section').style.display = 'block';
   if (navigator.vibrate) navigator.vibrate([80,40,80]);
 }
+
+var ledgerPage = 0;
+function openLedgerModal() {
+  var overlay = document.getElementById('ledger-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function() {
+    overlay.style.background = 'rgba(0,0,0,.7)';
+    overlay.style.backdropFilter = 'blur(6px)';
+    overlay.style.webkitBackdropFilter = 'blur(6px)';
+    var modal = document.getElementById('ledger-modal');
+    modal.style.transform = 'scale(1)';
+    modal.style.opacity = '1';
+  });
+}
+function closeLedgerModal() {
+  var overlay = document.getElementById('ledger-overlay');
+  overlay.style.background = 'rgba(0,0,0,0)';
+  overlay.style.backdropFilter = 'blur(0px)';
+  overlay.style.webkitBackdropFilter = 'blur(0px)';
+  var modal = document.getElementById('ledger-modal');
+  modal.style.transform = 'scale(.85)';
+  modal.style.opacity = '0';
+  setTimeout(function() { overlay.style.display = 'none'; }, 200);
+}
+function ledgerGoTo(i) {
+  ledgerPage = i;
+  document.getElementById('ledger-track').style.transform = 'translateX(-' + (i * 33.333) + '%)';
+  for (var d = 0; d < 3; d++) {
+    document.getElementById('ledger-dot' + d).classList.toggle('active', d === i);
+  }
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+(function() {
+  var startX = null;
+  var wrap = document.querySelector('.ledger-track-wrap');
+  wrap.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; });
+  wrap.addEventListener('touchend', function(e) {
+    if (startX === null) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (dx < -40 && ledgerPage < 2) ledgerGoTo(ledgerPage + 1);
+    if (dx > 40 && ledgerPage > 0) ledgerGoTo(ledgerPage - 1);
+    startX = null;
+  });
+})();
 </script>
 <script>
 var hintCount = 0;
