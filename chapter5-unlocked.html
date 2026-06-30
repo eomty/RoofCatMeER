@@ -37,6 +37,7 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 #result.wrong{background:rgba(139,26,26,.08);border:1px solid var(--red);color:var(--red);}
 .next-btn{width:100%;padding:14px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;border-radius:2px;cursor:pointer;margin-top:10px;display:none;letter-spacing:.08em;}
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+body.ledger-open{position:fixed;left:0;right:0;overflow:hidden;}
 
 /* QR 스캐너 */
 .scan-box{background:#0a0a0a;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1;margin-bottom:10px;display:none;}
@@ -68,8 +69,8 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 #ledger-modal{width:90%;max-width:340px;position:relative;transform:scale(.85);opacity:0;transition:transform .25s ease,opacity .25s ease;}
 .ledger-close-btn{position:absolute;top:-42px;right:0;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:17px;cursor:pointer;}
 .ledger-track-wrap{position:relative;height:440px;overflow:hidden;border-radius:6px;box-shadow:6px 6px 24px rgba(0,0,0,.6);}
-#ledger-track{display:flex;width:300%;height:100%;transition:transform .35s ease;}
-.ledger-page{width:33.333%;position:relative;box-sizing:border-box;border-right:1px solid rgba(0,0,0,.15);}
+#ledger-track{display:flex;width:800%;height:100%;transition:transform .35s ease;}
+.ledger-page{width:12.5%;position:relative;box-sizing:border-box;border-right:1px solid rgba(0,0,0,.15);}
 .ledger-page:last-child{border-right:none;}
 .ledger-page-cover{background:linear-gradient(135deg,#3d2f1a,#241c0f);padding:30px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
 .ledger-page-data{background:#f0e8d0;padding:18px 14px;}
@@ -78,10 +79,9 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .ledger-modal-table th,.ledger-modal-table td{padding:6px 2px;text-align:center;}
 .ledger-modal-table th{color:#8b7a4a;font-size:8.5px;font-weight:700;border-bottom:1px solid rgba(0,0,0,.15);}
 .ledger-modal-table td{border-bottom:1px solid rgba(0,0,0,.1);}
-.ledger-modal-table tr.suspect td{background:rgba(139,26,26,.1);color:#8b1a1a;font-weight:700;}
 .ledger-modal-note{position:relative;font-size:9px;color:#8b7a4a;margin-top:10px;text-align:center;}
-.ledger-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
-.ledger-dot{width:8px;height:8px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.25);cursor:pointer;}
+.ledger-dots{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap;}
+.ledger-dot{width:6px;height:6px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.25);cursor:pointer;}
 .ledger-dot.active{background:#c9a84c;}
 </style>
 </head>
@@ -190,24 +190,115 @@ function flashPenalty(sec){
             </div>
 
             <div class="ledger-page ledger-page-data">
-              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.35),transparent 70%);"></div>
-              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.3),transparent 70%);"></div>
-              <div class="ledger-page-label">PAGE 1 / 2</div>
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 1 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>1</td><td>데헬</td><td>페너</td><td>3g</td><td>테라스홀</td><td>08.19</td></tr>
-                <tr><td>2</td><td>부성</td><td>페너</td><td>8g</td><td>다낭박하우스</td><td>08.21</td></tr>
+                <tr><td>1</td><td>플래시</td><td>페너</td><td>3g</td><td>테라스홀</td><td>08.16</td></tr>
+                <tr><td>2</td><td>레첼</td><td>페너</td><td>5g</td><td>뒷골목어귀</td><td>08.17</td></tr>
+                <tr><td>3</td><td>달이</td><td>페너</td><td>3g</td><td>담장틈새</td><td>08.19</td></tr>
+                <tr><td>4</td><td>금별</td><td>페너</td><td>8g</td><td>다낭박하우스</td><td>08.21</td></tr>
+                <tr><td>5</td><td>절미</td><td>페너</td><td>5g</td><td>뒷골목어귀</td><td>08.22</td></tr>
+                <tr><td>6</td><td>모찌</td><td>페너</td><td>2g</td><td>담장틈새</td><td>08.24</td></tr>
+                <tr><td>7</td><td>소고</td><td>페너</td><td>15g</td><td>담장틈새</td><td>08.26</td></tr>
+                <tr><td>8</td><td>버즈</td><td>페너</td><td>9g</td><td>주차장구석</td><td>08.27</td></tr>
               </table>
             </div>
 
             <div class="ledger-page ledger-page-data">
-              <div class="ledger-vign-tr" style="background:radial-gradient(circle at 100% 0,rgba(120,90,40,.35),transparent 70%);"></div>
-              <div class="ledger-vign-tl" style="top:auto;bottom:0;left:0;background:radial-gradient(circle at 0 100%,rgba(120,90,40,.3),transparent 70%);"></div>
-              <div class="ledger-page-label">PAGE 2 / 2</div>
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 2 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr class="suspect"><td>3</td><td>페너</td><td>S.W</td><td>30g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
-                <tr><td colspan="6" style="color:#bbb;">- 이하 공백 -</td></tr>
+                <tr><td>9</td><td>비니</td><td>페너</td><td>4g</td><td>쓰레기장뒤</td><td>08.28</td></tr>
+                <tr><td>10</td><td>하프</td><td>페너</td><td>4g</td><td>담벼락아래</td><td>09.01</td></tr>
+                <tr><td>11</td><td>샤인</td><td>페너</td><td>3g</td><td>골목정원</td><td>09.02</td></tr>
+                <tr><td>12</td><td>콩떡</td><td>페너</td><td>7g</td><td>우편함옆</td><td>09.03</td></tr>
+                <tr><td>13</td><td>지니</td><td>페너</td><td>2g</td><td>분수대근처</td><td>09.04</td></tr>
+                <tr><td>14</td><td>지니</td><td>페너</td><td>8g</td><td>골목정원</td><td>09.05</td></tr>
+                <tr><td>15</td><td>비비</td><td>페너</td><td>15g</td><td>뒷문계단</td><td>09.06</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 3 / 7</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>16</td><td>금실</td><td>페너</td><td>5g</td><td>골목정원</td><td>09.08</td></tr>
+                <tr><td>17</td><td>달이</td><td>페너</td><td>5g</td><td>놀이터구석</td><td>09.10</td></tr>
+                <tr><td>18</td><td>버즈</td><td>페너</td><td>3g</td><td>자전거보관소</td><td>09.11</td></tr>
+                <tr><td>19</td><td>모아</td><td>페너</td><td>15g</td><td>우편함옆</td><td>09.12</td></tr>
+                <tr><td>20</td><td>티코</td><td>페너</td><td>7g</td><td>담벼락아래</td><td>09.13</td></tr>
+                <tr><td>21</td><td>콩떡</td><td>페너</td><td>15g</td><td>골목정원</td><td>09.14</td></tr>
+                <tr><td>22</td><td>플래시</td><td>페너</td><td>4g</td><td>담장틈새</td><td>09.16</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 4 / 7</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>23</td><td>샤인</td><td>페너</td><td>4g</td><td>분수대근처</td><td>09.17</td></tr>
+                <tr><td>24</td><td>무디</td><td>페너</td><td>15g</td><td>담장틈새</td><td>09.18</td></tr>
+                <tr><td>25</td><td>무디</td><td>페너</td><td>7g</td><td>다낭박하우스</td><td>09.20</td></tr>
+                <tr><td>26</td><td>버즈</td><td>페너</td><td>7g</td><td>자전거보관소</td><td>09.21</td></tr>
+                <tr><td>27</td><td>파인</td><td>페너</td><td>5g</td><td>주차장구석</td><td>09.22</td></tr>
+                <tr><td>28</td><td>페너</td><td>S.W</td><td>5g</td><td>벤치아래</td><td>09.23</td></tr>
+                <tr><td>29</td><td>레첼</td><td>페너</td><td>15g</td><td>분수대근처</td><td>09.24</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 5 / 7</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>30</td><td>플래시</td><td>페너</td><td>4g</td><td>뒷골목어귀</td><td>09.25</td></tr>
+                <tr><td>31</td><td>플래시</td><td>페너</td><td>10g</td><td>정류장뒤편</td><td>09.27</td></tr>
+                <tr><td>32</td><td>샤인</td><td>페너</td><td>8g</td><td>주차장구석</td><td>10.01</td></tr>
+                <tr><td>33</td><td>절미</td><td>페너</td><td>5g</td><td>뒷마당창고</td><td>10.02</td></tr>
+                <tr><td>34</td><td>랑이</td><td>페너</td><td>3g</td><td>다낭박하우스</td><td>10.03</td></tr>
+                <tr><td>35</td><td>호떡</td><td>페너</td><td>15g</td><td>지하주차장</td><td>10.04</td></tr>
+                <tr><td>36</td><td>달이</td><td>페너</td><td>8g</td><td>뒷문계단</td><td>10.06</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 6 / 7</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>37</td><td>시니</td><td>페너</td><td>8g</td><td>뒷문계단</td><td>10.07</td></tr>
+                <tr><td>38</td><td>금별</td><td>페너</td><td>6g</td><td>담장틈새</td><td>10.09</td></tr>
+                <tr><td>39</td><td>하프</td><td>페너</td><td>3g</td><td>담장틈새</td><td>10.11</td></tr>
+                <tr><td>40</td><td>랑이</td><td>페너</td><td>15g</td><td>계단참</td><td>10.12</td></tr>
+                <tr><td>41</td><td>시니</td><td>페너</td><td>8g</td><td>지하주차장</td><td>10.13</td></tr>
+                <tr><td>42</td><td>하프</td><td>페너</td><td>6g</td><td>가로수밑</td><td>10.14</td></tr>
+                <tr><td>43</td><td>쿠미</td><td>페너</td><td>10g</td><td>옥상정원</td><td>10.15</td></tr>
+              </table>
+            </div>
+
+            <div class="ledger-page ledger-page-data">
+              <div class="ledger-vign-tl" style="background:radial-gradient(circle at 0 0,rgba(120,90,40,.3),transparent 70%);"></div>
+              <div class="ledger-vign-br" style="background:radial-gradient(circle at 100% 100%,rgba(120,90,40,.25),transparent 70%);"></div>
+              <div class="ledger-page-label">PAGE 7 / 7</div>
+              <table class="ledger-modal-table">
+                <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
+                <tr><td>44</td><td>콩떡</td><td>페너</td><td>15g</td><td>가로수밑</td><td>10.16</td></tr>
+                <tr><td>45</td><td>하프</td><td>페너</td><td>4g</td><td>우편함옆</td><td>10.17</td></tr>
+                <tr><td>46</td><td>금별</td><td>페너</td><td>10g</td><td>가로수밑</td><td>10.18</td></tr>
+                <tr><td>47</td><td>금별</td><td>페너</td><td>7g</td><td>벤치아래</td><td>10.20</td></tr>
+                <tr><td>48</td><td>무디</td><td>페너</td><td>7g</td><td>놀이터구석</td><td>10.21</td></tr>
+                <tr><td>49</td><td>달이</td><td>페너</td><td>5g</td><td>주차장구석</td><td>10.22</td></tr>
+                <tr><td>50</td><td>하프</td><td>페너</td><td>9g</td><td>골목정원</td><td>10.23</td></tr>
               </table>
               <div class="ledger-modal-note">*전 거래에도 페너가 등장함</div>
             </div>
@@ -218,6 +309,11 @@ function flashPenalty(sec){
           <button class="ledger-dot active" id="ledger-dot0" onclick="ledgerGoTo(0)"></button>
           <button class="ledger-dot" id="ledger-dot1" onclick="ledgerGoTo(1)"></button>
           <button class="ledger-dot" id="ledger-dot2" onclick="ledgerGoTo(2)"></button>
+          <button class="ledger-dot" id="ledger-dot3" onclick="ledgerGoTo(3)"></button>
+          <button class="ledger-dot" id="ledger-dot4" onclick="ledgerGoTo(4)"></button>
+          <button class="ledger-dot" id="ledger-dot5" onclick="ledgerGoTo(5)"></button>
+          <button class="ledger-dot" id="ledger-dot6" onclick="ledgerGoTo(6)"></button>
+          <button class="ledger-dot" id="ledger-dot7" onclick="ledgerGoTo(7)"></button>
         </div>
       </div>
     </div>
@@ -231,7 +327,7 @@ function flashPenalty(sec){
     </div>
     <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>거래자 중 이상한 이름이 있는거 같아</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>백설을 체포했던 사람같은데...</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>NO.3 페너</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
@@ -326,8 +422,13 @@ function onScanSuccess() {
   if (navigator.vibrate) navigator.vibrate([80,40,80]);
 }
 
+var LEDGER_PAGE_COUNT = 8;
 var ledgerPage = 0;
+var ledgerScrollY = 0;
 function openLedgerModal() {
+  ledgerScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.style.top = '-' + ledgerScrollY + 'px';
+  document.body.classList.add('ledger-open');
   var overlay = document.getElementById('ledger-overlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(function() {
@@ -348,11 +449,14 @@ function closeLedgerModal() {
   modal.style.transform = 'scale(.85)';
   modal.style.opacity = '0';
   setTimeout(function() { overlay.style.display = 'none'; }, 200);
+  document.body.classList.remove('ledger-open');
+  document.body.style.top = '';
+  window.scrollTo(0, ledgerScrollY);
 }
 function ledgerGoTo(i) {
   ledgerPage = i;
-  document.getElementById('ledger-track').style.transform = 'translateX(-' + (i * 33.333) + '%)';
-  for (var d = 0; d < 3; d++) {
+  document.getElementById('ledger-track').style.transform = 'translateX(-' + (i * (100 / LEDGER_PAGE_COUNT)) + '%)';
+  for (var d = 0; d < LEDGER_PAGE_COUNT; d++) {
     document.getElementById('ledger-dot' + d).classList.toggle('active', d === i);
   }
   if (navigator.vibrate) navigator.vibrate(15);
@@ -364,7 +468,7 @@ function ledgerGoTo(i) {
   wrap.addEventListener('touchend', function(e) {
     if (startX === null) return;
     var dx = e.changedTouches[0].clientX - startX;
-    if (dx < -40 && ledgerPage < 2) ledgerGoTo(ledgerPage + 1);
+    if (dx < -40 && ledgerPage < LEDGER_PAGE_COUNT - 1) ledgerGoTo(ledgerPage + 1);
     if (dx > 40 && ledgerPage > 0) ledgerGoTo(ledgerPage - 1);
     startX = null;
   });
