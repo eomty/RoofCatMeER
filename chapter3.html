@@ -85,6 +85,7 @@ body{padding-top:64px !important;}
 <script src="timer.js"></script>
 <script>
 var THIS_CHAPTER_ID = 'chapter3';
+var PAGE_ID = 'chapter3';
 RCMTimer.enterChapter(THIS_CHAPTER_ID);
 function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
 setInterval(refreshClock, 1000); refreshClock();
@@ -119,9 +120,9 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>캣력 사무소에 전화해보자!</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다락방 어딘가에서 캣력사무소 번호를 본 것 같은데...</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>인내심이 많은 고양이만 뽑는다고 해</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>중계자는 "하얀손"</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>010-9392-1678로 전화해서 "하얀손"이라고 답해봐</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
     <div class="tear"></div>
     <button class="call-btn" onclick="openDial()">📞 전화 걸기</button>
@@ -187,7 +188,7 @@ function showHint() {
   document.getElementById('hint' + hintCount).classList.add('visible');
   var remaining = 3 - hintCount;
   document.getElementById('hint-counter').textContent = remaining + '회 남음';
-  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount);
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount, PAGE_ID);
   if (cost !== null) flashPenalty(cost);
   renderHintBtn();
 }
@@ -280,10 +281,13 @@ function startValidCall() {
     document.getElementById('call-sub').textContent = '통화 중';
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
-    msg.textContent = '아직 끊지않으셨군요.\n신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
+    msg.textContent = '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.';
     setTimeout(function() {
-      document.getElementById('call-input-wrap').style.display = 'flex';
-    }, 800);
+      msg.textContent = '아직 끊지않으셨군요.\n신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
+      setTimeout(function() {
+        document.getElementById('call-input-wrap').style.display = 'flex';
+      }, 800);
+    }, 10000);
   }, 2000);
 }
 

@@ -28,7 +28,7 @@
     ['nkk-chat.html', '낑깡이 대화', false],
     ['chapter3.html', '챕터3 — 캣력사무소 ★', true],
     ['chapter4.html', '챕터4 — 영업사무소 ★', true],
-    ['chapter4-puzzle.html', '챕터4 — 암호', false],
+    ['chapter4-call.html', '챕터4 — 주파수 찾기', false],
     ['chapter4-unlocked.html', '챕터4 — 도청', false],
     ['chapter5.html', '챕터5 — 위험한 편지 ★', true],
     ['chapter5-unlocked.html', '챕터5 — 수상한 장부 ★', true],

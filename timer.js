@@ -67,9 +67,9 @@
     saveState(state);
   }
 
-  function useHint(chapterId, hintIndex){
+  function useHint(chapterId, hintIndex, pageId){
     if (state.timerStopped) return null;
-    var key = chapterId + '_h' + hintIndex;
+    var key = (pageId || chapterId) + '_h' + hintIndex;
     if (state.hintCounts[key]) return null;
     state.hintCounts[key] = true;
     var cost = HINT_COSTS[hintIndex-1] || 0;

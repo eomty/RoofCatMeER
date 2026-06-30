@@ -101,18 +101,6 @@ function flashPenalty(sec){
 
     <div class="tear"></div>
 
-    <!-- 힌트 -->
-    <div class="section-title">
-      HINTS <span class="section-title-line"></span>
-      <span class="hint-counter" id="hint-counter">3회 남음</span>
-    </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>백설이에게 무슨 일이 있었는지 물어봐</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>백설이가 어떤 도움을 요청했는지 물어봐</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>백설이가 어디로 갔는지 물어봐</div>
-    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
-
-    <div class="tear"></div>
-
     <!-- 획득한 증거 -->
     <div class="section-title">EVIDENCE <span class="section-title-line"></span></div>
     <div class="evidence-box">
@@ -132,37 +120,6 @@ function flashPenalty(sec){
 
 <div style="height:20px"></div>
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
-
-<script>
-let hintCount = 0;
-function showHint() {
-  if (hintCount >= 3) return;
-  if (hintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
-  hintCount++;
-  document.getElementById('hint' + hintCount).classList.add('visible');
-  var remaining = 3 - hintCount;
-  document.getElementById('hint-counter').textContent = remaining + '회 남음';
-  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, hintCount, PAGE_ID);
-  if (cost !== null) flashPenalty(cost);
-  renderHintBtn();
-}
-var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
-function renderHintBtn(){
-  var btn = document.getElementById('hint-btn');
-  if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
-  var nextIdx = hintCount;
-  if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
-    var remain = RCMTimer.hint3RemainingSec(THIS_CHAPTER_ID);
-    btn.disabled = true;
-    btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
-  } else {
-    btn.disabled = false;
-    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
-  }
-}
-renderHintBtn();
-setInterval(renderHintBtn, 1000);
-</script>
 
 </body>
 </html>

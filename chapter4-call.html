@@ -41,6 +41,9 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 </style>
 </head>
 <body>
+<script src="debug-config.js"></script>
+<script src="flow-guard.js"></script>
+<script src="debug-panel.js"></script>
 <style>
 #timer-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#12100c;border-bottom:1px solid rgba(201,168,76,.2);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;}
 #timer-bar .rec-dot{width:6px;height:6px;border-radius:50%;background:#e24b4a;margin-right:5px;display:inline-block;animation:pulse-rec 1.4s ease-in-out infinite;}
@@ -166,6 +169,7 @@ function checkAnswer() {
     result.className = 'correct';
     result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">주파수를 맞췄습니다!</span>';
     document.getElementById('next-btn').style.display = 'block';
+    if (window.RCMFlow) RCMFlow.markComplete();
     document.getElementById('answer').disabled = true;
     if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
   } else {

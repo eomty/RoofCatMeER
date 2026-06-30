@@ -21,7 +21,7 @@
     'chapter2.html','chapter2-unlocked.html',
     'nkk-chat.html',
     'chapter3.html',
-    'chapter4.html','chapter4-puzzle.html','chapter4-unlocked.html',
+    'chapter4.html','chapter4-call.html','chapter4-unlocked.html',
     'chapter5.html','chapter5-unlocked.html',
     'chapter6.html','chapter6-unlocked.html',
     'chapter7.html','chapter7-call.html','chapter7-unlocked.html','chapter7-to-8.html',
