@@ -167,8 +167,8 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다시듣기1 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>다시듣기2 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다시듣기1 <button id="replay-btn1" onclick="replayAudio(this)" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>다시듣기2 <button id="replay-btn2" onclick="replayAudio(this)" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>우체통</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
@@ -410,7 +410,12 @@ document.getElementById('answer').addEventListener('keydown', function(e){
   if (e.key === 'Enter' && !document.getElementById('answer').disabled) checkAnswer();
 });
 
-function replayAudio() {
+function replayAudio(btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+    btn.style.cursor = 'default';
+  }
   if (isPlaying) stopPlay();
   pausedAt = 0;
   isPaused = false;
