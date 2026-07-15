@@ -205,7 +205,7 @@ var puzzleSolved = false;
 // 오디오 미리 로드
 function loadAudio() {
   var ctx = new (window.AudioContext || window.webkitAudioContext)();
-  fetch('audio.mp3')
+  fetch('dubbing/ch4/intercept.mp3')
     .then(function(r) { return r.arrayBuffer(); })
     .then(function(buf) { return ctx.decodeAudioData(buf); })
     .then(function(decoded) {
@@ -332,7 +332,7 @@ function startPlay() {
   noiseFilter2.gain.value = 10;
 
   noiseGain = audioCtx.createGain();
-  noiseGain.gain.value = 0.8;
+  noiseGain.gain.value = 0.6;
   noiseSource.connect(noiseFilter1);
   noiseFilter1.connect(noiseFilter2);
   noiseFilter2.connect(noiseGain);
@@ -364,9 +364,11 @@ function stopPlay() {
 function updateAudioEffect(val) {
   if (!audioCtx || !audioGain || !noiseGain) return;
   var s = getStrength(val);
-  // 신호 강할수록 음성 크고 노이즈 작음
-  audioGain.gain.setTargetAtTime(s * 1.2, audioCtx.currentTime, 0.2);
-  noiseGain.gain.setTargetAtTime((1 - s) * 0.9, audioCtx.currentTime, 0.2);
+  var isMatch = s > 0.85;
+  // 주파수 맞으면: 오디오 1.0, 노이즈 0
+  // 주파수 안 맞으면: 오디오 0.02, 노이즈 0.6
+  audioGain.gain.setTargetAtTime(isMatch ? 1.0 : 0.02, audioCtx.currentTime, 0.2);
+  noiseGain.gain.setTargetAtTime(isMatch ? 0.0 : 0.6, audioCtx.currentTime, 0.2);
 }
 
 function unlockAnswer(){
