@@ -164,9 +164,10 @@ function checkAnswer() {
   var val = document.getElementById('answer').value.trim();
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val === '당직') {
+  var answers = ['주','주간','주간 근무','근무'];
+  if (answers.indexOf(val) !== -1) {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">5월 9일, 페너는 당직 중이었어요. 근데 호텔에 체크인을?!</span>';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">5월 9일, 페너는 주간 근무 중이었어요. 근데 호텔에 체크인을?!</span>';
     document.getElementById('answer').disabled = true;
     setTimeout(function(){
       document.getElementById('after-story').style.display = 'block';
