@@ -297,21 +297,42 @@ function startWrongCall() {
   }, 1500);
 }
 
+/* 텍스트를 먼저 화면에 그린 뒤 오디오를 시작하는 헬퍼 */
+function showThenPlay(el, text, files, onEnd) {
+  el.textContent = text;
+  requestAnimationFrame(function() {        // 한 프레임 후 → 텍스트 렌더 완료
+    requestAnimationFrame(function() {      // 한 프레임 더   → 확실히 화면에 뜬 뒤 재생
+      playSequence(files, onEnd);
+    });
+  });
+}
+
 function startValidCall() {
   resetCallScreen();
   document.getElementById('call-screen').style.display = 'flex';
+
+  // 연결음 재생
+  var callingAudio = new Audio('ef_calling.mp3');
+  callingAudio.play().catch(function(){});
+
+  // 3초 후 연결
   setTimeout(function() {
+    callingAudio.pause();
     document.getElementById('call-sub').textContent = '통화 중';
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
-    msg.textContent = '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.';
-    playSequence(['dubbing/ch3/음성파일0.mp3'], function() {                          // [음성파일0] 끝나면
-      msg.textContent = '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
-      playSequence(['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {       // [음성파일1→2] 끝나면
+
+    // 텍스트0 표시 → 렌더 후 → 음성0 재생 → 끝나면 →
+    showThenPlay(msg, '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.',
+      ['dubbing/ch3/음성파일0.mp3'], function() {
+
+      // 텍스트1 표시 → 렌더 후 → 음성1→2 재생 → 끝나면 → 입력창
+      showThenPlay(msg, '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.',
+        ['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {
         document.getElementById('call-input-wrap').style.display = 'flex';
       });
     });
-  }, 2000);
+  }, 3000);
 }
 
 function confirmName() {
@@ -319,9 +340,11 @@ function confirmName() {
   if (!name) return;
   document.getElementById('call-input-wrap').style.display = 'none';
   var msg = document.getElementById('call-msg');
+
   if (name === '하얀손') {
-    msg.textContent = '확인됐습니다.';
-    playSequence(['dubbing/ch3/음성파일5.mp3'], function() {                           // [음성파일5] 끝나면
+    // 텍스트 표시 → 렌더 후 → 음성5 → 끝나면 → 최종 메시지 + 음성6→7
+    showThenPlay(msg, '확인됐습니다.',
+      ['dubbing/ch3/음성파일5.mp3'], function() {
       var final = document.getElementById('call-final');
       final.style.display = 'block';
       final.innerHTML = '<br/>주소를 보내드릴테니.<br/>영업부장의 사무실을 찾아가세요,<br/>사무실의 위치는 아무에게나 공개할 수 없으니,<br/>정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.';
@@ -329,11 +352,12 @@ function confirmName() {
       document.getElementById('next-btn').style.display = 'block';
       if (window.RCMFlow) RCMFlow.markComplete();
       if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-      playSequence(['dubbing/ch3/음성파일6.mp3', 'dubbing/ch3/음성파일7.mp3']);                    // [음성파일6→7]
+      playSequence(['dubbing/ch3/음성파일6.mp3', 'dubbing/ch3/음성파일7.mp3']);
     });
   } else {
-    msg.textContent = '확인되지 않습니다.\n중계자 이름을 다시 말해주세요.';
-    playSequence(['dubbing/ch3/음성파일3.mp3', 'dubbing/ch3/음성파일4.mp3'], function() {         // [음성파일3→4] 끝나면
+    // 텍스트 표시 → 렌더 후 → 음성3→4 → 끝나면 → 입력창 복구
+    showThenPlay(msg, '확인되지 않습니다.\n중계자 이름을 다시 말해주세요.',
+      ['dubbing/ch3/음성파일3.mp3', 'dubbing/ch3/음성파일4.mp3'], function() {
       document.getElementById('call-input-wrap').style.display = 'flex';
       document.getElementById('name-input').value = '';
     });
