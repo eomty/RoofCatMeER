@@ -47,20 +47,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .intercept-btn:active{background:rgba(201,168,76,.15);}
 .intercept-btn.playing{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.12);}
 
-/* 채널 다이얼 + 주파수 통합 헤더 */
+/* 주파수 헤더 */
 .tuner-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
 .tuner-label{font-size:9px;letter-spacing:.15em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:2px;}
 .channel-text{flex-shrink:0;}
 .channel-value{font-size:13px;color:#c9a84c;font-weight:700;}
-.freq-text{flex:1;text-align:right;min-width:0;}
-.dial-wrap{position:relative;width:48px;height:48px;touch-action:none;flex-shrink:0;}
-.dial-ring{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 28%,#3a3a45,#13131a 70%);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 0 0 1px rgba(201,168,76,.2);cursor:grab;}
-.dial-ring:active{cursor:grabbing;}
-.dial-tick{position:absolute;width:1px;height:4px;background:rgba(201,168,76,.3);left:23.5px;top:2px;transform-origin:0.5px 22px;}
-.dial-tick.active{background:#c9a84c;height:5px;width:1.5px;}
-.dial-knob{position:absolute;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:#1c1c22;box-shadow:0 1px 3px rgba(0,0,0,.5),inset 0 0 0 1.5px rgba(201,168,76,.55);display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.dial-knob-num{font-size:11px;font-weight:700;color:#c9a84c;font-family:'Nanum Myeongjo',serif;}
-.dial-pointer{position:absolute;top:-2px;left:50%;width:0;height:0;border-left:2px solid transparent;border-right:2px solid transparent;border-bottom:4px solid #c9a84c;transform:translateX(-50%);}
+.freq-text{flex-shrink:0;}
 
 .answer-input{width:100%;padding:12px 14px;background:white;border:2px solid rgba(0,0,0,.15);border-radius:4px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;transition:border-color .2s;}
 .answer-input:focus{border-color:var(--red);}
@@ -141,17 +133,6 @@ function flashPenalty(sec){
     <div class="section-title">INTERCEPT</div>
     <div class="radio-box">
       <div class="tuner-row">
-        <div class="dial-wrap" id="dial-wrap">
-          <div class="dial-pointer"></div>
-          <div class="dial-ring" id="dial-ring">
-            <div class="dial-ticks" id="dial-ticks"></div>
-          </div>
-          <div class="dial-knob"><span class="dial-knob-num" id="channel-num">0</span></div>
-        </div>
-        <div class="channel-text">
-          <div class="tuner-label">CHANNEL</div>
-          <div class="channel-value">CH <span id="channel-display">0</span></div>
-        </div>
         <div class="freq-text">
           <div class="tuner-label">FREQUENCY</div>
           <div class="freq-display">
@@ -172,7 +153,7 @@ function flashPenalty(sec){
       </div>
       <div class="slider-range"><span>0.0</span><span>100.0</span></div>
       <input type="range" id="freq-slider" min="0" max="1000" value="0" step="1"/>
-      <div class="radio-status" id="radio-status">지직— 지직—<br/>채널과 주파수를 조정하세요</div>
+      <div class="radio-status" id="radio-status">지직— 지직—<br/>주파수를 조정하세요</div>
       <button class="intercept-btn" id="intercept-btn" onclick="togglePlay()">
         <span id="play-icon">📻</span>
         <span id="play-text">도청 시작</span>
@@ -186,7 +167,7 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>채널과 주파수, 두 가지를 다 맞춰야 들려</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>주파수를 잘 맞춰야 들려</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>그들이 "우체부"라는 말을 자주 하는 것 같던데</div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>우체통</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
@@ -208,9 +189,7 @@ function flashPenalty(sec){
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script>
-var TARGET_CHANNEL = 2;
-var TARGET_FREQ = 950; // 95.0 MHz (슬라이더 값 기준, 0~1000 = 0.0~100.0MHz)
-var currentChannel = 0;
+var TARGET_FREQ = 952; // 95.2 MHz
 var isPlaying = false;
 var audioCtx = null;
 var audioSource = null;
@@ -238,82 +217,8 @@ function loadAudio() {
 }
 loadAudio();
 
-// 회전형 채널 다이얼: 0~9 눈금 생성
-var dialTicksEl = document.getElementById('dial-ticks');
-for (var t = 0; t < 10; t++) {
-  var tick = document.createElement('div');
-  tick.className = 'dial-tick';
-  tick.id = 'tick' + t;
-  tick.style.transform = 'rotate(' + (t * 36) + 'deg)';
-  dialTicksEl.appendChild(tick);
-}
 
-var dialAngle = 0; // 0~9 -> 0~324도 (36도 간격)
-function setChannelFromAngle(angle) {
-  angle = ((angle % 360) + 360) % 360;
-  var ch = Math.round(angle / 36) % 10;
-  if (ch !== currentChannel) {
-    currentChannel = ch;
-    document.getElementById('channel-num').textContent = currentChannel;
-    document.getElementById('channel-display').textContent = currentChannel;
-    for (var i = 0; i < 10; i++) {
-      document.getElementById('tick' + i).classList.toggle('active', i === currentChannel);
-    }
-    // 채널이 바뀌어도 주파수는 유지. 도청 시작 전까지는 신호 판정 노출 안 함
-    if (isPlaying) stopPlay();
-    if (navigator.vibrate) navigator.vibrate(15);
-  }
-  dialAngle = ch * 36;
-  document.getElementById('dial-ring').style.transform = 'rotate(' + dialAngle + 'deg)';
-}
 
-(function initDial(){
-  var dialEl = document.getElementById('dial-ring');
-  var wrapEl = document.getElementById('dial-wrap');
-  var dragging = false;
-
-  function getAngle(clientX, clientY) {
-    var rect = wrapEl.getBoundingClientRect();
-    var cx = rect.left + rect.width/2;
-    var cy = rect.top + rect.height/2;
-    var dx = clientX - cx;
-    var dy = clientY - cy;
-    var rad = Math.atan2(dx, -dy); // 12시 방향이 0도
-    return rad * 180 / Math.PI;
-  }
-
-  function onMove(clientX, clientY) {
-    var angle = getAngle(clientX, clientY);
-    setChannelFromAngle(angle);
-  }
-
-  wrapEl.addEventListener('mousedown', function(e){
-    dragging = true;
-    onMove(e.clientX, e.clientY);
-  });
-  window.addEventListener('mousemove', function(e){
-    if (!dragging) return;
-    onMove(e.clientX, e.clientY);
-  });
-  window.addEventListener('mouseup', function(){ dragging = false; });
-
-  wrapEl.addEventListener('touchstart', function(e){
-    dragging = true;
-    var touch = e.touches[0];
-    onMove(touch.clientX, touch.clientY);
-    e.preventDefault();
-  }, {passive:false});
-  wrapEl.addEventListener('touchmove', function(e){
-    if (!dragging) return;
-    var touch = e.touches[0];
-    onMove(touch.clientX, touch.clientY);
-    e.preventDefault();
-  }, {passive:false});
-  wrapEl.addEventListener('touchend', function(){ dragging = false; });
-
-  // 초기 활성 tick
-  document.getElementById('tick0').classList.add('active');
-})();
 
 // 슬라이더
 var slider = document.getElementById('freq-slider');
@@ -324,7 +229,7 @@ slider.addEventListener('input', function() {
     document.getElementById('freq-num').textContent = (val / 10).toFixed(1);
     return;
   }
-  if (currentChannel === TARGET_CHANNEL && val >= TARGET_FREQ-2 && val <= TARGET_FREQ+2) {
+  if (val >= TARGET_FREQ-2 && val <= TARGET_FREQ+2) {
     val = TARGET_FREQ;
     this.value = TARGET_FREQ;
     document.getElementById('freq-num').textContent = (TARGET_FREQ/10).toFixed(1);
@@ -337,7 +242,6 @@ slider.addEventListener('input', function() {
 });
 
 function getStrength(val) {
-  if (currentChannel !== TARGET_CHANNEL) return 0.02;
   var diff = Math.abs(val - TARGET_FREQ);
   if (diff === 0) return 1.0;
   if (diff <= 2) return 0.95;
@@ -361,7 +265,7 @@ function updateSignal(val) {
   var status = document.getElementById('radio-status');
   if (s > 0.85) {
     status.className = 'radio-status clear';
-    status.textContent = '📻 CH.' + currentChannel + ' / ' + (TARGET_FREQ/10).toFixed(1) + ' MHz — 신호 선명';
+    status.textContent = '📻 ' + (TARGET_FREQ/10).toFixed(1) + ' MHz — 신호 선명';
   } else if (s > 0.4) {
     status.className = 'radio-status';
     status.style.color = '#c9a84c';
@@ -369,7 +273,7 @@ function updateSignal(val) {
   } else {
     status.className = 'radio-status';
     status.style.color = 'rgba(255,255,255,.3)';
-    status.innerHTML = '지직— 지직—<br/>채널과 주파수를 조정하세요';
+    status.innerHTML = '지직— 지직—<br/>주파수를 조정하세요';
   }
 }
 
