@@ -282,21 +282,6 @@ function updateSignal(val) {
 
 function togglePlay() {
   if (!isPlaying) startPlay();
-  else pausePlay();
-}
-
-function pausePlay() {
-  if (!audioCtx) return;
-  pausedAt = audioCtx.currentTime - startedAt;
-  try { audioSource && audioSource.stop(); } catch(e){}
-  try { noiseSource && noiseSource.stop(); } catch(e){}
-  audioCtx.close();
-  audioCtx = null;
-  isPlaying = false;
-  isPaused = true;
-  document.getElementById('intercept-btn').classList.remove('playing');
-  document.getElementById('play-icon').textContent = '📻';
-  document.getElementById('play-text').textContent = '도청 재개';
 }
 
 function startPlay() {
@@ -333,8 +318,8 @@ function startPlay() {
   var d = noiseBuf.getChannelData(0);
   for (var i = 0; i < bufSize; i++) {
     var r = Math.random();
-    if (r > 0.97) d[i] = (Math.random() * 2 - 1) * 0.28; // 30% 감소 (0.4 → 0.28)
-    else d[i] = (Math.random() * 2 - 1) * 0.035;          // 30% 감소 (0.05 → 0.035)
+    if (r > 0.97) d[i] = (Math.random() * 2 - 1) * 0.14;
+    else d[i] = (Math.random() * 2 - 1) * 0.018;
   }
   noiseSource = audioCtx.createBufferSource();
   noiseSource.buffer = noiseBuf;
@@ -350,7 +335,7 @@ function startPlay() {
   noiseFilter2.gain.value = 0;
 
   noiseGain = audioCtx.createGain();
-  noiseGain.gain.value = 0.42; // 30% 감소 (0.6 → 0.42)
+  noiseGain.gain.value = 0.21; // 50% 감소
   noiseSource.connect(noiseFilter1);
   noiseFilter1.connect(noiseFilter2);
   noiseFilter2.connect(noiseGain);
@@ -358,9 +343,7 @@ function startPlay() {
   noiseSource.start(0);
 
   isPlaying = true;
-  document.getElementById('intercept-btn').classList.add('playing');
-  document.getElementById('play-icon').textContent = '⏹';
-  document.getElementById('play-text').textContent = '도청 중...';
+  document.getElementById('intercept-btn').style.display = 'none';
 
   updateSignal(parseInt(slider.value));
   updateAudioEffect(parseInt(slider.value));
@@ -381,12 +364,21 @@ function stopPlay() {
 
 function updateAudioEffect(val) {
   if (!audioCtx || !audioGain || !noiseGain) return;
-  var s = getStrength(val);
-  var isMatch = s > 0.85;
-  // 주파수 맞으면: 오디오 1.0, 노이즈 0
-  // 주파수 안 맞으면: 오디오 0.02, 노이즈 0.6
-  audioGain.gain.setTargetAtTime(isMatch ? 1.0 : 0.02, audioCtx.currentTime, 0.2);
-  noiseGain.gain.setTargetAtTime(isMatch ? 0.0 : 0.6, audioCtx.currentTime, 0.2);
+  var diff = Math.abs(val - TARGET_FREQ);
+  var audioVol, noiseVol;
+  if (diff === 0) {
+    audioVol = 1.0;  noiseVol = 0.0;
+  } else if (diff <= 1) {
+    audioVol = 0.9;  noiseVol = 0.105; // 노이즈 50% 감소
+  } else if (diff <= 5) {
+    audioVol = 0.75; noiseVol = 0.21;
+  } else if (diff <= 10) {
+    audioVol = 0.5;  noiseVol = 0.21;
+  } else {
+    audioVol = 0.3;  noiseVol = 0.21;
+  }
+  audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
+  noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
 }
 
 function unlockAnswer(){
