@@ -286,7 +286,7 @@ function confirmCode() {
     document.getElementById('call-input-wrap').style.display = 'none';
     document.getElementById('call-avatar').textContent = '🖥️';
     showThenPlay(msg, '확인했어. 뭐가 필요해?',
-      ['dubbing/ch7/확인했어_뭐가_필요해.mp3'], function() {
+      ['dubbing/ch7/confirmed.mp3'], function() {
       showChoices1();
     });
   } else {
@@ -319,7 +319,7 @@ function selectChoice1() {
   document.getElementById('call-choices').style.display = 'none';
   var msg = document.getElementById('call-msg');
   showThenPlay(msg, '페너 경감? 요금 좀 비싼데.. 그래도 해?',
-    ['dubbing/ch7/페너경감_요금좀_비싼데_그래도_해.mp3'], function() {
+    ['dubbing/ch7/penner_fee.mp3'], function() {
     showChoices2();
   });
 }
@@ -339,9 +339,9 @@ function selectChoice2() {
   document.getElementById('call-choices').style.display = 'none';
   var msg = document.getElementById('call-msg');
   showThenPlay(msg, '기다려.',
-    ['dubbing/ch7/기다려.mp3'], function() {
+    ['dubbing/ch7/wait.mp3'], function() {
     showThenPlay(msg, '너 화면에서도 볼 수 있게 해놨어. 확인해.',
-      ['dubbing/ch7/너화면에서도볼수있게해놨어_확인해.mp3'], function() {
+      ['dubbing/ch7/screen_ready.mp3'], function() {
       document.getElementById('end-call-btn').style.display = 'none';
       setTimeout(function(){
         document.getElementById('next-btn').style.display = 'block';

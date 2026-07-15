@@ -531,28 +531,28 @@ async function run(){
 
   // 2. 루프톡 열기
   await showHacker('알겠어.');
-  playAudio('dubbing/ch7/알겠어.mp3');
+  playAudio('dubbing/ch7/ok1.mp3');
   await wait(600);
   showScreen('looptalk');
 
   // 3. 수상하다 코멘트
   await wait(800);
   await showHacker('5월 9일 내용이 좀 이상한데?');
-  await playAudio('dubbing/ch7/5월9일내용이좀이상한데.mp3');
+  await playAudio('dubbing/ch7/may9.mp3');
   await showChoices(['Plan A가 뭘까?']);
   await showMe('Plan A가 뭘까?');
   clearMe();
 
   // 4. 메시지 제안
   await showHacker('여기서 더 알 수 있는 정보는 없군.\n메시지 내역을 한번 볼까?');
-  await playAudio('dubbing/ch7/여기서_더_알수있는_정보는_없군_메시지_내역을_한번_볼까.mp3');
+  await playAudio('dubbing/ch7/no_more_info.mp3');
   await showChoices(['부탁해']);
   await showMe('부탁해');
   clearMe();
 
   // 5. 홈 → 메시지
   await showHacker('알겠어.');
-  playAudio('dubbing/ch7/알겠어__2_.mp3');
+  playAudio('dubbing/ch7/ok2.mp3');
   await wait(500);
   showScreen('home');
   await wait(700);
@@ -561,8 +561,8 @@ async function run(){
   // 6. 카드내역 코멘트
   await wait(800);
   await showHacker('카드 사용내역이잖아.\n중요한 걸 알아낼 수 있겠어.\n보고 싶은 부분 탭해봐.');
-  await playAudio('dubbing/ch7/카드사용내역이잖아.mp3');
-  await playAudio('dubbing/ch7/중요한걸알아낼수있겠어보고싶은부분탭해봐.mp3');
+  await playAudio('dubbing/ch7/card.mp3');
+  await playAudio('dubbing/ch7/tap_part.mp3');
 
   // 7. 5/9 탭 활성화
   document.getElementById('key-msg').onclick=async function(){
@@ -573,7 +573,7 @@ async function run(){
     clearMe();
 
     await showHacker('원하는 정보는 얻은 것 같네.\n요금은 하얀손 앞으로 청구하지.\n수고했어.');
-    await playAudio('dubbing/ch7/원하는정보는얻은것같네_요금은_하얀손앞으로청구하지_수고했어.mp3');
+    await playAudio('dubbing/ch7/done.mp3');
     await showChoices(['도와줘서 고마워']);
     await showMe('도와줘서 고마워');
     clearMe();
