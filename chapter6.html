@@ -98,10 +98,21 @@ function flashPenalty(sec){
     <div class="story-text">
       <p>페너... 이 이름 어디서 들어본 것 같은데?</p>
       <p>백설이를 체포했던 그 페너 경감 아닌가? 근데 왜 거래자 목록에...?</p>
-      <p>아무도 못 믿겠어요... 거래 장소인 딜리셔스 호텔 투숙 기록부를 살펴볼까요?</p>
+      <p>아무도 못 믿겠어요... 거래 장소인 딜리셔스 호텔로 가서 투숙 기록부를 살펴볼까요?</p>
     </div>
 
-    <div class="quest-box">▶ 숙박 기록부에서 수상해보이는 묘와 날짜를 입력하시오</div>
+    <div class="quest-box">▶ 투숙 기록부에서 수상해보이는 묘와 날짜를 입력하시오</div>
+
+    <div class="tear"></div>
+
+    <div class="section-title">
+      HINTS
+      <span class="hint-counter" id="hint-counter">3회 남음</span>
+    </div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>서명을 자세히 봐바</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너 경감의 서명을 좀 더 자세히 봐바</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너 경감의 5월 9일 서명... penner가 아닌 fenner로 되어있어!!?</div>
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
 
@@ -117,17 +128,6 @@ function flashPenalty(sec){
     <button class="answer-btn" onclick="checkAnswer()">확인</button>
     <div id="answer-result"></div>
     <button class="next-btn" id="next-btn" onclick="location.href='chapter6-unlocked.html'">CCTV 확인하러 가기 →</button>
-
-    <div class="tear"></div>
-
-    <div class="section-title">
-      HINTS
-      <span class="hint-counter" id="hint-counter">3회 남음</span>
-    </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>서명을 자세히 봐바</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너의 서명을 좀더 자세히 봐바</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너의 5월 9일 서명... 뭔가 이상하지 않아? 분명 평소엔 p인데?</div>
-    <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
   </div>
 </div>
 
@@ -140,7 +140,7 @@ function checkAnswer() {
   if (solved) return;
   var cat = document.getElementById('answer-cat').value.trim();
   var date = document.getElementById('answer-date').value.trim().replace(/\s/g,'');
-  var catOk = (cat === '페너');
+  var catOk = (cat === '페너' || cat === '페너 경감' || cat.toLowerCase() === 'penner');
   var dateNorm = date.replace('월','').replace('일','').replace('.','/')
     .replace(/^0(\d)\//,'$1/').replace(/\/0(\d)$/,'/$1');
   var dateOk = (dateNorm === '5/9' || date === '5/9' || date === '5월9일' || date === '09.05' || date === '05.09');
