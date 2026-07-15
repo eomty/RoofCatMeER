@@ -194,9 +194,18 @@ function delKey() {
 function updateDial() {
   var n = dialNum;
   var display = '';
-  if (n.length <= 3) display = n;
-  else if (n.length <= 7) display = n.slice(0,3) + '-' + n.slice(3);
-  else display = n.slice(0,3) + '-' + n.slice(3,7) + '-' + n.slice(7);
+
+  if (n.length <= 3) {
+    display = n;
+  } else if (n.length <= 6) {
+    display = n.slice(0, 3) + '-' + n.slice(3);
+  } else {
+    display =
+      n.slice(0, 3) + '-' +
+      n.slice(3, 6) + '-' +
+      n.slice(6);
+  }
+
   document.getElementById('dial-number').textContent = display || '　';
 }
 function makeCall() {
@@ -250,6 +259,23 @@ function startHackerCall() {
   }, 2000);
 }
 
+var _currentAudio = null;
+function playSequence(files, onEnd) {
+  if (!files.length) { if (onEnd) onEnd(); return; }
+  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
+  var audio = new Audio(files[0]);
+  _currentAudio = audio;
+  var next = files.slice(1);
+  var advanced = false;
+  function advance() { if (advanced) return; advanced = true; _currentAudio = null; playSequence(next, onEnd); }
+  audio.onended = advance; audio.onerror = advance;
+  audio.play().catch(advance);
+}
+function showThenPlay(el, text, files, onEnd) {
+  el.textContent = text;
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ playSequence(files, onEnd); }); });
+}
+
 function confirmCode() {
   var code = document.getElementById('code-input').value.trim();
   if (!code) return;
@@ -257,20 +283,17 @@ function confirmCode() {
   var msg = document.getElementById('call-msg');
 
   if (code === '검은손') {
-    // 정답 코드
     document.getElementById('call-input-wrap').style.display = 'none';
     document.getElementById('call-avatar').textContent = '🖥️';
-    msg.textContent = '...확인했어. 뭐가 필요해.';
-    setTimeout(function(){
+    showThenPlay(msg, '확인했어. 뭐가 필요해?',
+      ['dubbing/ch7/확인했어_뭐가_필요해.mp3'], function() {
       showChoices1();
-    }, 1000);
+    });
   } else {
-    // 오답 — 카페 직원 반응
     wrongCount++;
     if (wrongCount < 3) {
       msg.textContent = CAFE_RESPONSES[wrongCount - 1];
     } else {
-      // 3번째 — 통화 종료
       document.getElementById('call-input-wrap').style.display = 'none';
       msg.textContent = CAFE_RESPONSES[2];
       setTimeout(function(){
@@ -295,10 +318,10 @@ function showChoices1() {
 function selectChoice1() {
   document.getElementById('call-choices').style.display = 'none';
   var msg = document.getElementById('call-msg');
-  msg.textContent = '페너. 경감. ...공직자네. 요금 올라가. 그래도 해?';
-  setTimeout(function(){
+  showThenPlay(msg, '페너 경감? 요금 좀 비싼데.. 그래도 해?',
+    ['dubbing/ch7/페너경감_요금좀_비싼데_그래도_해.mp3'], function() {
     showChoices2();
-  }, 1000);
+  });
 }
 
 function showChoices2() {
@@ -315,19 +338,22 @@ function showChoices2() {
 function selectChoice2() {
   document.getElementById('call-choices').style.display = 'none';
   var msg = document.getElementById('call-msg');
-  msg.textContent = '...기다려.';
-  setTimeout(function(){
-    msg.textContent = '너 화면에서도 볼 수 있게 해줬어. 확인해.';
-    document.getElementById('end-call-btn').style.display = 'none';
-    setTimeout(function(){
-      document.getElementById('next-btn').style.display = 'block';
-    if (window.RCMFlow) RCMFlow.markComplete();
-      if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-    }, 1200);
-  }, 3000);
+  showThenPlay(msg, '기다려.',
+    ['dubbing/ch7/기다려.mp3'], function() {
+    showThenPlay(msg, '너 화면에서도 볼 수 있게 해놨어. 확인해.',
+      ['dubbing/ch7/너화면에서도볼수있게해놨어_확인해.mp3'], function() {
+      document.getElementById('end-call-btn').style.display = 'none';
+      setTimeout(function(){
+        document.getElementById('next-btn').style.display = 'block';
+        if (window.RCMFlow) RCMFlow.markComplete();
+        if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+      }, 800);
+    });
+  });
 }
 
 function endCall() {
+  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
   document.getElementById('call-screen').style.display = 'none';
   dialNum = '';
 }
