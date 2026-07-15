@@ -314,6 +314,7 @@ function startValidCall() {
 
   // 연결음 재생
   var callingAudio = new Audio('dubbing/ef/ef_calling.mp3');
+  callingAudio.volume = 0.6;
   callingAudio.play().catch(function(){});
 
   // 3초 후 연결
