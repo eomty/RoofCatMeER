@@ -181,6 +181,21 @@ var TARGET = '01093921678';
 var dialNum = '';
 var hintCount = 0;
 
+/* ── 음성 재생 헬퍼 ── */
+var _currentAudio = null;
+function playSequence(files, onEnd) {
+  if (!files.length) { if (onEnd) onEnd(); return; }
+  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
+  var audio = new Audio(files[0]);
+  _currentAudio = audio;
+  audio.onended = function() { _currentAudio = null; playSequence(files.slice(1), onEnd); };
+  audio.onerror  = function() { _currentAudio = null; playSequence(files.slice(1), onEnd); };
+  audio.play().catch(function() { _currentAudio = null; playSequence(files.slice(1), onEnd); });
+}
+function stopAudio() {
+  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
+}
+
 function showHint() {
   if (hintCount >= 3) return;
   if (hintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
@@ -282,12 +297,12 @@ function startValidCall() {
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
     msg.textContent = '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.';
-    setTimeout(function() {
+    playSequence(['dubbing/ch3/음성파일0.mp3'], function() {                          // [음성파일0] 끝나면
       msg.textContent = '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.';
-      setTimeout(function() {
+      playSequence(['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {       // [음성파일1→2] 끝나면
         document.getElementById('call-input-wrap').style.display = 'flex';
-      }, 800);
-    }, 10000);
+      });
+    });
   }, 2000);
 }
 
@@ -298,28 +313,27 @@ function confirmName() {
   var msg = document.getElementById('call-msg');
   if (name === '하얀손') {
     msg.textContent = '확인됐습니다.';
-    setTimeout(function() {
-      msg.textContent = '영업부장의 사무실을 찾아가세요.\n';
-      setTimeout(function() {
-        var final = document.getElementById('call-final');
-        final.style.display = 'block';
-        final.innerHTML = '<br/>주소를 보내드렸습니다.<br/>사무실의 위치는 아무에게나 공개할 수 없으니,<br/>정말 뛰어난 인재만이 이곳에 방문하시길 바랍니다.';
-        document.getElementById('end-call-btn').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'block';
-    if (window.RCMFlow) RCMFlow.markComplete();
-        if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-      }, 3000);
-    }, 1500);
+    playSequence(['dubbing/ch3/음성파일5.mp3'], function() {                           // [음성파일5] 끝나면
+      var final = document.getElementById('call-final');
+      final.style.display = 'block';
+      final.innerHTML = '<br/>주소를 보내드릴테니.<br/>영업부장의 사무실을 찾아가세요,<br/>사무실의 위치는 아무에게나 공개할 수 없으니,<br/>정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.';
+      document.getElementById('end-call-btn').style.display = 'none';
+      document.getElementById('next-btn').style.display = 'block';
+      if (window.RCMFlow) RCMFlow.markComplete();
+      if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+      playSequence(['dubbing/ch3/음성파일6.mp3', 'dubbing/ch3/음성파일7.mp3']);                    // [음성파일6→7]
+    });
   } else {
     msg.textContent = '확인되지 않습니다.\n중계자 이름을 다시 말해주세요.';
-    setTimeout(function() {
+    playSequence(['dubbing/ch3/음성파일3.mp3', 'dubbing/ch3/음성파일4.mp3'], function() {         // [음성파일3→4] 끝나면
       document.getElementById('call-input-wrap').style.display = 'flex';
       document.getElementById('name-input').value = '';
-    }, 1500);
+    });
   }
 }
 
 function endCall() {
+  stopAudio();
   document.getElementById('call-screen').style.display = 'none';
   dialNum = '';
 }
