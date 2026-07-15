@@ -107,9 +107,9 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>근무표에서 페너 경감의 이름을 찾아봐</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>5월 9일 페너 경감의 근무 상태를 확인해봐</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>5월 9일, 페너 경감은 근무중이었어</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>경찰서에가서 근무표를 확인해보자</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너 경감도 근무를 하고있어</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>5월 9일, 페너 경감은 주간 근무중이었어!!</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
@@ -122,6 +122,17 @@ function flashPenalty(sec){
     <div id="after-story">
       <p>근무 중에 호텔 체크인이라니... 그럼 호텔 체크인에 찍혀있던 묘는 도대체 누구인 거야?</p>
       <p>페너 경감을 더 깊이 파봐야겠어. 그러고 보니 이전에 뭐든지 알아내주는 친구 번호를 받았었지. 한번 연락해볼까?</p>
+    </div>
+
+    <div id="call-hints" style="display:none;margin-top:12px;">
+      <div class="section-title">
+        HINTS
+        <span class="hint-counter" id="call-hint-counter">3회 남음</span>
+      </div>
+      <div class="hint-item" id="call-hint1"><span class="hint-num">힌트 1</span>낑깡이와의 대화내역을 생각해!</div>
+      <div class="hint-item" id="call-hint2"><span class="hint-num">힌트 2</span>낑깡이가 검은손이라고 말하랬는데...</div>
+      <div class="hint-item" id="call-hint3"><span class="hint-num">힌트 3</span>019-597-1778, [검은손]이라고 입력해</div>
+      <button class="hint-btn" id="call-hint-btn" onclick="showCallHint()">힌트 1 보기 <span class="hint-cost">+1:00</span></button>
     </div>
     <button class="dial-btn" id="dial-btn" onclick="location.href='chapter7-call.html'">📞 전화 걸기</button>
   </div>
@@ -171,6 +182,7 @@ function checkAnswer() {
     document.getElementById('answer').disabled = true;
     setTimeout(function(){
       document.getElementById('after-story').style.display = 'block';
+      document.getElementById('call-hints').style.display = 'block';
       document.getElementById('dial-btn').style.display = 'block';
       if (window.RCMFlow) RCMFlow.markComplete();
       document.getElementById('after-story').scrollIntoView({behavior:'smooth'});
@@ -182,6 +194,33 @@ function checkAnswer() {
     RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
     flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
     if (navigator.vibrate) navigator.vibrate(200);
+  }
+}
+
+var callHintCount = 0;
+var CALL_HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+function showCallHint() {
+  if (callHintCount >= 3) return;
+  if (callHintCount === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) return;
+  callHintCount++;
+  document.getElementById('call-hint' + callHintCount).classList.add('visible');
+  var remaining = 3 - callHintCount;
+  document.getElementById('call-hint-counter').textContent = remaining + '회 남음';
+  var cost = RCMTimer.useHint(THIS_CHAPTER_ID, callHintCount, PAGE_ID);
+  if (cost !== null) flashPenalty(cost);
+  renderCallHintBtn();
+}
+function renderCallHintBtn() {
+  var btn = document.getElementById('call-hint-btn');
+  if (callHintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
+  var nextIdx = callHintCount;
+  if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
+    var remain = RCMTimer.hint3RemainingSec(THIS_CHAPTER_ID);
+    btn.disabled = true;
+    btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + CALL_HINT_COST_LABELS[nextIdx] + '</span>';
   }
 }
 
