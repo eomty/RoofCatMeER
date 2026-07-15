@@ -167,8 +167,8 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>주파수를 잘 맞춰야 들려 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>그들이 "우체부"라는 말을 자주 하는 것 같던데 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다시듣기1 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>다시듣기2 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>우체통</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
@@ -369,13 +369,13 @@ function updateAudioEffect(val) {
   if (diff === 0) {
     audioVol = 1.0;   noiseVol = 0.0;
   } else if (diff <= 1) {
-    audioVol = 0.75;  noiseVol = 0.126;
+    audioVol = 0.75;  noiseVol = 0.1;
   } else if (diff <= 5) {
-    audioVol = 0.5;   noiseVol = 0.252;
+    audioVol = 0.5;   noiseVol = 0.152;
   } else if (diff <= 10) {
     audioVol = 0.3;   noiseVol = 0.252;
   } else {
-    audioVol = 0.2;   noiseVol = 0.252;
+    audioVol = 0.1;   noiseVol = 0.352;
   }
   audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
   noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
