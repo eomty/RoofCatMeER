@@ -369,13 +369,13 @@ function updateAudioEffect(val) {
   if (diff === 0) {
     audioVol = 1.0;   noiseVol = 0.0;
   } else if (diff <= 1) {
-    audioVol = 0.75;  noiseVol = 0.1;
+    audioVol = 0.85;  noiseVol = 0.13;
   } else if (diff <= 5) {
-    audioVol = 0.5;   noiseVol = 0.152;
+    audioVol = 0.5;   noiseVol = 0.202;
   } else if (diff <= 10) {
-    audioVol = 0.3;   noiseVol = 0.252;
+    audioVol = 0.3;   noiseVol = 0.352;
   } else {
-    audioVol = 0.1;   noiseVol = 0.352;
+    audioVol = 0.15;   noiseVol = 0.452;
   }
   audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
   noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
@@ -439,7 +439,7 @@ function renderHintBtn(){
     btn.innerHTML = '힌트 3 <span class="hint-cost">' + RCMTimer.formatTime(remain) + ' 후 해제</span>';
   } else {
     btn.disabled = false;
-    btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
+    btn.innerHTML = '다시 ' + (nextIdx+1) +'번 듣기 <span class="hint-cost">' + HINT_COST_LABELS[nextIdx] + '</span>';
   }
 }
 renderHintBtn();
