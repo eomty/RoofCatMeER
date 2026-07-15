@@ -352,30 +352,22 @@ function confirmName() {
       showThenPlay(msg, '주소를 보내드릴테니.\n영업부장의 사무실을 찾아가세요.',
         ['dubbing/ch3/음성파일6.mp3'], function() {
 
-        // 음성6 끝 → msg 숨기기 → 텍스트7 + 음성7 동시
-        msg.style.display = 'none';
-        msg.textContent = '';
-        setTimeout(function() {
-          msg.style.display = 'block';
-          showThenPlay(msg, '사무실의 위치는 아무에게나 공개할 수 없으니,\n정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.',
-            ['dubbing/ch3/음성파일7.mp3'], function() {
+        // 음성6 끝 → 바로 텍스트7 + 음성7 동시
+        showThenPlay(msg, '사무실의 위치는 아무에게나 공개할 수 없으니,\n정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.',
+          ['dubbing/ch3/음성파일7.mp3'], function() {
 
-            // 음성7 끝 → 통화 종료 UI
-            msg.style.display = 'none';
-            document.getElementById('call-sub').textContent = '통화 종료';
-            document.getElementById('call-avatar').style.animation = 'none';
-            document.getElementById('call-avatar').style.boxShadow = 'none';
-            document.getElementById('call-avatar').textContent = '📵';
-            document.getElementById('end-call-btn').style.display = 'none';
-            var final = document.getElementById('call-final');
-            final.style.display = 'block';
-            final.innerHTML = '';
-            if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-            setTimeout(function() {
-              document.getElementById('next-btn').style.display = 'block';
-            }, 800);
-          });
-        }, 400);
+          // 음성7 끝 → 통화 종료 UI
+          msg.style.display = 'none';
+          var avatar = document.getElementById('call-avatar');
+          avatar.style.cssText += ';animation:none;box-shadow:none;background:#555;';
+          avatar.textContent = '📵';
+          document.getElementById('call-sub').textContent = '통화 종료';
+          document.getElementById('end-call-btn').style.display = 'none';
+          if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+          setTimeout(function() {
+            document.getElementById('next-btn').style.display = 'block';
+          }, 800);
+        });
       });
     });
   } else {
