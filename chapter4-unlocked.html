@@ -329,7 +329,7 @@ function startPlay() {
   var noiseFilter2 = audioCtx.createBiquadFilter();
   noiseFilter2.type = 'peaking';
   noiseFilter2.frequency.value = 4000;
-  noiseFilter2.gain.value = 10;
+  noiseFilter2.gain.value = 0;
 
   noiseGain = audioCtx.createGain();
   noiseGain.gain.value = 0.6;
