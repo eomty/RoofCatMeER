@@ -167,8 +167,8 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>주파수를 잘 맞춰야 들려</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>그들이 "우체부"라는 말을 자주 하는 것 같던데</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>주파수를 잘 맞춰야 들려 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>그들이 "우체부"라는 말을 자주 하는 것 같던데 <button onclick="replayAudio()" style="margin-left:8px;padding:3px 10px;background:#1a1410;color:#c9a84c;border:1px solid #c9a84c;border-radius:3px;font-size:11px;cursor:pointer;">🔁 다시 듣기</button></div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>우체통</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
@@ -191,6 +191,9 @@ function flashPenalty(sec){
 <script>
 var TARGET_FREQ = 952; // 95.2 MHz
 var isPlaying = false;
+var isPaused = false;
+var pausedAt = 0;     // 멈춘 시점 (초)
+var startedAt = 0;    // audioCtx 기준 시작 시점
 var audioCtx = null;
 var audioSource = null;
 var noiseSource = null;
@@ -279,7 +282,21 @@ function updateSignal(val) {
 
 function togglePlay() {
   if (!isPlaying) startPlay();
-  else stopPlay();
+  else pausePlay();
+}
+
+function pausePlay() {
+  if (!audioCtx) return;
+  pausedAt = audioCtx.currentTime - startedAt;
+  try { audioSource && audioSource.stop(); } catch(e){}
+  try { noiseSource && noiseSource.stop(); } catch(e){}
+  audioCtx.close();
+  audioCtx = null;
+  isPlaying = false;
+  isPaused = true;
+  document.getElementById('intercept-btn').classList.remove('playing');
+  document.getElementById('play-icon').textContent = '📻';
+  document.getElementById('play-text').textContent = '도청 재개';
 }
 
 function startPlay() {
@@ -289,39 +306,40 @@ function startPlay() {
   }
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  // 음성 재생
+  // 음성 재생 (멈춘 지점부터)
   audioSource = audioCtx.createBufferSource();
   audioSource.buffer = audioBuffer;
   audioGain = audioCtx.createGain();
   audioGain.gain.value = 0.1;
   audioSource.connect(audioGain);
   audioGain.connect(audioCtx.destination);
-  audioSource.start(0);
+  var offset = isPaused ? pausedAt : 0;
+  startedAt = audioCtx.currentTime - offset;
+  audioSource.start(0, offset);
+  isPaused = false;
+
   // 20초 후 정답 입력창 해금
-  setTimeout(function() {
-    unlockAnswer();
-  }, 20000);
+  var remaining = audioBuffer.duration - offset;
+  setTimeout(unlockAnswer, Math.min(20000, remaining * 1000));
   audioSource.onended = function() {
     audioEnded = true;
     unlockAnswer();
     stopPlay();
   };
 
-  // 노이즈 생성 - FM 지직 느낌
+  // 노이즈 생성
   var bufSize = audioCtx.sampleRate * 2;
   var noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
   var d = noiseBuf.getChannelData(0);
-  // 랜덤 스파이크로 지직 느낌
   for (var i = 0; i < bufSize; i++) {
     var r = Math.random();
-    if (r > 0.97) d[i] = (Math.random() * 2 - 1) * 0.4; // 스파이크 축소
-    else d[i] = (Math.random() * 2 - 1) * 0.05;
+    if (r > 0.97) d[i] = (Math.random() * 2 - 1) * 0.28; // 30% 감소 (0.4 → 0.28)
+    else d[i] = (Math.random() * 2 - 1) * 0.035;          // 30% 감소 (0.05 → 0.035)
   }
   noiseSource = audioCtx.createBufferSource();
   noiseSource.buffer = noiseBuf;
   noiseSource.loop = true;
 
-  // 고주파 필터로 지직 느낌 강조
   var noiseFilter1 = audioCtx.createBiquadFilter();
   noiseFilter1.type = 'highpass';
   noiseFilter1.frequency.value = 2000;
@@ -332,7 +350,7 @@ function startPlay() {
   noiseFilter2.gain.value = 0;
 
   noiseGain = audioCtx.createGain();
-  noiseGain.gain.value = 0.6;
+  noiseGain.gain.value = 0.42; // 30% 감소 (0.6 → 0.42)
   noiseSource.connect(noiseFilter1);
   noiseFilter1.connect(noiseFilter2);
   noiseFilter2.connect(noiseGain);
@@ -399,6 +417,13 @@ function checkAnswer() {
 document.getElementById('answer').addEventListener('keydown', function(e){
   if (e.key === 'Enter' && !document.getElementById('answer').disabled) checkAnswer();
 });
+
+function replayAudio() {
+  if (isPlaying) stopPlay();
+  pausedAt = 0;
+  isPaused = false;
+  startPlay();
+}
 
 function showHint() {
   if (hintCount >= 3) return;
