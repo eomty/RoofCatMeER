@@ -335,7 +335,7 @@ function startPlay() {
   noiseFilter2.gain.value = 0;
 
   noiseGain = audioCtx.createGain();
-  noiseGain.gain.value = 0.21; // 50% 감소
+  noiseGain.gain.value = 0.252;
   noiseSource.connect(noiseFilter1);
   noiseFilter1.connect(noiseFilter2);
   noiseFilter2.connect(noiseGain);
@@ -367,15 +367,15 @@ function updateAudioEffect(val) {
   var diff = Math.abs(val - TARGET_FREQ);
   var audioVol, noiseVol;
   if (diff === 0) {
-    audioVol = 1.0;  noiseVol = 0.0;
+    audioVol = 1.0;   noiseVol = 0.0;
   } else if (diff <= 1) {
-    audioVol = 0.9;  noiseVol = 0.105; // 노이즈 50% 감소
+    audioVol = 0.75;  noiseVol = 0.126;
   } else if (diff <= 5) {
-    audioVol = 0.75; noiseVol = 0.21;
+    audioVol = 0.5;   noiseVol = 0.252;
   } else if (diff <= 10) {
-    audioVol = 0.5;  noiseVol = 0.21;
+    audioVol = 0.3;   noiseVol = 0.252;
   } else {
-    audioVol = 0.3;  noiseVol = 0.21;
+    audioVol = 0.2;   noiseVol = 0.252;
   }
   audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
   noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
