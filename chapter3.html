@@ -344,17 +344,35 @@ function confirmName() {
   var msg = document.getElementById('call-msg');
 
   if (name === '하얀손') {
-    // 텍스트 표시 → 렌더 후 → 음성5 → 끝나면 → 최종 메시지 + 음성6→7
+    if (window.RCMFlow) RCMFlow.markComplete();
     showThenPlay(msg, '확인됐습니다.',
       ['dubbing/ch3/음성파일5.mp3'], function() {
-      var final = document.getElementById('call-final');
-      final.style.display = 'block';
-      final.innerHTML = '<br/>주소를 보내드릴테니.<br/>영업부장의 사무실을 찾아가세요,<br/>사무실의 위치는 아무에게나 공개할 수 없으니,<br/>정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.';
-      document.getElementById('end-call-btn').style.display = 'none';
-      document.getElementById('next-btn').style.display = 'block';
-      if (window.RCMFlow) RCMFlow.markComplete();
-      if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-      playSequence(['dubbing/ch3/음성파일6.mp3', 'dubbing/ch3/음성파일7.mp3']);
+
+      // 음성5 끝 → 텍스트6 + 음성6 동시
+      showThenPlay(msg, '주소를 보내드릴테니.\n영업부장의 사무실을 찾아가세요.',
+        ['dubbing/ch3/음성파일6.mp3'], function() {
+
+        // 음성6 끝 → 텍스트 초기화 → 텍스트7 + 음성7 동시
+        msg.textContent = '';
+        setTimeout(function() {
+          showThenPlay(msg, '사무실의 위치는 아무에게나 공개할 수 없으니,\n정말 뛰어난 인재만이 이곳에 도달하시길 바랍니다.',
+            ['dubbing/ch3/음성파일7.mp3'], function() {
+
+            // 음성7 끝 → 통화 종료 UI
+            msg.textContent = '';
+            document.getElementById('end-call-btn').style.display = 'none';
+            var final = document.getElementById('call-final');
+            final.style.display = 'block';
+            final.innerHTML =
+              '<div style="font-size:40px;margin-bottom:12px">📵</div>' +
+              '<div style="font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.08em">통화 종료</div>';
+            if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+            setTimeout(function() {
+              document.getElementById('next-btn').style.display = 'block';
+            }, 800);
+          });
+        }, 400);
+      });
     });
   } else {
     // 텍스트 표시 → 렌더 후 → 음성3→4 → 끝나면 → 입력창 복구
