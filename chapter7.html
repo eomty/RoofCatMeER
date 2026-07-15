@@ -212,6 +212,7 @@ function showCallHint() {
 }
 function renderCallHintBtn() {
   var btn = document.getElementById('call-hint-btn');
+  if (!btn) return;
   if (callHintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
   var nextIdx = callHintCount;
   if (nextIdx === 2 && !RCMTimer.isHint3Unlocked(THIS_CHAPTER_ID)) {
@@ -223,6 +224,7 @@ function renderCallHintBtn() {
     btn.innerHTML = '힌트 ' + (nextIdx+1) + ' 보기 <span class="hint-cost">' + CALL_HINT_COST_LABELS[nextIdx] + '</span>';
   }
 }
+setInterval(renderCallHintBtn, 1000);
 
 document.getElementById('answer').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') checkAnswer();
