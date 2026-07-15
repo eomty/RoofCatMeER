@@ -312,7 +312,7 @@ function startValidCall() {
   document.getElementById('call-screen').style.display = 'flex';
 
   // 연결음 재생
-  var callingAudio = new Audio('ef_calling.mp3');
+  var callingAudio = new Audio('dubbing/ef/ef_calling.mp3');
   callingAudio.play().catch(function(){});
 
   // 3초 후 연결
@@ -322,15 +322,17 @@ function startValidCall() {
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
 
-    // 텍스트0 표시 → 렌더 후 → 음성0 재생 → 끝나면 →
+    // 텍스트0 + 음성파일0 동시 시작
     showThenPlay(msg, '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.',
       ['dubbing/ch3/음성파일0.mp3'], function() {
 
-      // 텍스트1 표시 → 렌더 후 → 음성1→2 재생 → 끝나면 → 입력창
-      showThenPlay(msg, '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.',
-        ['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {
-        document.getElementById('call-input-wrap').style.display = 'flex';
-      });
+      // 음성파일0 끝 → 3초 대기 → 텍스트1 + 음성파일1→2 동시
+      setTimeout(function() {
+        showThenPlay(msg, '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.',
+          ['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {
+          document.getElementById('call-input-wrap').style.display = 'flex';
+        });
+      }, 3000);
     });
   }, 3000);
 }
