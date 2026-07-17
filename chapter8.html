@@ -112,13 +112,13 @@ var S = [
 var canTap = true;
 
 function playLineAudio(src, onEnd) {
-  if (!src) { setTimeout(onEnd, 500); return; }
+  if (!src) { setTimeout(onEnd, 700); return; }
   var audio = new Audio(src);
   var done = false;
   function finish() {
     if (done) return;
     done = true;
-    setTimeout(onEnd, 500);
+    setTimeout(onEnd, 700);
   }
   audio.addEventListener('ended', finish);
   audio.onerror = finish;
