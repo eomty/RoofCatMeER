@@ -163,7 +163,7 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
 
 <script>
 var bgm = document.getElementById('bgm');
-bgm.volume = 0.25;
+bgm.volume = 0.15;
 bgm.play().catch(function(){
   // 모바일 브라우저는 자동재생을 막는 경우가 있어 첫 탭에서 재생 시도
   document.body.addEventListener('click', function once(){
@@ -190,6 +190,7 @@ var promptText = document.getElementById('prompt-text');
 function playAudio(src) {
   return new Promise(function(resolve) {
     var audio = new Audio(src);
+    audio.volume = 0.8;
     audio.onended = resolve;
     audio.onerror = resolve;
     audio.play().catch(resolve);
@@ -374,7 +375,7 @@ async function run(){
   promptText.style.display = 'none';
 
   setPennerAudio('그건 조작된 겁니다! 근무중이었으니까 호텔엔 갈 수가 없었소! 그게 바로 제 알리바이요!', 'penner-angry',
-    ['dubbing/ch8/u/p8_fake1.mp3', 'dubbing/ch8/u/p8_fake2.mp3', 'dubbing/ch8/u/p8_fake3.mp3']);
+    ['dubbing/ch8/u/p8_fake.mp3']);
   await wait(2600);
   setNarr('탐정: "맞습니다. 바로 그게 문제입니다."');
   await wait(1600);
