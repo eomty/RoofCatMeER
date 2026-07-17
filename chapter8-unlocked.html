@@ -302,7 +302,7 @@ var R5_WRONG = {
 };
 
 async function pickChoice(options, correctText, wrongMap){
-  var remaining = options.slice();
+  var remaining = options.slice().sort(function(){ return Math.random() - 0.5; });
   while(true){
     var picked = await showChoices(remaining.map(function(t){return {text:t};}));
     if(picked.text === correctText){
