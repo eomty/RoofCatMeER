@@ -313,7 +313,7 @@ async function pickChoice(options, correctText, wrongMap){
       await wait(600);
       var reactions = wrongMap[picked.text];
       setPenner(reactions[0]);
-      if (reactions[2]) playAudio('dubbing/ch8/' + reactions[2]);
+      if (reactions[2]) playAudio('dubbing/ch8/u/' + reactions[2]);
       await wait(1400);
       setNarr('탐정: "' + reactions[1] + '"');
       await wait(1600);
@@ -322,7 +322,7 @@ async function pickChoice(options, correctText, wrongMap){
 }
 
 async function run(){
-  setPennerAudio('무슨 용건인지나 말하시죠.', 'penner-relaxed', ['dubbing/ch8/p8_intro.mp3']);
+  setPennerAudio('무슨 용건인지나 말하시죠.', 'penner-relaxed', ['dubbing/ch8/u/p8_intro.mp3']);
   await wait(400);
   setNarr('탐정: "급하시긴. 그럼 바로 본론으로."');
   await wait(800);
@@ -333,7 +333,7 @@ async function run(){
     'S.T.R.A.W 장부라고 들어보셨습니까?', R1_WRONG
   );
   await wait(800);
-  setPennerAudio('...잠복수사 중이었소.', 'penner-tense', ['dubbing/ch8/p8_undercover.mp3']);
+  setPennerAudio('...잠복수사 중이었소.', 'penner-tense', ['dubbing/ch8/u/p8_undercover.mp3']);
   await wait(1600);
   setNarr('탐정: "아, 잠복수사요." (수첩 넘기는 척) "그렇군요.\n그런데 잠복수사 중에 누군가와 실거래를 하셨다는 게 좀 걸리는군요."');
   await wait(2200);
@@ -344,7 +344,7 @@ async function run(){
   await waitForEvidence('ledger');
   promptText.style.display = 'none';
 
-  setPennerAudio('그건...!', 'penner-shocked', ['dubbing/ch8/p8_that.mp3']);
+  setPennerAudio('그건...!', 'penner-shocked', ['dubbing/ch8/u/p8_that.mp3']);
   await wait(1400);
   setNarr('탐정: "그날 그시간에 경감님은 근무중이셨으니, 거래하러 가실 수 없었을테니 말이죠."');
   await wait(2200);
@@ -356,7 +356,7 @@ async function run(){
   // ===== 2라운드 — 숙박리스트+CCTV+근무표 (통합) =====
   setNarr('탐정: "딜리셔스 호텔 5월 9일 체크인도 같은 경우겠군요."');
   await wait(2000);
-  setPennerAudio('누명이오! 누군가 제 이름을 도용한 겁니다!', 'penner-angry', ['dubbing/ch8/p8_framed.mp3']);
+  setPennerAudio('누명이오! 누군가 제 이름을 도용한 겁니다!', 'penner-angry', ['dubbing/ch8/u/p8_framed.mp3']);
   await wait(1800);
   setNarr('탐정: "도용." (메모하는 척) "흥미로운 표현이네요.\n딜리셔스 호텔 CCTV를 확인해봤는데 말이죠."');
   await wait(2200);
@@ -374,7 +374,7 @@ async function run(){
   promptText.style.display = 'none';
 
   setPennerAudio('그건 조작된 겁니다! 근무중이었으니까 호텔엔 갈 수가 없었소! 그게 바로 제 알리바이요!', 'penner-angry',
-    ['dubbing/ch8/p8_fake1.mp3', 'dubbing/ch8/p8_fake2.mp3', 'dubbing/ch8/p8_fake3.mp3']);
+    ['dubbing/ch8/u/p8_fake1.mp3', 'dubbing/ch8/u/p8_fake2.mp3', 'dubbing/ch8/u/p8_fake3.mp3']);
   await wait(2600);
   setNarr('탐정: "맞습니다. 바로 그게 문제입니다."');
   await wait(1600);
@@ -394,7 +394,7 @@ async function run(){
   await waitForEvidence('schedule');
   promptText.style.display = 'none';
 
-  setPennerAudio('그, 그 누군가가 누구란 말이오!', 'penner-furious', ['dubbing/ch8/p8_whoisit.mp3']);
+  setPennerAudio('그, 그 누군가가 누구란 말이오!', 'penner-furious', ['dubbing/ch8/u/p8_whoisit.mp3']);
   await wait(1800);
   setNarr('탐정: "그러게요.\n경감님은 모르신다고 하시겠죠.\n하지만 그 누군가는 경감님을 알고 있는 것 같더군요."');
   await wait(2400);
@@ -432,7 +432,7 @@ async function run(){
 
   setNarr('탐정: "그리고 같은 날 23시 41분, 경찰청 내부 자판기 사용 기록.\n경감님은 분명 그 자리, 경찰서에 계셨습니다."');
   await wait(2600);
-  setPennerAudio('그건...! 불법 아니오?!', 'penner-grim', ['dubbing/ch8/p8_illegal.mp3']);
+  setPennerAudio('그건...! 불법 아니오?!', 'penner-grim', ['dubbing/ch8/u/p8_illegal.mp3']);
   await wait(1800);
   setNarr('탐정: "글쎄요."  "범죄묘한테 설명할 이유는 없어요."');
   await wait(2000);
@@ -444,7 +444,7 @@ async function run(){
   // ===== 4라운드 — 가족관계증명서 =====
   setNarr('탐정: "서류엔 꽤 흥미로운 내용이 있더군요."');
   await wait(1800);
-  setPennerAudio('무, 무슨 서류요?', 'penner-grim', ['dubbing/ch8/p8_whatwhat.mp3']);
+  setPennerAudio('무, 무슨 서류요?', 'penner-grim', ['dubbing/ch8/u/p8_whatwhat.mp3']);
   await wait(1400);
   setNarr('탐정: "경감님도 아시는 서류입니다."');
   await wait(1400);
@@ -461,7 +461,7 @@ async function run(){
   await waitForEvidence('family');
   promptText.style.display = 'none';
 
-  setPennerAudio('그건... 그건...', 'penner-breaking', ['dubbing/ch8/p8_break.mp3']);
+  setPennerAudio('그건... 그건...', 'penner-breaking', ['dubbing/ch8/u/p8_break.mp3']);
   await wait(2000);
   setNarr('탐정: "..."');
   await wait(1400);
