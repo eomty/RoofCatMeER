@@ -11,8 +11,8 @@ html,body{background:#0a0a0a;font-family:'Noto Sans KR',sans-serif;}
 body{min-height:100vh;padding:60px 28px 120px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 
 #location{
-  text-align:center;font-size:10px;
-  color:rgba(255,255,255,.2);
+  text-align:center;font-size:11px;
+  color:rgba(255,255,255,.6);
   letter-spacing:.25em;
   font-family:'Nanum Myeongjo',serif;
   margin-bottom:32px;
@@ -45,8 +45,8 @@ body{min-height:100vh;padding:60px 28px 120px;cursor:pointer;-webkit-tap-highlig
 
 #tap-hint{
   position:fixed;bottom:32px;left:0;right:0;
-  text-align:center;font-size:10px;
-  color:rgba(255,255,255,.15);letter-spacing:.1em;
+  text-align:center;font-size:11px;
+  color:rgba(255,255,255,.5);letter-spacing:.1em;
   animation:pulse 2s ease-in-out infinite;
 }
 @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.8;}}
@@ -84,30 +84,36 @@ body{min-height:100vh;padding:60px 28px 120px;cursor:pointer;-webkit-tap-highlig
 var S = [
   {t:'loc', v:'— 경찰서 —'},
   {t:'line', sp:'detective', sn:'탐정', v:'"안녕하십니까. 페너 경감님."'},
-  {t:'line', sp:'penner', sn:'페너 경감', v:'"예. 무슨 일이시죠?"'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"예. 무슨 일이시죠?"', audio:'dubbing/ch8/p_yes.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"경감님께선 오랫동안 이 마을을 지켜오셨다고 들었습니다."'},
-  {t:'line', sp:'penner', sn:'페너 경감', v:'"그게 제 일입니다."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"그게 제 일입니다."', audio:'dubbing/ch8/p_job.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"그렇죠.\n누군가는 범인을 쫓고,\n누군가는 주민들을 지키고,\n누군가는 진실을 밝혀야 하니까요."'},
-  {t:'line', sp:'penner', sn:'페너 경감', v:'"그래서?"'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"그래서?"', audio:'dubbing/ch8/p_so.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"한 사람이 너무 오랫동안 진실을 관리하게 되면...\n그 사람이 진실을 지키는 건지,\n아니면 진실을 결정하는 건지.\n본인조차 그 차이를 잊어버릴 수도 있겠지요."'},
   {t:'line', sp:'penner', sn:'페너 경감', v:'"..."'},
   {t:'line', sp:'detective', sn:'탐정', v:'"다행히 저는 그 답을 찾은 것 같습니다.\n잠시 시간 좀 내주시죠."'},
   {t:'loc', v:'— 루프캣미 카페 —'},
-  {t:'line', sp:'staff', sn:'직원', v:'"어서오세요~ 루프캣미입니다!"'},
+  {t:'line', sp:'staff', sn:'직원', v:'"어서오세요~ 루프캣미입니다!"', audio:'dubbing/ch8/s_welcome.mp3'},
   {t:'line', sp:'narration', sn:'', v:'...어디서 많이 들어본 목소리인걸.'},
-  {t:'line', sp:'staff', sn:'직원', v:'"몇 분이세요?"'},
+  {t:'line', sp:'staff', sn:'직원', v:'"몇 분이세요?"', audio:'dubbing/ch8/s_howmany.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"두 명이요."'},
   {t:'line', sp:'staff', sn:'직원', v:'"음료는 뭘로 드릴까요?"'},
   {t:'line', sp:'detective', sn:'탐정', v:'"경감님, 편하게 고르세요.\n제가 사드리는 커피인데, 오늘이 마지막이 될 수도 있으니까요."'},
-  {t:'line', sp:'penner', sn:'페너 경감', v:'"...무슨 소리요?"'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"...무슨 소리요?"', audio:'dubbing/ch8/p_what.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"아, 이런 자리가 다시 있겠냐는 뜻입니다.\n제일 비싼 걸로 두 잔 주세요."'},
   {t:'line', sp:'staff', sn:'직원', v:'"네~ 잠시만요!"'},
-  {t:'line', sp:'penner', sn:'페너 경감', v:'"...빨리 합시다."'},
+  {t:'line', sp:'penner', sn:'페너 경감', v:'"...빨리 합시다."', audio:'dubbing/ch8/p_hurry.mp3'},
   {t:'line', sp:'detective', sn:'탐정', v:'"서두르지 마세요, 경감님.\n오늘 대화가 꽤 길어질 것 같으니까요."'},
   {t:'line', sp:'penner', sn:'페너 경감', v:'"..."'},
   {t:'line', sp:'detective', sn:'탐정', v:'"그럼 바로 본론으로."'},
   {t:'end'}
 ];
+
+function playLineAudio(src) {
+  if (!src) return;
+  var audio = new Audio(src);
+  audio.play().catch(function(){});
+}
 
 var idx = 0;
 var container = document.getElementById('lines');
@@ -128,6 +134,7 @@ function addLine(item) {
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
       div.classList.add('show');
+      playLineAudio(item.audio);
     });
   });
   window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
@@ -178,7 +185,12 @@ function goNext() {
   }, 600);
 }
 
-setTimeout(function() { next(); }, 600);
+setTimeout(function() {
+  next(); // 장소 표시
+  setTimeout(function() {
+    next(); // 첫 대사 자동 표시
+  }, 800);
+}, 600);
 </script>
 
 </body>
