@@ -109,10 +109,28 @@ var S = [
   {t:'end'}
 ];
 
-function playLineAudio(src) {
-  if (!src) return;
+var canTap = true;
+
+function playLineAudio(src, onEnd) {
+  if (!src) { setTimeout(onEnd, 500); return; }
   var audio = new Audio(src);
-  audio.play().catch(function(){});
+  var done = false;
+  function finish() {
+    if (done) return;
+    done = true;
+    setTimeout(onEnd, 500);
+  }
+  audio.addEventListener('ended', finish);
+  audio.onerror = finish;
+  audio.play().then(function() {
+    // duration 기반 백업: 재생 시작 후 길이만큼 기다려도 안 끝나면 강제 해제
+    var checkDuration = setInterval(function() {
+      if (audio.duration && isFinite(audio.duration)) {
+        clearInterval(checkDuration);
+        setTimeout(finish, (audio.duration * 1000) + 600);
+      }
+    }, 100);
+  }).catch(finish);
 }
 
 var idx = 0;
@@ -134,18 +152,20 @@ function addLine(item) {
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
       div.classList.add('show');
-      playLineAudio(item.audio);
+      playLineAudio(item.audio, function() { canTap = true; });
     });
   });
   window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
 }
 
 function changeLoc(text) {
+  canTap = false;
   overlay.classList.add('on');
   setTimeout(function() {
     container.innerHTML = '';
     locEl.textContent = text;
     overlay.classList.remove('on');
+    setTimeout(function() { canTap = true; }, 500);
   }, 500);
 }
 
@@ -168,6 +188,7 @@ function next() {
   }
 
   if (s.t === 'line') {
+    canTap = false;
     addLine(s);
     if (navigator.vibrate) navigator.vibrate(20);
   }
@@ -175,6 +196,7 @@ function next() {
 
 document.body.addEventListener('click', function(e) {
   if (e.target.id === 'next-btn') return;
+  if (!canTap) return;
   next();
 });
 
