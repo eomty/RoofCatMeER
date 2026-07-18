@@ -85,11 +85,17 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script src="timer.js"></script>
+<script src="rcm-rank.js"></script>
 <script>
 var finalSec = RCMTimer.stopTimer();
 document.getElementById('final-time').textContent = RCMTimer.formatTime(finalSec);
 var rank = RCMTimer.getRank(finalSec);
 document.getElementById('final-rank').innerHTML = rank.grade + ' 랭크<br/><span style="font-size:11px;color:#c9a84c;">해당 부분을 캡쳐한 후,엔딩 후 직원에게 보여주세요.</span>';
+
+// Firebase에 기록 저장
+RCMRank.save(function(record){
+  if(record) console.log('[RCMRank] 기록 저장됨', record);
+});
 
 function goToChapter8(){
   if (window.RCMFlow) RCMFlow.markComplete();
