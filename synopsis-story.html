@@ -55,6 +55,62 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x
 </style>
 </head>
 <body>
+
+<!-- 이름 입력 모달 -->
+<div id="name-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#1a1410;border:1px solid rgba(201,168,76,.45);border-radius:6px;padding:32px 24px 28px;width:100%;max-width:320px;text-align:center;">
+    <div style="font-family:monospace;font-size:10px;color:#c9a84c;letter-spacing:.3em;margin-bottom:20px;">DETECTIVE · IDENTIFICATION</div>
+    <div style="font-family:'Nanum Myeongjo',serif;font-size:18px;color:#e8e4d8;line-height:1.7;margin-bottom:22px;">탐정님의 이름을<br>알려주세요.</div>
+    <input id="name-input" type="text" maxlength="10" placeholder="이름 입력 (최대 10자)"
+      style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.4);border-radius:3px;
+             padding:12px 14px;color:#e8e4d8;font-family:'Noto Sans KR',sans-serif;font-size:14px;
+             text-align:center;outline:none;margin-bottom:14px;box-sizing:border-box;"/>
+    <button onclick="confirmName()"
+      style="width:100%;background:#8b1a1a;color:#f0e8d8;font-family:'Nanum Myeongjo',serif;
+             font-size:15px;letter-spacing:.08em;border:none;border-radius:4px;padding:14px;cursor:pointer;">
+      확인
+    </button>
+    <div id="name-error" style="color:#c9a84c;font-size:12px;margin-top:10px;min-height:16px;"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // 이미 저장된 이름 있으면 모달 스킵
+  var saved = sessionStorage.getItem('rcm_player_name');
+  if(saved){
+    document.getElementById('name-modal').style.display = 'none';
+    applyName(saved);
+  } else {
+    // 자동 포커스
+    setTimeout(function(){ document.getElementById('name-input').focus(); }, 300);
+  }
+
+  // Enter키 확인
+  document.getElementById('name-input').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') confirmName();
+  });
+})();
+
+function confirmName(){
+  var val = document.getElementById('name-input').value.trim();
+  if(!val){
+    document.getElementById('name-error').textContent = '이름을 입력해주세요.';
+    return;
+  }
+  sessionStorage.setItem('rcm_player_name', val);
+  applyName(val);
+  document.getElementById('name-modal').style.display = 'none';
+}
+
+function applyName(name){
+  // mission-box, rule-text, tape 등 페이지 내 "탐정님" 텍스트 교체
+  document.querySelectorAll('.mission-box, .rule-text, .story-text').forEach(function(el){
+    el.innerHTML = el.innerHTML.replace(/탐정님/g, name + '님');
+  });
+}
+</script>
+
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 <script src="debug-panel.js"></script>
@@ -131,7 +187,8 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;overflow-x
   </div>
 </div>
 
-<button class="start-btn" onclick="if(window.RCMFlow)RCMFlow.markComplete();location.href='chapter1.html'">▶ 수사 시작하기</button>
+<script src="rcm-rank.js"></script>
+<button class="start-btn" onclick="RCMRank.start();if(window.RCMFlow)RCMFlow.markComplete();location.href='chapter1.html'">▶ 수사 시작하기</button>
 
 
 </body>

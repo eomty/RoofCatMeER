@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>수사 기록 — 루프캣미</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="rcm-rank.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#2e2c29;font-family:'Noto Sans KR',sans-serif;color:#e8e4d8;}
+body{min-height:100vh;max-width:420px;margin:0 auto;padding-bottom:32px;}
+
+.tape{width:100%;background:#d4a800;color:#1a1410;font-size:9px;font-weight:700;
+      letter-spacing:.25em;text-align:center;padding:8px 0;}
+
+.header{padding:20px 20px 10px;display:flex;align-items:center;justify-content:space-between;}
+.case-label{font-family:monospace;font-size:9px;color:#888;letter-spacing:2px;}
+.case-no{font-family:'Nanum Myeongjo',serif;font-size:12px;color:#c9a84c;
+          border:1px solid rgba(201,168,76,.4);padding:3px 10px;}
+
+.title-area{padding:0 20px 18px;text-align:center;}
+.title-area h1{font-family:'Nanum Myeongjo',serif;font-size:22px;color:#e8e4d8;margin-bottom:6px;}
+.title-area p{font-size:11px;color:#888;letter-spacing:.05em;}
+
+/* 랭킹 카드 */
+.rank-card{margin:0 16px 10px;background:#1a1410;border:1px solid rgba(201,168,76,.2);
+           border-radius:6px;padding:14px 16px;display:flex;align-items:center;gap:14px;
+           position:relative;}
+.rank-card.top1{border-color:rgba(201,168,76,.7);box-shadow:0 0 12px rgba(201,168,76,.15);}
+.rank-card.top2{border-color:rgba(180,180,180,.5);}
+.rank-card.top3{border-color:rgba(180,100,40,.5);}
+
+.rank-no{font-family:'Nanum Myeongjo',serif;font-size:22px;width:32px;text-align:center;
+          flex-shrink:0;}
+.top1 .rank-no{color:#c9a84c;}
+.top2 .rank-no{color:#b4b4b4;}
+.top3 .rank-no{color:#b46428;}
+.rank-no.other{font-size:16px;color:#666;}
+
+.rank-info{flex:1;min-width:0;}
+.rank-name{font-family:'Nanum Myeongjo',serif;font-size:15px;color:#e8e4d8;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-detail{font-size:10px;color:#888;margin-top:3px;}
+.rank-detail span{margin-right:10px;}
+
+.rank-time{font-family:monospace;font-size:16px;color:#c9a84c;flex-shrink:0;text-align:right;}
+.rank-date{font-size:9px;color:#555;margin-top:3px;text-align:right;}
+
+/* 내 기록 하이라이트 */
+.rank-card.mine{border-color:rgba(139,26,26,.8);background:rgba(139,26,26,.1);}
+.mine .rank-time{color:#e05555;}
+
+/* 기타 UI */
+.section-label{font-size:10px;letter-spacing:.15em;color:#c9a84c;text-transform:uppercase;
+                font-weight:700;margin:20px 20px 10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.2);}
+
+.loading{text-align:center;padding:40px 20px;color:#666;font-size:13px;}
+
+.back-btn{display:block;width:calc(100% - 32px);margin:20px 16px 0;padding:13px;
+           background:transparent;color:#c9a84c;font-family:'Nanum Myeongjo',serif;
+           font-size:14px;letter-spacing:.08em;border:1px solid rgba(201,168,76,.4);
+           border-radius:4px;cursor:pointer;text-align:center;text-decoration:none;}
+
+.empty{text-align:center;padding:40px 20px;color:#555;font-size:13px;}
+
+.refresh-btn{font-size:10px;color:#666;border:1px solid rgba(255,255,255,.1);
+              background:transparent;padding:4px 10px;border-radius:3px;cursor:pointer;
+              margin-left:auto;}
+</style>
+</head>
+<body>
+
+<div class="tape">DETECTIVE RECORDS · ROOFCATME VILLAGE · DETECTIVE RECORDS</div>
+
+<div class="header">
+  <div class="case-label">CASE FILE · RANKING</div>
+  <div class="case-no">수사 기록부</div>
+</div>
+
+<div class="title-area">
+  <h1>🏆 수사 기록</h1>
+  <p>기록은 클리어 시간 + 오답/힌트 패널티 합산 기준입니다.</p>
+</div>
+
+<div class="section-label">
+  전체 순위
+  <button class="refresh-btn" onclick="loadRanking()">↻ 새로고침</button>
+</div>
+
+<div id="rank-list">
+  <div class="loading">기록을 불러오는 중...</div>
+</div>
+
+<a href="synopsis-story.html" class="back-btn">← 돌아가기</a>
+
+<script>
+var myName = sessionStorage.getItem('rcm_player_name') || '';
+
+function fmtDetail(r){
+  var parts = [];
+  if(r.wrong_count > 0) parts.push('오답 ' + r.wrong_count + '회 (+' + r.wrong_pen + '초)');
+  if(r.hint_pen    > 0) parts.push('힌트 패널티 +' + fmtSec(r.hint_pen));
+  return parts.length ? parts.join(' · ') : '패널티 없음';
+}
+
+function fmtSec(s){
+  var m = Math.floor(s/60), sec = s%60;
+  return m > 0 ? m + '분 ' + (sec>0?sec+'초':'') : sec + '초';
+}
+
+function medalClass(i){
+  if(i===0) return 'top1';
+  if(i===1) return 'top2';
+  if(i===2) return 'top3';
+  return '';
+}
+
+function loadRanking(){
+  document.getElementById('rank-list').innerHTML =
+    '<div class="loading">기록을 불러오는 중...</div>';
+
+  RCMRank.getTop(50, function(list){
+    var el = document.getElementById('rank-list');
+    if(!list || list.length === 0){
+      el.innerHTML = '<div class="empty">아직 기록이 없습니다.<br>첫 번째 탐정이 되어보세요!</div>';
+      return;
+    }
+
+    var html = '';
+    list.forEach(function(r, i){
+      var isMe = myName && r.name === myName;
+      var cls  = 'rank-card ' + medalClass(i) + (isMe ? ' mine' : '');
+      var noEl = i < 3
+        ? '<div class="rank-no">' + ['🥇','🥈','🥉'][i] + '</div>'
+        : '<div class="rank-no other">' + (i+1) + '</div>';
+
+      html +=
+        '<div class="' + cls + '">' +
+          noEl +
+          '<div class="rank-info">' +
+            '<div class="rank-name">' + escHtml(r.name) + (isMe ? ' 👤' : '') + '</div>' +
+            '<div class="rank-detail"><span>' + fmtDetail(r) + '</span></div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="rank-time">' + RCMRank.fmt(r.total_sec) + '</div>' +
+            '<div class="rank-date">' + (r.date || '') + '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    el.innerHTML = html;
+  });
+}
+
+function escHtml(s){
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadRanking();
+</script>
+
+</body>
+</html>
