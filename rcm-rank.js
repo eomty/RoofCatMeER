@@ -9,7 +9,7 @@
 var RCMRank = (function () {
 
   // ★ 여기만 수정하세요
-  var DB_URL = 'https://roofcatmeer-default-rtdb.asia-southeast1.firebasedatabase.app/';
+  var DB_URL = 'https://YOUR-PROJECT-default-rtdb.firebaseio.com';
 
   // localStorage에서 RCMTimer 내부 state 읽기
   function timerState() {
@@ -25,13 +25,9 @@ var RCMRank = (function () {
      */
     save: function (onDone) {
       var name     = sessionStorage.getItem('rcm_player_name') || '익명';
-      var totalSec = RCMTimer.stopTimer(); // 패널티 포함 최종 시간
-
-      if (!totalSec) {
-        console.warn('[RCMRank] 타이머가 시작되지 않았습니다.');
-        if (onDone) onDone(null);
-        return;
-      }
+      // stopTimer()가 이미 호출됐으면 undefined 반환 → getElapsedSec()으로 폴백
+      var totalSec = RCMTimer.stopTimer();
+      if (totalSec == null) totalSec = RCMTimer.getElapsedSec();
 
       var s = timerState();
 
