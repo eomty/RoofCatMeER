@@ -11,37 +11,45 @@
 body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
 .tape{width:100%;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 .document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
-.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;text-align:center;}
-.doc-header-label{font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
-.doc-title{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--ink);}
-.doc-body{padding:20px 18px 24px;}
-.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:18px 0;}
+.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;}
+.chapter-tag{display:inline-block;background:var(--green);color:#f0e8d8;font-size:10px;letter-spacing:.1em;padding:3px 10px;margin-bottom:6px;}
+.doc-meta{display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-name-label{font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;}
+.doc-name{font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px;}
+.doc-no{font-size:11px;color:var(--muted);border:1px solid rgba(0,0,0,.2);padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.4);}
+.doc-body{padding:18px 18px 24px;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:16px 0;}
 
-.rank-card{text-align:center;padding:18px 0;}
-.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:82px;height:82px;border-radius:0;font-family:'Nanum Myeongjo',serif;font-size:50px;font-weight:800;margin-bottom:10px;transform:rotate(-5deg);border:3px solid;background:transparent;}
-.rank-badge.S{color:#8b6914;border-color:#8b6914;}
-.rank-badge.A{color:#2d6b3a;border-color:#2d6b3a;}
-.rank-badge.B{color:#1a4080;border-color:#1a4080;}
-.rank-badge.C{color:#5a4a38;border-color:#5a4a38;}
-.rank-time{font-family:monospace;font-size:24px;color:var(--ink);font-weight:700;margin-bottom:4px;}
-.rank-reward{font-size:13px;color:var(--muted);}
-.rank-reward b{color:var(--red);}
+.assistant-bubble{background:rgba(76,175,130,.08);border:1px solid rgba(76,175,130,.3);border-radius:4px 16px 16px 16px;padding:14px 16px;margin-bottom:6px;}
+.assistant-name{font-family:'Nanum Myeongjo',serif;font-size:11px;color:#2d7a5a;font-weight:700;letter-spacing:.05em;margin-bottom:6px;}
+.assistant-text{font-size:13.5px;line-height:1.9;color:var(--ink);}
 
-.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px;}
+.record-summary{background:#12100c;border-radius:6px;padding:16px 18px;margin:16px 0;}
+.record-label{font-size:10px;color:#776e5e;letter-spacing:.12em;font-family:monospace;margin-bottom:6px;}
+.record-time{font-size:32px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;margin-bottom:6px;}
+.record-grade{display:inline-block;font-family:'Nanum Myeongjo',serif;font-size:13px;color:#c9a84c;border:1px solid #c9a84c;padding:2px 10px;margin-bottom:4px;transform:rotate(-2deg);display:inline-block;}
+.record-grade.A{color:#4caf82;border-color:#4caf82;}
+.record-grade.B{color:#6098d0;border-color:#6098d0;}
+.record-grade.C{color:#a09070;border-color:#a09070;}
+.record-sub{font-size:11px;color:#c9a84c;font-family:'Nanum Myeongjo',serif;margin-top:8px;}
+
+.breakdown-box{background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.08);border-radius:4px;padding:12px 14px;margin:16px 0;}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:13px;}
 .breakdown-row:last-child{border-bottom:none;}
-.breakdown-row .ch-name{color:var(--ink);}
-.breakdown-row .ch-time{font-family:monospace;color:var(--muted);}
+.ch-name{color:var(--ink);}
+.ch-time{font-family:monospace;font-size:12px;color:var(--muted);}
 .breakdown-row.slowest .ch-name{color:var(--red);font-weight:700;}
 .breakdown-row.slowest .ch-time{color:var(--red);font-weight:700;}
-.slowest-tag{font-size:9px;background:var(--red);color:var(--paper);padding:1px 6px;border-radius:8px;margin-left:6px;}
+.slowest-tag{font-size:9px;background:var(--red);color:var(--paper);padding:1px 6px;border-radius:2px;margin-left:6px;}
 
-.stat-grid{display:flex;gap:10px;margin:14px 0;}
-.stat-box{flex:1;background:rgba(0,0,0,.03);border-radius:6px;padding:10px;text-align:center;}
-.stat-box .num{font-family:monospace;font-size:18px;font-weight:700;color:var(--ink);}
-.stat-box .label{font-size:10px;color:var(--muted);margin-top:2px;}
+.stat-grid{display:flex;gap:10px;margin:14px 0 4px;}
+.stat-box{flex:1;border:1px solid rgba(0,0,0,.1);padding:11px 10px;text-align:center;}
+.stat-num{font-family:monospace;font-size:20px;font-weight:700;color:var(--ink);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:3px;}
 
-.restart-btn{width:100%;padding:14px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;border:none;border-radius:4px;cursor:pointer;margin-top:10px;letter-spacing:.08em;}
+.rank-btn{width:100%;padding:15px;background:var(--red);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;cursor:pointer;margin-top:16px;letter-spacing:.08em;}
+.back-btn{width:100%;padding:13px;background:transparent;color:var(--muted);font-family:'Nanum Myeongjo',serif;font-size:13px;border:none;cursor:pointer;margin-top:8px;letter-spacing:.06em;}
+
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 </style>
 </head>
@@ -54,35 +62,58 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
 <div class="document">
   <div class="doc-header">
-    <div class="doc-header-label">CASE CLOSED</div>
-    <div class="doc-title">수사 종료 — 사건 결과</div>
+    <div class="chapter-tag">✓ 사건 종결</div>
+    <div class="doc-meta">
+      <div>
+        <div class="doc-name-label">CASE FILE</div>
+        <div class="doc-name">수사 결과</div>
+      </div>
+      <div class="doc-no">CLOSED</div>
+    </div>
   </div>
 
   <div class="doc-body">
 
-    <div class="rank-card">
-      <div class="rank-badge" id="rank-badge">-</div>
-      <div class="rank-time" id="rank-time">--:--</div>
-      <div class="rank-reward" id="rank-reward">집계 중...</div>
+    <div class="assistant-bubble">
+      <div class="assistant-name">조수</div>
+      <div class="assistant-text" id="assistant-msg">수고하셨습니다, 탐정님! 루프캣미 빌리지의 비밀을 밝혀주셔서 감사해요.</div>
     </div>
 
-    <div class="tear"></div>
+    <div class="record-summary">
+      <div class="record-label">FINAL RECORD · 챕터 1~7</div>
+      <div class="record-time" id="rank-time">--:--</div>
+      <div><span class="record-grade" id="rank-grade">-</span></div>
+      <div class="record-sub" id="rank-reward">집계 중...</div>
+    </div>
+      <div style="display:flex;gap:1px;margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-family:monospace;font-size:20px;font-weight:700;color:#e8e4d8;" id="stat-hints">0</div>
+          <div style="font-size:10px;color:#776e5e;margin-top:3px;letter-spacing:.05em;">사용한 힌트</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.08);"></div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-family:monospace;font-size:20px;font-weight:700;color:#e8e4d8;" id="stat-wrongs">0</div>
+          <div style="font-size:10px;color:#776e5e;margin-top:3px;letter-spacing:.05em;">오답 횟수</div>
+        </div>
+      </div>
 
-    <div class="section-title">챕터별 소요 기록</div>
-    <div id="breakdown-list"></div>
+    <div class="breakdown-box">
+      <div id="breakdown-list"></div>
+    </div>
 
     <div class="stat-grid">
       <div class="stat-box">
-        <div class="num" id="stat-hints">0</div>
-        <div class="label">사용한 힌트</div>
+        <div class="stat-num" id="stat-hints">0</div>
+        <div class="stat-label">사용한 힌트</div>
       </div>
       <div class="stat-box">
-        <div class="num" id="stat-wrongs">0</div>
-        <div class="label">오답 횟수</div>
+        <div class="stat-num" id="stat-wrongs">0</div>
+        <div class="stat-label">오답 횟수</div>
       </div>
     </div>
 
-    <button class="restart-btn" onclick="restartGame()">처음으로 돌아가기</button>
+    <button class="rank-btn" onclick="location.href='ranking.html'">🏆 랭킹 보러가기</button>
+    <button class="back-btn" onclick="restartGame()">처음으로 돌아가기</button>
 
   </div>
 </div>
@@ -92,55 +123,56 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 
 <script src="timer.js"></script>
 <script>
-var CHAPTER_LABELS = {
-  chapter1: '챕터 1', chapter2: '챕터 2', chapter3: '챕터 3',
-  chapter4: '챕터 4', chapter5: '챕터 5', chapter6: '챕터 6', chapter7: '챕터 7'
-};
+var CHAPTER_LABELS={chapter1:'챕터 1',chapter2:'챕터 2',chapter3:'챕터 3',chapter4:'챕터 4',chapter5:'챕터 5',chapter6:'챕터 6',chapter7:'챕터 7'};
 
 function render(){
   var finalSec = RCMTimer.getElapsedSec();
   var rank = RCMTimer.getRank(finalSec);
 
-  var badge = document.getElementById('rank-badge');
-  badge.textContent = rank.grade;
-  badge.classList.add(rank.grade);
-
   document.getElementById('rank-time').textContent = RCMTimer.formatTime(finalSec);
-  document.getElementById('rank-reward').innerHTML = '획득 보상: <b>' + rank.reward + '</b>';
+
+  var gradeEl = document.getElementById('rank-grade');
+  gradeEl.textContent = rank.grade + ' 랭크';
+  if(rank.grade !== 'S') gradeEl.classList.add(rank.grade);
+
+  document.getElementById('rank-reward').textContent = '해당 부분을 캡쳐한 후, 직원에게 보여주세요.';
+
+  // 조수 메시지에 이름 반영
+  var name = sessionStorage.getItem('rcm_player_name');
+  if(name) document.getElementById('assistant-msg').textContent =
+    '수고하셨습니다, '+name+'님! 루프캣미 빌리지의 비밀을 밝혀주셔서 감사해요.';
 
   var breakdown = RCMTimer.getChapterBreakdown();
-  var maxSec = 0, maxIdx = -1;
-  breakdown.forEach(function(b, i){
-    if (b.sec > maxSec) { maxSec = b.sec; maxIdx = i; }
-  });
+  var maxSec=0, maxIdx=-1;
+  breakdown.forEach(function(b,i){if(b.sec>maxSec){maxSec=b.sec;maxIdx=i;}});
 
   var listEl = document.getElementById('breakdown-list');
-  listEl.innerHTML = '';
-  breakdown.forEach(function(b, i){
-    var row = document.createElement('div');
-    row.className = 'breakdown-row' + (i === maxIdx && maxSec > 0 ? ' slowest' : '');
-    var label = CHAPTER_LABELS[b.chapter] || b.chapter;
-    var slowTag = (i === maxIdx && maxSec > 0) ? '<span class="slowest-tag">최장 소요</span>' : '';
-    row.innerHTML = '<span class="ch-name">' + label + slowTag + '</span><span class="ch-time">' + RCMTimer.formatTime(b.sec) + '</span>';
+  listEl.innerHTML='';
+  breakdown.forEach(function(b,i){
+    var row=document.createElement('div');
+    row.className='breakdown-row'+(i===maxIdx&&maxSec>0?' slowest':'');
+    var label=CHAPTER_LABELS[b.chapter]||b.chapter;
+    var tag=(i===maxIdx&&maxSec>0)?'<span class="slowest-tag">최장</span>':'';
+    row.innerHTML='<span class="ch-name">'+label+tag+'</span><span class="ch-time">'+RCMTimer.formatTime(b.sec)+'</span>';
     listEl.appendChild(row);
   });
 
-  var hintTotal = 0, wrongTotal = 0;
-  try {
-    var raw = JSON.parse(localStorage.getItem('rcm_timer') || '{}');
-    hintTotal = Object.keys(raw.hintCounts || {}).length;
-    Object.values(raw.wrongCounts || {}).forEach(function(v){ wrongTotal += v; });
-  } catch(e){}
-  document.getElementById('stat-hints').textContent = hintTotal;
-  document.getElementById('stat-wrongs').textContent = wrongTotal;
+  var hintTotal=0,wrongTotal=0;
+  try{
+    var raw=JSON.parse(localStorage.getItem('rcm_timer')||'{}');
+    hintTotal=Object.keys(raw.hintCounts||{}).length;
+    Object.values(raw.wrongCounts||{}).forEach(function(v){wrongTotal+=v;});
+  }catch(e){}
+  document.getElementById('stat-hints').textContent=hintTotal;
+  document.getElementById('stat-wrongs').textContent=wrongTotal;
 }
 render();
 
 function restartGame(){
   RCMTimer.resetAll();
-  location.href = 'index.html';
+  sessionStorage.removeItem('rcm_player_name');
+  location.href='index.html';
 }
 </script>
-
 </body>
 </html>
