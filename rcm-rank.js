@@ -9,7 +9,7 @@
 var RCMRank = (function () {
 
   // ★ 여기만 수정하세요
-  var DB_URL = 'https://roofcatmeer-default-rtdb.asia-southeast1.firebasedatabase.app/';
+  var DB_URL = 'https://YOUR-PROJECT-default-rtdb.firebaseio.com';
 
   // localStorage에서 RCMTimer 내부 state 읽기
   function timerState() {
@@ -99,9 +99,11 @@ var RCMRank = (function () {
         });
     },
 
-    // 시간 포맷 헬퍼 — RCMTimer.formatTime 위임
+    // 시간 포맷 헬퍼 — "mm:ss" 형식
     fmt: function (sec) {
-      return RCMTimer.formatTime(sec);
+      sec = Math.max(0, Math.floor(sec));
+      var m = Math.floor(sec / 60), s = sec % 60;
+      return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
   };
 
