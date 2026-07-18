@@ -9,7 +9,7 @@
 var RCMRank = (function () {
 
   // ★ 여기만 수정하세요
-  var DB_URL = 'https://YOUR-PROJECT-default-rtdb.firebaseio.com';
+  var DB_URL = 'https://roofcatmeer-default-rtdb.asia-southeast1.firebasedatabase.app/';
 
   // localStorage에서 RCMTimer 내부 state 읽기
   function timerState() {
