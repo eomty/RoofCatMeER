@@ -10,38 +10,59 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
 .tape{width:100%;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;position:fixed;top:0;z-index:100;border-bottom:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
-.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 20px rgba(0,0,0,.5);}
-.doc-header{background:var(--paper2);border-bottom:2px solid rgba(0,0,0,.15);padding:14px 18px 10px;text-align:center;}
-.doc-header-label{font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
-.doc-title{font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:800;color:var(--ink);}
-.doc-body{padding:20px 18px 24px;}
-.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:18px 0;}
 
-.rank-card{text-align:center;padding:18px 0;}
-.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;font-family:'Nanum Myeongjo',serif;font-size:44px;font-weight:800;margin-bottom:10px;}
-.rank-badge.S{background:radial-gradient(circle,#fff7d6,#d4a800);color:#5a3d00;box-shadow:0 0 0 3px rgba(212,168,0,.3);}
-.rank-badge.A{background:radial-gradient(circle,#dff5ea,#4caf82);color:#0d3d26;}
-.rank-badge.B{background:radial-gradient(circle,#e0eefc,#5a9bd4);color:#0d2d4d;}
-.rank-badge.C{background:radial-gradient(circle,#f0e4d8,#a8896a);color:#3d2a18;}
-.rank-time{font-family:monospace;font-size:24px;color:var(--ink);font-weight:700;margin-bottom:4px;}
-.rank-reward{font-size:13px;color:var(--muted);}
-.rank-reward b{color:var(--red);}
+.document{width:100%;max-width:420px;margin-top:36px;background:var(--paper);box-shadow:4px 4px 24px rgba(0,0,0,.6);}
 
-.section-title{font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px;}
+/* 상단 다크 히어로 영역 */
+.result-hero{background:#12100c;padding:28px 20px 24px;text-align:center;border-bottom:1px solid rgba(201,168,76,.2);position:relative;}
+.hero-eyebrow{font-family:monospace;font-size:9px;color:#776e5e;letter-spacing:.3em;margin-bottom:20px;}
+
+/* 랭크 스탬프 */
+.rank-stamp{display:inline-block;margin-bottom:16px;position:relative;}
+.rank-stamp-inner{
+  font-family:'Nanum Myeongjo',serif;
+  font-size:52px;font-weight:800;
+  color:#c9a84c;
+  border:3px solid #c9a84c;
+  width:80px;height:80px;
+  display:flex;align-items:center;justify-content:center;
+  transform:rotate(-4deg);
+  letter-spacing:0;
+  opacity:.95;
+}
+.rank-stamp-inner.A{color:#4caf82;border-color:#4caf82;}
+.rank-stamp-inner.B{color:#6098d0;border-color:#6098d0;}
+.rank-stamp-inner.C{color:#a0907a;border-color:#a0907a;}
+
+.hero-time{font-family:monospace;font-size:38px;font-weight:700;color:#e8e4d8;letter-spacing:.04em;margin-bottom:8px;}
+.hero-label{font-size:10px;color:#776e5e;letter-spacing:.15em;margin-bottom:14px;}
+.hero-reward{display:inline-block;background:rgba(139,26,26,.25);border:1px solid rgba(139,26,26,.5);color:#e8c0b0;font-family:'Nanum Myeongjo',serif;font-size:13px;padding:6px 16px;letter-spacing:.05em;}
+
+/* 본문 */
+.doc-body{padding:22px 20px 26px;}
+.tear{height:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(0,0,0,.12) 6px,rgba(0,0,0,.12) 8px);margin:20px 0;}
+
+.section-title{font-family:monospace;font-size:9px;letter-spacing:.25em;color:#a09080;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.1);}
+
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:13.5px;}
 .breakdown-row:last-child{border-bottom:none;}
-.breakdown-row .ch-name{color:var(--ink);}
-.breakdown-row .ch-time{font-family:monospace;color:var(--muted);}
+.ch-name{color:var(--ink);}
+.ch-time{font-family:monospace;font-size:13px;color:var(--muted);}
 .breakdown-row.slowest .ch-name{color:var(--red);font-weight:700;}
 .breakdown-row.slowest .ch-time{color:var(--red);font-weight:700;}
-.slowest-tag{font-size:9px;background:var(--red);color:var(--paper);padding:1px 6px;border-radius:8px;margin-left:6px;}
+.slowest-tag{font-size:9px;background:var(--red);color:var(--paper);padding:2px 7px;border-radius:2px;margin-left:7px;vertical-align:1px;letter-spacing:.05em;}
 
-.stat-grid{display:flex;gap:10px;margin:14px 0;}
-.stat-box{flex:1;background:rgba(0,0,0,.03);border-radius:6px;padding:10px;text-align:center;}
-.stat-box .num{font-family:monospace;font-size:18px;font-weight:700;color:var(--ink);}
-.stat-box .label{font-size:10px;color:var(--muted);margin-top:2px;}
+.stat-grid{display:flex;gap:10px;margin:4px 0 20px;}
+.stat-box{flex:1;border:1px solid rgba(0,0,0,.12);padding:12px 10px;text-align:center;background:rgba(0,0,0,.02);}
+.stat-num{font-family:monospace;font-size:22px;font-weight:700;color:var(--ink);}
+.stat-label{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em;}
 
-.restart-btn{width:100%;padding:14px;background:var(--ink);color:var(--paper);font-family:'Nanum Myeongjo',serif;font-size:14px;border:none;border-radius:4px;cursor:pointer;margin-top:10px;letter-spacing:.08em;}
+.btn{width:100%;padding:15px;font-family:'Nanum Myeongjo',serif;font-size:15px;border:none;cursor:pointer;letter-spacing:.08em;margin-bottom:10px;}
+.btn:last-child{margin-bottom:0;}
+.btn-primary{background:var(--red);color:var(--paper);}
+.btn-secondary{background:transparent;color:var(--ink);border:1px solid rgba(0,0,0,.2);}
+
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
 </style>
 </head>
@@ -53,37 +74,36 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <div class="document">
-  <div class="doc-header">
-    <div class="doc-header-label">CASE CLOSED</div>
-    <div class="doc-title">수사 종료 — 사건 결과</div>
+  <div class="result-hero">
+    <div class="hero-eyebrow">CASE CLOSED · 수사 종료</div>
+    <div class="rank-stamp">
+      <div class="rank-stamp-inner" id="rank-badge">-</div>
+    </div>
+    <div class="hero-time" id="rank-time">--:--</div>
+    <div class="hero-label">FINAL RECORD · 챕터 1~7 합산</div>
+    <div class="hero-reward" id="rank-reward">집계 중...</div>
   </div>
 
   <div class="doc-body">
 
-    <div class="rank-card">
-      <div class="rank-badge" id="rank-badge">-</div>
-      <div class="rank-time" id="rank-time">--:--</div>
-      <div class="rank-reward" id="rank-reward">집계 중...</div>
-    </div>
-
-    <div class="tear"></div>
-
     <div class="section-title">챕터별 소요 기록</div>
     <div id="breakdown-list"></div>
 
+    <div class="tear"></div>
+
     <div class="stat-grid">
       <div class="stat-box">
-        <div class="num" id="stat-hints">0</div>
-        <div class="label">사용한 힌트</div>
+        <div class="stat-num" id="stat-hints">0</div>
+        <div class="stat-label">사용한 힌트</div>
       </div>
       <div class="stat-box">
-        <div class="num" id="stat-wrongs">0</div>
-        <div class="label">오답 횟수</div>
+        <div class="stat-num" id="stat-wrongs">0</div>
+        <div class="stat-label">오답 횟수</div>
       </div>
     </div>
 
-    <button class="restart-btn" onclick="location.href='ranking.html'" style="background:var(--red);margin-bottom:8px;">🏆 수사 기록 보기</button>
-    <button class="restart-btn" onclick="restartGame()">처음으로 돌아가기</button>
+    <button class="btn btn-primary" onclick="location.href='ranking.html'">🏆 수사 기록 보기</button>
+    <button class="btn btn-secondary" onclick="restartGame()">처음으로 돌아가기</button>
 
   </div>
 </div>
@@ -94,8 +114,8 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <script src="timer.js"></script>
 <script>
 var CHAPTER_LABELS = {
-  chapter1: '챕터 1', chapter2: '챕터 2', chapter3: '챕터 3',
-  chapter4: '챕터 4', chapter5: '챕터 5', chapter6: '챕터 6', chapter7: '챕터 7'
+  chapter1:'챕터 1',chapter2:'챕터 2',chapter3:'챕터 3',
+  chapter4:'챕터 4',chapter5:'챕터 5',chapter6:'챕터 6',chapter7:'챕터 7'
 };
 
 function render(){
@@ -104,34 +124,32 @@ function render(){
 
   var badge = document.getElementById('rank-badge');
   badge.textContent = rank.grade;
-  badge.classList.add(rank.grade);
+  if(rank.grade !== 'S') badge.classList.add(rank.grade);
 
   document.getElementById('rank-time').textContent = RCMTimer.formatTime(finalSec);
-  document.getElementById('rank-reward').innerHTML = '획득 보상: <b>' + rank.reward + '</b>';
+  document.getElementById('rank-reward').textContent = '보상 · ' + rank.reward;
 
   var breakdown = RCMTimer.getChapterBreakdown();
   var maxSec = 0, maxIdx = -1;
-  breakdown.forEach(function(b, i){
-    if (b.sec > maxSec) { maxSec = b.sec; maxIdx = i; }
-  });
+  breakdown.forEach(function(b,i){ if(b.sec > maxSec){maxSec=b.sec;maxIdx=i;} });
 
   var listEl = document.getElementById('breakdown-list');
   listEl.innerHTML = '';
-  breakdown.forEach(function(b, i){
+  breakdown.forEach(function(b,i){
     var row = document.createElement('div');
-    row.className = 'breakdown-row' + (i === maxIdx && maxSec > 0 ? ' slowest' : '');
+    row.className = 'breakdown-row' + (i===maxIdx && maxSec>0?' slowest':'');
     var label = CHAPTER_LABELS[b.chapter] || b.chapter;
-    var slowTag = (i === maxIdx && maxSec > 0) ? '<span class="slowest-tag">최장 소요</span>' : '';
-    row.innerHTML = '<span class="ch-name">' + label + slowTag + '</span><span class="ch-time">' + RCMTimer.formatTime(b.sec) + '</span>';
+    var slowTag = (i===maxIdx && maxSec>0)?'<span class="slowest-tag">최장</span>':'';
+    row.innerHTML = '<span class="ch-name">'+label+slowTag+'</span><span class="ch-time">'+RCMTimer.formatTime(b.sec)+'</span>';
     listEl.appendChild(row);
   });
 
-  var hintTotal = 0, wrongTotal = 0;
-  try {
-    var raw = JSON.parse(localStorage.getItem('rcm_timer') || '{}');
-    hintTotal = Object.keys(raw.hintCounts || {}).length;
-    Object.values(raw.wrongCounts || {}).forEach(function(v){ wrongTotal += v; });
-  } catch(e){}
+  var hintTotal=0, wrongTotal=0;
+  try{
+    var raw = JSON.parse(localStorage.getItem('rcm_timer')||'{}');
+    hintTotal = Object.keys(raw.hintCounts||{}).length;
+    Object.values(raw.wrongCounts||{}).forEach(function(v){wrongTotal+=v;});
+  }catch(e){}
   document.getElementById('stat-hints').textContent = hintTotal;
   document.getElementById('stat-wrongs').textContent = wrongTotal;
 }
@@ -139,9 +157,9 @@ render();
 
 function restartGame(){
   RCMTimer.resetAll();
-  location.href = 'index.html';
+  sessionStorage.removeItem('rcm_player_name');
+  location.href='index.html';
 }
 </script>
-
 </body>
 </html>
