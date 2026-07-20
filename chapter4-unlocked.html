@@ -206,16 +206,14 @@ var audioEnded = false;
 var hintCount = 0;
 var puzzleSolved = false;
 
-// 오디오 미리 로드
+// 오디오 미리 로드 (ArrayBuffer만 저장 — 디코딩은 재생 시점에)
+var rawBuffer = null;
 function loadAudio() {
-  var ctx = new (window.AudioContext || window.webkitAudioContext)();
   fetch('dubbing/ch4/intercept.mp3')
     .then(function(r) { return r.arrayBuffer(); })
-    .then(function(buf) { return ctx.decodeAudioData(buf); })
-    .then(function(decoded) {
-      audioBuffer = decoded;
+    .then(function(buf) {
+      rawBuffer = buf;
       audioLoaded = true;
-      ctx.close();
     })
     .catch(function(e) { console.log('오디오 로드 실패:', e); });
 }
@@ -286,24 +284,26 @@ function togglePlay() {
 }
 
 function startPlay() {
-  if (!audioBuffer && !audioLoaded) {
+  if (!audioLoaded || !rawBuffer) {
     alert('오디오 로드 중입니다. 잠시 후 다시 시도해주세요.');
     return;
   }
+
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   window.RCMAudioCtx = audioCtx; // iOS 잠금 해제용
 
-  // 음성 재생 (멈춘 지점부터)
-  audioSource = audioCtx.createBufferSource();
-  audioSource.buffer = audioBuffer;
-  audioGain = audioCtx.createGain();
-  audioGain.gain.value = 0.1;
-  audioSource.connect(audioGain);
-  audioGain.connect(audioCtx.destination);
-  var offset = isPaused ? pausedAt : 0;
-  startedAt = audioCtx.currentTime - offset;
-  audioSource.start(0, offset);
-  isPaused = false;
+  function doPlay() {
+    // 음성 재생 (멈춘 지점부터)
+    audioSource = audioCtx.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioGain = audioCtx.createGain();
+    audioGain.gain.value = 0.1;
+    audioSource.connect(audioGain);
+    audioGain.connect(audioCtx.destination);
+    var offset = isPaused ? pausedAt : 0;
+    startedAt = audioCtx.currentTime - offset;
+    audioSource.start(0, offset);
+    isPaused = false;
 
   // 20초 후 정답 입력창 해금
   var remaining = audioBuffer.duration - offset;
@@ -344,11 +344,30 @@ function startPlay() {
   noiseGain.connect(audioCtx.destination);
   noiseSource.start(0);
 
-  isPlaying = true;
-  document.getElementById('intercept-btn').style.display = 'none';
+    isPlaying = true;
+    document.getElementById('intercept-btn').style.display = 'none';
+    updateSignal(parseInt(slider.value));
+    updateAudioEffect(parseInt(slider.value));
+  } // end doPlay
 
-  updateSignal(parseInt(slider.value));
-  updateAudioEffect(parseInt(slider.value));
+  // iOS: resume() 먼저 호출 후 디코딩/재생
+  audioCtx.resume().then(function() {
+    if (audioBuffer) {
+      // 일시정지 후 재개 — 이미 디코딩된 buffer 재사용
+      doPlay();
+    } else {
+      // 첫 재생 — rawBuffer 디코딩
+      audioCtx.decodeAudioData(rawBuffer.slice(0), function(decoded) {
+        audioBuffer = decoded;
+        doPlay();
+      }, function(e) {
+        console.log('디코딩 실패:', e);
+        alert('오디오 재생에 실패했습니다. 다시 시도해주세요.');
+      });
+    }
+  }).catch(function(e) {
+    console.log('AudioContext resume 실패:', e);
+  });
 }
 
 function stopPlay() {
