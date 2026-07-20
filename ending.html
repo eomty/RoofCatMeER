@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Ending — 루프캣미</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#080808;min-height:100vh;}
+body{font-family:'Nanum Myeongjo',serif;color:rgba(255,255,255,.82);padding:0 0 120px;}
+
+/* 필름 그레인 오버레이 */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+
+.scene{max-width:360px;margin:0 auto;padding:80px 28px 40px;position:relative;z-index:1;}
+
+.block{
+  opacity:0;
+  transform:translateY(12px);
+  transition:opacity 1.2s ease, transform 1.2s ease;
+  margin-bottom:36px;
+}
+.block.show{opacity:1;transform:translateY(0);}
+
+/* 대사 */
+.dialogue{
+  font-size:15px;line-height:2;
+  color:rgba(255,255,255,.88);
+  quotes:'"' '"';
+}
+/* 행동/나레이션 */
+.narr{
+  font-size:13px;line-height:2.1;
+  color:rgba(255,255,255,.45);
+  font-style:italic;
+}
+/* 탐정 내면 */
+.inner{
+  font-size:14px;line-height:2;
+  color:rgba(255,255,255,.65);
+}
+/* 강조 */
+.reveal{
+  font-size:13px;line-height:2;
+  color:rgba(255,255,255,.5);
+  border-left:2px solid rgba(139,26,26,.7);
+  padding-left:14px;
+}
+.reveal .plan{
+  display:inline-block;
+  font-style:normal;
+  font-size:14px;
+  font-weight:700;
+  color:rgba(200,168,76,.8);
+  letter-spacing:.1em;
+}
+/* 드라마틱 전환 */
+.turn{
+  font-size:18px;line-height:1.8;
+  color:rgba(255,255,255,.9);
+  font-weight:700;
+  text-align:center;
+  padding:10px 0;
+}
+/* 미스터리 클로징 */
+.mystery{
+  font-size:13px;line-height:2.2;
+  color:rgba(255,255,255,.38);
+}
+.mystery-close{
+  font-size:14px;line-height:2;
+  color:rgba(255,255,255,.55);
+  text-align:center;
+  font-style:italic;
+}
+
+/* 구분선 */
+.divider{
+  width:40px;height:1px;
+  background:rgba(255,255,255,.12);
+  margin:0 auto 36px;
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+.divider.show{opacity:1;}
+
+/* 엔딩 버튼 */
+#end-btn{
+  display:none;
+  width:100%;max-width:360px;
+  margin:0 auto;
+  padding:16px;
+  background:#8b1a1a;
+  color:#f0e8d8;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:15px;letter-spacing:.08em;
+  border:none;cursor:pointer;
+  position:relative;z-index:1;
+  animation:fadeUp .8s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.end-wrap{padding:0 28px;}
+</style>
+</head>
+<body>
+<script src="debug-config.js"></script>
+
+<div class="scene" id="scene"></div>
+
+<div class="end-wrap">
+  <button id="end-btn" onclick="goResult()">수사 결과 보기 →</button>
+</div>
+
+<script>
+var blocks = [
+  {type:'dialogue', text:'"……드디어 찾았군."'},
+  {type:'narr',     text:'어둠 속에서 백설이 모습을 드러냈다.'},
+  {type:'dialogue', text:'"그날 딜리셔스 호텔 앞에서 알아봤어.\n넌…… 내가 알던 페너가 아니었어."'},
+  {type:'reveal',   text:'나는 모든 단서를 맞춰 보았다.\n백설에게 모든 죄를 뒤집어씌우고 사라지는 계획.\n<span class="plan">PLAN A</span>'},
+  {type:'inner',    text:'백설이 도망치며 남긴 쪽지는\n나를 이 사건의 진실로 이끌었다.'},
+  {type:'divider'},
+  {type:'narr',     text:'나는 페너를 바라봤다.'},
+  {type:'dialogue', text:'"페너.\n너와 네 누나는 대체 무슨 일을 꾸미고 있는 거지?"'},
+  {type:'narr',     text:'페너는 고개를 숙였다.'},
+  {type:'dialogue', text:'"……말할 수 없어.\n차라리 날 체포해.\n그곳이 지금보다 안전할 테니까."'},
+  {type:'divider'},
+  {type:'inner',    text:'페너는 그 후 모든 혐의점을 인정했다.\n\n백설은 누명을 벗고\n먼치킨 난쟁이들과 숲으로 돌아갔다.'},
+  {type:'divider'},
+  {type:'turn',     text:'하지만 사건은 끝나지 않았다.'},
+  {type:'mystery',  text:'부둣가에서 마지막으로 포착된 뒤\n행방이 묘연해진 아인.\n\n페너가 끝내 밝히지 않은 비밀.'},
+  {type:'mystery-close', text:'그들이 감추고 있는 진실은\n무엇일까.'},
+];
+
+var scene = document.getElementById('scene');
+var els = [];
+var BASE_DELAY = 600;
+var GAP = 900;
+
+blocks.forEach(function(b, i){
+  var el;
+  if(b.type === 'divider'){
+    el = document.createElement('div');
+    el.className = 'divider';
+  } else {
+    el = document.createElement('div');
+    el.className = 'block';
+    var inner = document.createElement('div');
+    inner.className = b.type;
+    inner.innerHTML = b.text.replace(/\n/g,'<br/>');
+    el.appendChild(inner);
+  }
+  scene.appendChild(el);
+  els.push({el:el, delay: BASE_DELAY + i * GAP});
+});
+
+els.forEach(function(item){
+  setTimeout(function(){
+    item.el.classList.add('show');
+  }, item.delay);
+});
+
+// 마지막 블록 후 버튼 등장
+var lastDelay = BASE_DELAY + (blocks.length - 1) * GAP + 2000;
+setTimeout(function(){
+  document.getElementById('end-btn').style.display = 'block';
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+}, lastDelay);
+
+// 스크롤 자동 따라가기
+setInterval(function(){
+  var btn = document.getElementById('end-btn');
+  if(btn.style.display !== 'block'){
+    window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+  }
+}, 1000);
+
+function goResult(){
+  location.href = 'result.html';
+}
+</script>
+</body>
+</html>
