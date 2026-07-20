@@ -26,7 +26,9 @@
     'chapter6.html','chapter6-unlocked.html',
     'chapter7.html','chapter7-call.html','chapter7-unlocked.html','chapter7-to-8.html',
     'chapter8.html','chapter8-unlocked.html',
-    'result.html'
+    'ending.html',
+    'result.html',
+    'ranking.html'
   ];
 
   function loadDone(){
