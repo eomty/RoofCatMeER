@@ -158,26 +158,29 @@ blocks.forEach(function(b, i){
   els.push({el:el, delay: BASE_DELAY + i * GAP});
 });
 
+// 페이지 시작은 무조건 맨 위
+window.scrollTo(0, 0);
+
 els.forEach(function(item){
   setTimeout(function(){
     item.el.classList.add('show');
+    // 현재 요소가 화면 밖으로 나갔을 때만 스크롤
+    var rect = item.el.getBoundingClientRect();
+    if(rect.bottom > window.innerHeight - 60){
+      item.el.scrollIntoView({behavior:'smooth', block:'end'});
+    }
   }, item.delay);
 });
 
 // 마지막 블록 후 버튼 등장
 var lastDelay = BASE_DELAY + (blocks.length - 1) * GAP + 2000;
 setTimeout(function(){
-  document.getElementById('end-btn').style.display = 'block';
-  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
-}, lastDelay);
-
-// 스크롤 자동 따라가기
-setInterval(function(){
   var btn = document.getElementById('end-btn');
-  if(btn.style.display !== 'block'){
-    window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
-  }
-}, 1000);
+  btn.style.display = 'block';
+  setTimeout(function(){
+    btn.scrollIntoView({behavior:'smooth', block:'end'});
+  }, 200);
+}, lastDelay);
 
 function goResult(){
   location.href = 'result.html';
