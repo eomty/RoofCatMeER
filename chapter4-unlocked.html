@@ -291,6 +291,7 @@ function startPlay() {
     return;
   }
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  window.RCMAudioCtx = audioCtx; // iOS 잠금 해제용
 
   // 음성 재생 (멈춘 지점부터)
   audioSource = audioCtx.createBufferSource();
