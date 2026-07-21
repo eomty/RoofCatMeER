@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>AR 단서 탐색</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{overflow:hidden;font-family:sans-serif;background:#000;}
+
+#hud-top{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);
+}
+.ar-status{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.7);}
+.pulse{width:8px;height:8px;border-radius:50%;background:#ef4444;transition:background .3s;}
+.pulse.on{background:#22c55e;}
+.back-btn{
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);
+  color:white;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;
+}
+
+#overlay{position:fixed;inset:0;z-index:50;pointer-events:none;}
+.ov-top{position:absolute;top:0;left:0;right:0;height:22%;background:rgba(0,0,0,0.6);}
+.ov-bottom{position:absolute;bottom:0;left:0;right:0;height:30%;background:rgba(0,0,0,0.6);}
+.ov-left{position:absolute;top:22%;bottom:30%;left:0;width:8%;background:rgba(0,0,0,0.6);}
+.ov-right{position:absolute;top:22%;bottom:30%;right:0;width:8%;background:rgba(0,0,0,0.6);}
+
+#scan-frame{
+  position:fixed;top:22%;left:8%;right:8%;height:48%;
+  z-index:51;pointer-events:none;
+}
+.corner{position:absolute;width:28px;height:28px;}
+.corner.tl{top:0;left:0;border-top:3px solid #c9a84c;border-left:3px solid #c9a84c;border-radius:2px 0 0 0;}
+.corner.tr{top:0;right:0;border-top:3px solid #c9a84c;border-right:3px solid #c9a84c;border-radius:0 2px 0 0;}
+.corner.bl{bottom:0;left:0;border-bottom:3px solid #c9a84c;border-left:3px solid #c9a84c;border-radius:0 0 0 2px;}
+.corner.br{bottom:0;right:0;border-bottom:3px solid #c9a84c;border-right:3px solid #c9a84c;border-radius:0 0 2px 0;}
+
+#scan-frame.found .corner{
+  border-color:#22c55e;
+  filter:drop-shadow(0 0 6px #22c55e);
+  animation:glow 0.8s ease-in-out infinite alternate;
+}
+@keyframes glow{
+  from{filter:drop-shadow(0 0 4px #22c55e);}
+  to{filter:drop-shadow(0 0 14px #22c55e);}
+}
+
+#scan-line{
+  position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(to right,transparent,#c9a84c,transparent);
+  animation:scanning 2.5s ease-in-out infinite;
+  opacity:0.7;
+}
+#scan-frame.found #scan-line{
+  background:linear-gradient(to right,transparent,#22c55e,transparent);
+}
+@keyframes scanning{0%,100%{top:0;opacity:0}10%,90%{opacity:0.8}50%{top:calc(100% - 2px)}}
+
+#popup{
+  position:fixed;inset:0;z-index:9999;
+  display:none;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.popup-box{
+  background:rgba(5,5,15,0.96);border:2px solid #c9a84c;
+  border-radius:20px;padding:28px 40px;text-align:center;
+  box-shadow:0 0 50px rgba(201,168,76,0.3);
+}
+.pop-label{font-size:11px;letter-spacing:0.2em;color:#c9a84c;margin-bottom:10px;}
+.pop-word{font-size:40px;font-weight:700;margin-bottom:6px;color:white;}
+.pop-desc{font-size:12px;color:rgba(255,255,255,0.5);}
+
+#hud-bottom{
+  position:fixed;bottom:0;left:0;right:0;z-index:999;
+  padding:12px 18px 28px;
+  background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+}
+.clue-label{font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:8px;}
+#chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{font-size:13px;padding:5px 16px;border-radius:20px;border:1px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.15);color:#c9a84c;}
+</style>
+</head>
+<body>
+<script src="debug-config.js"></script>
+<script src="flow-guard.js"></script>
+
+<!-- MindAR Scene -->
+<a-scene
+  mindar-image="imageTargetSrc: targets.mind; autoStart: true;"
+  color-space="sRGB"
+  renderer="colorManagement: true"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <!-- 11개 이미지 타겟 전부 감지 -->
+  <a-entity mindar-image-target="targetIndex: 0"  id="t0"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 1"  id="t1"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 2"  id="t2"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 3"  id="t3"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 4"  id="t4"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 5"  id="t5"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 6"  id="t6"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 7"  id="t7"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 8"  id="t8"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 9"  id="t9"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 10" id="t10"></a-entity>
+</a-scene>
+
+<!-- HUD -->
+<div id="hud-top">
+  <div class="ar-status">
+    <span class="pulse" id="pulse"></span>
+    <span id="status-text">낑깡이를 찾는 중...</span>
+  </div>
+  <button class="back-btn" onclick="history.back()">← 돌아가기</button>
+</div>
+
+<div id="overlay">
+  <div class="ov-top"></div>
+  <div class="ov-bottom"></div>
+  <div class="ov-left"></div>
+  <div class="ov-right"></div>
+</div>
+
+<div id="scan-frame">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <div id="scan-line"></div>
+</div>
+
+<div id="popup">
+  <div class="popup-box">
+    <div class="pop-label">✦ 단서 획득 ✦</div>
+    <div class="pop-word" id="pop-word"></div>
+    <div class="pop-desc" id="pop-desc"></div>
+  </div>
+</div>
+
+<div id="hud-bottom">
+  <div class="clue-label">획득한 단서</div>
+  <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
+</div>
+
+<script>
+var found = false;
+var timer = null;
+
+function onFound() {
+  document.getElementById('scan-frame').classList.add('found');
+  document.getElementById('pulse').classList.add('on');
+  document.getElementById('status-text').textContent = '✅ 낑깡이 인식됨!';
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+  if (!found) {
+    found = true;
+    var chips = document.getElementById('chips');
+    chips.innerHTML = '<span class="chip">하얀손</span>';
+
+    try {
+      var clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
+      clues.push('하얀손');
+      localStorage.setItem('loopcat_clues', JSON.stringify(clues));
+    } catch(e) {}
+
+    document.getElementById('pop-word').textContent = '하얀손';
+    document.getElementById('pop-desc').textContent = '타짜의 증거물을 획득했습니다!';
+    document.getElementById('popup').style.display = 'flex';
+
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function() {
+      document.getElementById('popup').style.display = 'none';
+      if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
+      location.href = 'chapter2-unlocked.html';
+    }, 2500);
+  }
+}
+
+function onLost() {
+  document.getElementById('scan-frame').classList.remove('found');
+  document.getElementById('pulse').classList.remove('on');
+  if (!found) {
+    document.getElementById('status-text').textContent = '낑깡이를 찾는 중...';
+  }
+}
+
+// 11개 타겟 전부 이벤트 등록
+document.addEventListener('DOMContentLoaded', function() {
+  for (var i = 0; i <= 10; i++) {
+    (function(idx) {
+      var el = document.getElementById('t' + idx);
+      if (el) {
+        el.addEventListener('targetFound', onFound);
+        el.addEventListener('targetLost', onLost);
+      }
+    })(i);
+  }
+});
+</script>
+</body>
+</html>
