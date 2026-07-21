@@ -431,9 +431,9 @@ function showHacker(text){
 }
 
 function showMe(text, duration){
-  meMsg.textContent=text;
+  meMsg.innerHTML = text.replace(/\n/g,'<br/>');
   meMsg.classList.add('show');
-  return wait(duration||2000);
+  return wait(duration||3000);
 }
 
 function clearMe(){meMsg.classList.remove('show');}
@@ -571,7 +571,7 @@ async function run(){
     document.getElementById('key-msg').style.background='#ede8f5';
     document.getElementById('key-msg').onclick=null;
 
-    await showMe('이 부분이 수상해!\n페너는 5월 9일 당직이 맞아.\n딜리셔스 호텔에서 찍혔던 건 다른 고양이가 분명해!', 3000);
+    await showMe('이 부분이 수상해!\n페너는 5월 9일 당직이 맞아.\n딜리셔스 호텔에서 찍혔던 건 다른 고양이가 분명해!', 4000);
     clearMe();
 
     await showHacker('원하는 정보는 얻은 것 같네.\n요금은 하얀손 앞으로 청구하지.\n수고했어.');
@@ -592,9 +592,9 @@ async function run(){
 </script>
 <script>
 var TC=document.getElementById('term-lines');
-[{t:'$ ./kumi_exploit --target PENNER_DEVICE',d:0},{t:'> initializing connection...',d:400,dim:1},{t:'> scanning port 8443... open',d:900},{t:'> scanning port 22... closed',d:1200,red:1},{t:'> ARP spoofing 192.168.0.14',d:2000,yellow:1},{t:'> MAC: A4:C3:F0:88:2D:11  matched',d:2700},{t:'> injecting payload...',d:3200,yellow:1},{t:'> payload injected. OK',d:3900},{t:'$ cat /sys/lock/config',d:4400},{t:'  lock_type=PIN  digits=4',d:4800,dim:1},{t:'$ ./bruteforce.sh --mode=smart',d:5300},{t:'> loading PIN db [2.4M entries]',d:5800,dim:1},{t:'─────────────────────────────',d:6500,dim:1},{t:'> cracking digit [1/4]...',d:7000,yellow:1,pin:0},{t:'  hit: 1',d:7800,dim:1},{t:'> digit [1] = 1  ✓',d:8300,confirm:0},{t:'> cracking digit [2/4]...',d:8800,yellow:1,pin:1},{t:'  hit: 4',d:9500,dim:1},{t:'> digit [2] = 4  ✓',d:10000,confirm:1},{t:'> cracking digit [3/4]...',d:10500,yellow:1,pin:2},{t:'  hit: 9',d:11200,dim:1},{t:'> digit [3] = 9  ✓',d:11700,confirm:2},{t:'> cracking digit [4/4]...',d:12200,yellow:1,pin:3},{t:'  hit: 8',d:12900,dim:1},{t:'> digit [4] = 8  ✓',d:13400,confirm:3},{t:'─────────────────────────────',d:13900,dim:1},{t:'> PIN recovered: 1 4 9 8',d:14400},{t:'> kernel auth override: OK',d:15100}].forEach(function(l){setTimeout(function(){var d=document.createElement('div');d.className='tl'+(l.dim?' dim':'')+(l.yellow?' yellow':'')+(l.red?' red':'');d.textContent=l.t;TC.appendChild(d);TC.scrollTop=TC.scrollHeight;if(l.pin!==undefined){var p=document.getElementById('pd'+l.pin);p.style.background='#ffbd2e';p.style.borderColor='#ffbd2e';}if(l.confirm!==undefined){var p=document.getElementById('pd'+l.confirm);p.style.background='#00ff41';p.style.borderColor='#00ff41';p.style.boxShadow='0 0 8px #00ff41';}},l.d);});
-setTimeout(function(){document.getElementById('access-granted').classList.add('show');},15800);
-setTimeout(function(){document.getElementById('phase-terminal').classList.add('hidden');run();},19000);
+[{t:'$ ./kumi_exploit --target PENNER_DEVICE',d:0},{t:'> initializing connection...',d:200,dim:1},{t:'> scanning port 8443... open',d:450},{t:'> scanning port 22... closed',d:600,red:0},{t:'> ARP spoofing 192.168.0.14',d:1000,yellow:1},{t:'> MAC: A4:C3:F0:88:2D:11  matched',d:1350},{t:'> injecting payload...',d:1600,yellow:1},{t:'> payload injected. OK',d:1950},{t:'$ cat /sys/lock/config',d:2200},{t:'  lock_type=PIN  digits=4',d:2400,dim:1},{t:'$ ./bruteforce.sh --mode=smart',d:2650},{t:'> loading PIN db [2.4M entries]',d:2900,dim:1},{t:'─────────────────────────────',d:3250,dim:1},{t:'> cracking digit [1/4]...',d:3500,yellow:1,pin:0},{t:'  hit: 1',d:3900,dim:1},{t:'> digit [1] = 1  ✓',d:4150,confirm:0},{t:'> cracking digit [2/4]...',d:4400,yellow:1,pin:1},{t:'  hit: 4',d:4750,dim:1},{t:'> digit [2] = 4  ✓',d:5000,confirm:1},{t:'> cracking digit [3/4]...',d:5250,yellow:1,pin:2},{t:'  hit: 9',d:5600,dim:1},{t:'> digit [3] = 9  ✓',d:5850,confirm:2},{t:'> cracking digit [4/4]...',d:6100,yellow:1,pin:3},{t:'  hit: 8',d:6450,dim:1},{t:'> digit [4] = 8  ✓',d:6700,confirm:3},{t:'─────────────────────────────',d:6950,dim:1},{t:'> PIN recovered: 1 4 9 8',d:7200},{t:'> kernel auth override: OK',d:7550}].forEach(function(l){setTimeout(function(){var d=document.createElement('div');d.className='tl'+(l.dim?' dim':'')+(l.yellow?' yellow':'')+(l.red?' red':'');d.textContent=l.t;TC.appendChild(d);TC.scrollTop=TC.scrollHeight;if(l.pin!==undefined){var p=document.getElementById('pd'+l.pin);p.style.background='#ffbd2e';p.style.borderColor='#ffbd2e';}if(l.confirm!==undefined){var p=document.getElementById('pd'+l.confirm);p.style.background='#00ff41';p.style.borderColor='#00ff41';p.style.boxShadow='0 0 8px #00ff41';}},l.d);});
+setTimeout(function(){document.getElementById('access-granted').classList.add('show');},7900);
+setTimeout(function(){document.getElementById('phase-terminal').classList.add('hidden');run();},9500);
 </script>
 
 </body>
