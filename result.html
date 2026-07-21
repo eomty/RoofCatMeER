@@ -101,17 +101,6 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
       <div id="breakdown-list"></div>
     </div>
 
-    <div class="stat-grid">
-      <div class="stat-box">
-        <div class="stat-num" id="stat-hints">0</div>
-        <div class="stat-label">사용한 힌트</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" id="stat-wrongs">0</div>
-        <div class="stat-label">오답 횟수</div>
-      </div>
-    </div>
-
     <button class="rank-btn" onclick="location.href='ranking.html'">🏆 랭킹 보러가기</button>
     <button class="back-btn" onclick="restartGame()">처음으로 돌아가기</button>
 
@@ -122,11 +111,13 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <script src="timer.js"></script>
+<script src="rcm-rank.js"></script>
 <script>
 var CHAPTER_LABELS={chapter1:'챕터 1',chapter2:'챕터 2',chapter3:'챕터 3',chapter4:'챕터 4',chapter5:'챕터 5',chapter6:'챕터 6',chapter7:'챕터 7'};
 
 function render(){
-  var finalSec = RCMTimer.getElapsedSec();
+  var finalSec = RCMTimer.stopTimer() || RCMTimer.getElapsedSec();
+  RCMRank.save(function(r){ if(r) console.log('[RCMRank] 저장됨', r); });
   var rank = RCMTimer.getRank(finalSec);
 
   document.getElementById('rank-time').textContent = RCMTimer.formatTime(finalSec);

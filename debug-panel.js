@@ -37,7 +37,6 @@
     ['chapter7.html', '챕터7 — 완벽한 알리바이 ★', true],
     ['chapter7-call.html', '챕터7 — 해커 전화', false],
     ['chapter7-unlocked.html', '챕터7 — 페너의 폰', false],
-    ['chapter7-to-8.html', '챕터7→8 — 수사 종료 안내', false],
     ['chapter8.html', '챕터8 — 최종담판 ★', true],
     ['chapter8-unlocked.html', '챕터8 — 담판 진행', false],
     ['ending.html', '엔딩 ★', true],
