@@ -152,7 +152,26 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 var found = false;
 var timer = null;
 
-function onFound() {
+// 감지된 타겟이 스캔 프레임 안에 있는지 확인
+function isInScanFrame(entity) {
+  try {
+    var camera = entity.sceneEl.camera;
+    if (!camera) return true;
+    var pos = new THREE.Vector3();
+    entity.object3D.getWorldPosition(pos);
+    pos.project(camera);
+    var sx = (pos.x + 1) / 2;
+    var sy = (1 - pos.y) / 2;
+    // 스캔 프레임: top 22%~70%, left 8%~92%
+    return sx >= 0.08 && sx <= 0.92 && sy >= 0.22 && sy <= 0.70;
+  } catch(e) {
+    return true;
+  }
+}
+
+function onFound(entity) {
+  setTimeout(function() {
+    if (!isInScanFrame(entity)) return;
   document.getElementById('scan-frame').classList.add('found');
   document.getElementById('pulse').classList.add('on');
   document.getElementById('status-text').textContent = '✅ 낑깡이 인식됨!';
@@ -180,6 +199,7 @@ function onFound() {
       location.href = 'chapter2-unlocked.html';
     }, 2500);
   }
+  }, 100); // isInScanFrame 체크 딜레이
 }
 
 function onLost() {
