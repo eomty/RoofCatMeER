@@ -316,21 +316,18 @@ function flashPenalty(sec){
       <div class="lt-date">4월 10일</div>
       <div class="lt-bubble lt-them">저번 내부 문서 건은 잘 처리했어?</div>
       <div class="lt-bubble lt-me">네, 깔끔하게 마무리됐습니다. 흔적 없이 처리했으니 문제없을 겁니다.</div>
+	  <div class="lt-bubble lt-me">다음 명령을 내려주십시오.</div>
       <div class="lt-date">4월 15일</div>
-      <div class="lt-bubble lt-them">다음 달에 중요한 일 있어. 네 협조가 꼭 필요해.</div>
+      <div class="lt-bubble lt-them">다음 달에 중요한 일 있어.</div>
+      <div class="lt-bubble lt-them">네 협조가 필요하다.</div>
       <div class="lt-bubble lt-me">언제든지 말씀해 주십시오. 제 쪽에서 할 수 있는 건 다 해드리겠습니다.</div>
-      <div class="lt-date">4월 18일</div>
-      <div class="lt-bubble lt-them">목표 장소 경로는 파악했어? 당일 순찰 일정도 미리 알고 싶어.</div>
-      <div class="lt-bubble lt-me">네, 확인했습니다. 당일 제 구역 순찰 일정 조정해두겠습니다.</div>
       <div class="lt-date">4월 28일</div>
       <div class="lt-bubble lt-them">일정 어떻게 잡을 거야? 우리 쪽은 아무 때나 가능해.</div>
-      <div class="lt-bubble lt-me">5월 9일이 좋을 것 같습니다. 그날 제가 근무라 외부 대응이 가능합니다.</div>
+      <div class="lt-bubble lt-me">5월 9일이 좋을 것 같습니다.</div>
+      <div class="lt-bubble lt-me">그날 제가 근무라 외부 대응이 가능합니다.</div>
       <div class="lt-date">5월 1일</div>
       <div class="lt-bubble lt-them">이번 건 간단하지 않아. 빈틈 없어야 해.</div>
-      <div class="lt-bubble lt-me">네, 충분히 숙지하고 있습니다. 만전을 기하겠습니다.</div>
-      <div class="lt-date">5월 3일</div>
-      <div class="lt-bubble lt-them">준비는 됐어? 이번엔 실수 없어야 해.</div>
-      <div class="lt-bubble lt-me">언제든지 가능합니다. 철저히 준비했습니다.</div>
+      <div class="lt-bubble lt-me">네, 확인했습니다.</div>
       <div class="lt-date">5월 6일</div>
       <div class="lt-bubble lt-them">당일 동선 다시 한 번 확인해.</div>
       <div class="lt-bubble lt-me">네, 재확인했습니다. 이상 없습니다.</div>
@@ -339,10 +336,11 @@ function flashPenalty(sec){
       <div class="lt-bubble lt-me">알겠습니다. 위치하겠습니다.</div>
       <div class="lt-date">5월 9일</div>
       <div class="lt-bubble lt-them">Plan A</div>
-      <div class="lt-bubble lt-me">금방 보내겠습니다.</div>
+      <div class="lt-bubble lt-me">시작하겠습니다.</div>
       <div class="lt-date">5월 12일</div>
       <div class="lt-bubble lt-them">뒷정리는 다 끝났어?</div>
-      <div class="lt-bubble lt-me">네, 전부 처리했습니다. 문제없습니다.</div>
+      <div class="lt-bubble lt-me">네, 전부 처리됐습니다.</div>
+      <div class="lt-bubble lt-me">문제없습니다.</div>
       <div class="lt-date">5월 15일</div>
       <div class="lt-bubble lt-them">수고했어. 연락은 내가 할게.</div>
       <div class="lt-bubble lt-me">네, 기다리겠습니다.</div>
@@ -354,6 +352,7 @@ function flashPenalty(sec){
     <div class="msg-header">
       <div class="msg-header-title">최근메시지</div>
     </div>
+    <div id="scroll-hint" style="display:none;text-align:center;font-size:11px;color:rgba(255,255,255,.4);padding:6px 0;background:#111;letter-spacing:.04em;">↕ 위아래로 스와이프하여 수상한 부분을 찾아보세요</div>
     <div class="msg-list">
       <div class="msg-item"><div class="sender">절미</div>05/15&#10;경감님 오늘 소포 좀 많아요~ 경찰서로 보내드릴게요! 근데 요즘 배송량이 너무 많아서 저 혼자 감당이 안 될 것 같아요. 혹시 경감님 쪽 소포 좀 늦어도 괜찮을까요? 정말 죄송해요 ㅠㅠ</div>
       <div class="msg-item"><div class="sender">[광고] 루프은행</div>05/14&#10;고객님의 적금 만기일이 7일 남았습니다. 만기 후 자동 해지되오니 재가입을 원하시면 앱에서 확인해주세요. 이번 달 특별 금리 이벤트도 진행 중입니다. 지금 확인하세요.</div>
@@ -523,9 +522,10 @@ function playAudio(src) {
 }
 
 async function run(){
-  // 1. 해커 첫 메시지 (더빙 없음 - chapter7-call에서 이미 재생)
+  // 1. 해커 첫 메시지
   await wait(800);
   await showHacker('너 화면에서도 볼 수 있게 해놨어. 확인해.');
+  await playAudio('dubbing/ch7/screen_ready.mp3');
   await showChoices(['루프톡 보여줘']);
   await showMe('루프톡 보여줘');
   clearMe();
@@ -560,6 +560,7 @@ async function run(){
   showScreen('message');
 
   // 6. 카드내역 코멘트
+  document.getElementById('scroll-hint').style.display = 'block';
   await wait(800);
   await showHacker('카드 사용내역이잖아.\n중요한 걸 알아낼 수 있겠어.\n보고 싶은 부분 탭해봐.');
   await playAudio('dubbing/ch7/card.mp3');
