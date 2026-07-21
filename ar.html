@@ -8,7 +8,13 @@
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{overflow:hidden;font-family:sans-serif;background:#000;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:sans-serif;background:#000;}
+
+/* MindAR 캔버스 전체화면 강제 적용 */
+a-scene{position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;}
+.a-canvas{position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;}
+#mindar-video-container{position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;}
+video{position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;object-fit:cover;}
 
 #hud-top{
   position:fixed;top:0;left:0;right:0;z-index:999;
@@ -164,9 +170,11 @@ function isInScanFrame(entity) {
     vec.setFromMatrixPosition(entity.object3D.matrixWorld);
     vec.project(camera);
 
-    // 정규화 좌표 → 화면 픽셀
-    var px = (vec.x + 1) / 2 * window.innerWidth;
-    var py = (1 - vec.y) / 2 * window.innerHeight;
+    // 캔버스 실제 위치 기준으로 좌표 계산
+    var canvas = sceneEl.canvas;
+    var cr = canvas.getBoundingClientRect();
+    var px = ((vec.x + 1) / 2) * cr.width  + cr.left;
+    var py = ((1 - vec.y) / 2) * cr.height + cr.top;
 
     // scan-frame 실제 픽셀 영역
     var frame = document.getElementById('scan-frame').getBoundingClientRect();
