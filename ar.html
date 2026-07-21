@@ -152,18 +152,27 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 var found = false;
 var timer = null;
 
-// 감지된 타겟이 스캔 프레임 안에 있는지 확인
+// 감지된 타겟의 화면 픽셀 좌표를 구해서 scan-frame과 비교
 function isInScanFrame(entity) {
   try {
-    var camera = entity.sceneEl.camera;
-    if (!camera) return true;
-    var pos = new THREE.Vector3();
-    entity.object3D.getWorldPosition(pos);
-    pos.project(camera);
-    var sx = (pos.x + 1) / 2;
-    var sy = (1 - pos.y) / 2;
-    // 스캔 프레임: top 22%~70%, left 8%~92%
-    return sx >= 0.08 && sx <= 0.92 && sy >= 0.22 && sy <= 0.70;
+    var sceneEl = document.querySelector('a-scene');
+    var camera = sceneEl.camera;
+    var renderer = sceneEl.renderer;
+
+    var vec = new THREE.Vector3();
+    entity.object3D.updateWorldMatrix(true, false);
+    vec.setFromMatrixPosition(entity.object3D.matrixWorld);
+    vec.project(camera);
+
+    // 정규화 좌표 → 화면 픽셀
+    var px = (vec.x + 1) / 2 * window.innerWidth;
+    var py = (1 - vec.y) / 2 * window.innerHeight;
+
+    // scan-frame 실제 픽셀 영역
+    var frame = document.getElementById('scan-frame').getBoundingClientRect();
+
+    return px >= frame.left && px <= frame.right &&
+           py >= frame.top  && py <= frame.bottom;
   } catch(e) {
     return true;
   }
