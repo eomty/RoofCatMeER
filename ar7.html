@@ -160,6 +160,7 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
           window.RCMFlow.markComplete('chapter7.html');
         }
       } catch (error) { console.error('[AR] 진행 상태 저장 실패:', error); }
+      sessionStorage.setItem('rcm_from_ar7', '1');
       window.location.href = 'chapter7-call.html';
     }, 2500);
   }

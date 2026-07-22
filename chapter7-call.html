@@ -367,11 +367,12 @@ function endCall() {
 
 // AR 스캔으로 진입 시 다이얼만 건너뛰고 바로 통화 연결
 (function() {
-  var fromAR = window.location.search.indexOf('from=ar') !== -1;
+  var fromAR = sessionStorage.getItem('rcm_from_ar7') === '1';
   if (fromAR) {
+    sessionStorage.removeItem('rcm_from_ar7');
     resetCallScreen();
     document.getElementById('call-screen').style.display = 'flex';
-    startHackerCall(); // hello.mp3 + 코드 입력창 그대로 유지
+    startHackerCall();
   } else {
     openDial();
   }
