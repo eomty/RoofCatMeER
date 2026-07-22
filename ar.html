@@ -6,103 +6,10 @@
 <title>AR 단서 탐색</title>
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-<!-- roi-gate 컴포넌트 -->
-<script>
-AFRAME.registerComponent('roi-gate', {
-  schema: {
-    guide:       { type: 'selector' },
-    content:     { type: 'selector' },
-    targetWidth: { type: 'number', default: 1 },
-    targetHeight:{ type: 'number', default: 0.65 },
-    stableTime:  { type: 'number', default: 700 },
-    minCoverage: { type: 'number', default: 0.4 },
-    maxCoverage: { type: 'number', default: 1.2 }
-  },
-  init() {
-    this.detected = false;
-    this.accepted = false;
-    this.validSince = null;
-    this.projectedCorners = [
-      new THREE.Vector3(), new THREE.Vector3(),
-      new THREE.Vector3(), new THREE.Vector3()
-    ];
-    this.el.addEventListener('targetFound', () => {
-      this.detected = true;
-      this.validSince = null;
-      if (this.data.content) this.data.content.object3D.visible = false;
-    });
-    this.el.addEventListener('targetLost', () => {
-      this.detected = false;
-      this.accepted = false;
-      this.validSince = null;
-      if (this.data.content) this.data.content.object3D.visible = false;
-      this.el.emit('roistatus', { status: 'lost' });
-    });
-  },
-  tick(time) {
-    if (!this.detected || !this.data.guide || !this.el.sceneEl.camera) return;
-    var result = this.checkTargetInsideGuide();
-    if (!result.valid) {
-      this.validSince = null;
-      if (this.accepted) { this.accepted = false; if (this.data.content) this.data.content.object3D.visible = false; }
-      this.el.emit('roistatus', { status: result.reason });
-      return;
-    }
-    if (this.validSince === null) this.validSince = time;
-    var elapsed = time - this.validSince;
-    if (elapsed >= this.data.stableTime && !this.accepted) {
-      this.accepted = true;
-      if (this.data.content) this.data.content.object3D.visible = true;
-      this.el.emit('roiaccepted', { targetBounds: result.targetBounds });
-      this.el.emit('roistatus', { status: 'accepted' });
-    } else if (!this.accepted) {
-      this.el.emit('roistatus', { status: 'stabilizing' });
-    }
-  },
-  checkTargetInsideGuide() {
-    var camera = this.el.sceneEl.camera;
-    var canvas = this.el.sceneEl.renderer.domElement;
-    var cr = canvas.getBoundingClientRect();
-    var gr = this.data.guide.getBoundingClientRect();
-    var hw = this.data.targetWidth / 2, hh = this.data.targetHeight / 2;
-    var localCorners = [[-hw,hh,0],[hw,hh,0],[hw,-hh,0],[-hw,-hh,0]];
-    this.el.object3D.updateWorldMatrix(true, false);
-    camera.updateMatrixWorld();
-    var screenCorners = localCorners.map(function(c, i) {
-      var p = this.projectedCorners[i];
-      p.set(c[0], c[1], c[2]);
-      this.el.object3D.localToWorld(p);
-      p.project(camera);
-      return {
-        x: cr.left + ((p.x + 1) / 2) * cr.width,
-        y: cr.top  + ((1 - p.y) / 2) * cr.height,
-        z: p.z
-      };
-    }, this);
-    if (screenCorners.some(function(p){ return !isFinite(p.x)||!isFinite(p.y)||p.z<-1||p.z>1; }))
-      return { valid: false, reason: 'invalid-projection' };
-    var xs = screenCorners.map(function(p){return p.x;}), ys = screenCorners.map(function(p){return p.y;});
-    var tb = { left:Math.min.apply(null,xs), right:Math.max.apply(null,xs), top:Math.min.apply(null,ys), bottom:Math.max.apply(null,ys) };
-    tb.width = tb.right - tb.left; tb.height = tb.bottom - tb.top;
-    var margin = 4;
-    if (!screenCorners.every(function(p){ return p.x>=gr.left-margin&&p.x<=gr.right+margin&&p.y>=gr.top-margin&&p.y<=gr.bottom+margin; }))
-      return { valid: false, reason: 'outside', targetBounds: tb };
-    var wc = tb.width/gr.width, hc = tb.height/gr.height;
-    if (wc < this.data.minCoverage || hc < this.data.minCoverage)
-      return { valid: false, reason: 'too-small', targetBounds: tb };
-    if (wc > this.data.maxCoverage || hc > this.data.maxCoverage)
-      return { valid: false, reason: 'too-large', targetBounds: tb };
-    return { valid: true, reason: 'inside', targetBounds: tb };
-  }
-});
-</script>
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;font-family:sans-serif;background:#000;}
+body{overflow:hidden;font-family:sans-serif;background:#000;}
 
-/* 상단 HUD */
 #hud-top{
   position:fixed;top:0;left:0;right:0;z-index:999;
   display:flex;align-items:center;justify-content:space-between;
@@ -112,163 +19,186 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:sans-serif;backgrou
 .ar-status{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.7);}
 .pulse{width:8px;height:8px;border-radius:50%;background:#ef4444;transition:background .3s;}
 .pulse.on{background:#22c55e;}
-.back-btn{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);color:white;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;}
-
-/* 스캔 가이드 */
-#scan-guide{
-  position:fixed;z-index:20;
-  left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  width:min(76vw, 340px);
-  aspect-ratio:1/1;
-  border:3px solid rgba(201,168,76,.8);
-  border-radius:12px;
-  box-shadow:0 0 0 9999px rgba(0,0,0,0.62), 0 0 18px rgba(201,168,76,.3);
-  pointer-events:none;
-  transition:border-color .3s, box-shadow .3s;
+.back-btn{
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);
+  color:white;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;
 }
-#scan-guide.found{
+
+#overlay{position:fixed;inset:0;z-index:50;pointer-events:none;}
+.ov-top{position:absolute;top:0;left:0;right:0;height:22%;background:rgba(0,0,0,0.6);}
+.ov-bottom{position:absolute;bottom:0;left:0;right:0;height:30%;background:rgba(0,0,0,0.6);}
+.ov-left{position:absolute;top:22%;bottom:30%;left:0;width:8%;background:rgba(0,0,0,0.6);}
+.ov-right{position:absolute;top:22%;bottom:30%;right:0;width:8%;background:rgba(0,0,0,0.6);}
+
+#scan-frame{
+  position:fixed;top:22%;left:8%;right:8%;height:48%;
+  z-index:51;pointer-events:none;
+}
+.corner{position:absolute;width:28px;height:28px;}
+.corner.tl{top:0;left:0;border-top:3px solid #c9a84c;border-left:3px solid #c9a84c;border-radius:2px 0 0 0;}
+.corner.tr{top:0;right:0;border-top:3px solid #c9a84c;border-right:3px solid #c9a84c;border-radius:0 2px 0 0;}
+.corner.bl{bottom:0;left:0;border-bottom:3px solid #c9a84c;border-left:3px solid #c9a84c;border-radius:0 0 0 2px;}
+.corner.br{bottom:0;right:0;border-bottom:3px solid #c9a84c;border-right:3px solid #c9a84c;border-radius:0 0 2px 0;}
+
+#scan-frame.found .corner{
   border-color:#22c55e;
-  box-shadow:0 0 0 9999px rgba(0,0,0,0.62), 0 0 18px rgba(34,197,94,.5);
-  animation:glow .8s ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 6px #22c55e);
+  animation:glow 0.8s ease-in-out infinite alternate;
 }
 @keyframes glow{
-  from{box-shadow:0 0 0 9999px rgba(0,0,0,0.62),0 0 8px rgba(34,197,94,.4);}
-  to{box-shadow:0 0 0 9999px rgba(0,0,0,0.62),0 0 22px rgba(34,197,94,.8);}
-}
-#scan-guide-label{
-  position:absolute;left:50%;bottom:-40px;
-  transform:translateX(-50%);
-  color:rgba(255,255,255,.7);font-size:12px;
-  white-space:nowrap;letter-spacing:.04em;
+  from{filter:drop-shadow(0 0 4px #22c55e);}
+  to{filter:drop-shadow(0 0 14px #22c55e);}
 }
 
-/* 스캔 라인 */
 #scan-line{
   position:absolute;left:0;right:0;top:0;height:2px;
   background:linear-gradient(to right,transparent,#c9a84c,transparent);
-  animation:scanning 2.5s ease-in-out infinite;opacity:.7;
+  animation:scanning 2.5s ease-in-out infinite;
+  opacity:0.7;
 }
-#scan-guide.found #scan-line{background:linear-gradient(to right,transparent,#22c55e,transparent);}
-@keyframes scanning{0%,100%{top:0;opacity:0}10%,90%{opacity:.8}50%{top:calc(100% - 2px)}}
+#scan-frame.found #scan-line{
+  background:linear-gradient(to right,transparent,#22c55e,transparent);
+}
+@keyframes scanning{0%,100%{top:0;opacity:0}10%,90%{opacity:0.8}50%{top:calc(100% - 2px)}}
 
-/* 키워드 팝업 */
-#popup{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;pointer-events:none;}
-.popup-box{background:rgba(5,5,15,.96);border:2px solid #c9a84c;border-radius:20px;padding:28px 40px;text-align:center;box-shadow:0 0 50px rgba(201,168,76,.3);}
-.pop-label{font-size:11px;letter-spacing:.2em;color:#c9a84c;margin-bottom:10px;}
+#popup{
+  position:fixed;inset:0;z-index:9999;
+  display:none;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.popup-box{
+  background:rgba(5,5,15,0.96);border:2px solid #c9a84c;
+  border-radius:20px;padding:28px 40px;text-align:center;
+  box-shadow:0 0 50px rgba(201,168,76,0.3);
+}
+.pop-label{font-size:11px;letter-spacing:0.2em;color:#c9a84c;margin-bottom:10px;}
 .pop-word{font-size:40px;font-weight:700;margin-bottom:6px;color:white;}
-.pop-desc{font-size:12px;color:rgba(255,255,255,.5);}
+.pop-desc{font-size:12px;color:rgba(255,255,255,0.5);}
 
-/* 하단 단서 */
-#hud-bottom{position:fixed;bottom:0;left:0;right:0;z-index:999;padding:12px 18px 28px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);}
-.clue-label{font-size:10px;letter-spacing:.15em;color:rgba(255,255,255,.35);margin-bottom:8px;}
+#hud-bottom{
+  position:fixed;bottom:0;left:0;right:0;z-index:999;
+  padding:12px 18px 28px;
+  background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);
+}
+.clue-label{font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:8px;}
 #chips{display:flex;gap:8px;flex-wrap:wrap;}
-.chip{font-size:13px;padding:5px 16px;border-radius:20px;border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.15);color:#c9a84c;}
+.chip{font-size:13px;padding:5px 16px;border-radius:20px;border:1px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.15);color:#c9a84c;}
 </style>
 </head>
 <body>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 
-<!-- 스캔 가이드 -->
-<div id="scan-guide">
-  <div id="scan-line"></div>
-  <div id="scan-guide-label">고양이 사진을 사각형 안에 맞춰주세요</div>
-</div>
-
 <!-- MindAR Scene -->
 <a-scene
-  mindar-image="imageTargetSrc: targets.mind; autoStart: true; uiScanning: no;"
+  mindar-image="imageTargetSrc: targets.mind; autoStart: true;"
   color-space="sRGB"
   renderer="colorManagement: true"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false">
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-  <!-- 11개 타겟 전부 roi-gate 적용 -->
-  <a-entity id="t0"  mindar-image-target="targetIndex: 0"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t1"  mindar-image-target="targetIndex: 1"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t2"  mindar-image-target="targetIndex: 2"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t3"  mindar-image-target="targetIndex: 3"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t4"  mindar-image-target="targetIndex: 4"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t5"  mindar-image-target="targetIndex: 5"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t6"  mindar-image-target="targetIndex: 6"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t7"  mindar-image-target="targetIndex: 7"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t8"  mindar-image-target="targetIndex: 8"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t9"  mindar-image-target="targetIndex: 9"  roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
-  <a-entity id="t10" mindar-image-target="targetIndex: 10" roi-gate="guide: #scan-guide; stableTime: 700; minCoverage: 0.4; maxCoverage: 1.2;"></a-entity>
+  <!-- 11개 이미지 타겟 전부 감지 -->
+  <a-entity mindar-image-target="targetIndex: 0"  id="t0"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 1"  id="t1"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 2"  id="t2"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 3"  id="t3"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 4"  id="t4"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 5"  id="t5"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 6"  id="t6"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 7"  id="t7"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 8"  id="t8"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 9"  id="t9"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 10" id="t10"></a-entity>
 </a-scene>
 
 <!-- HUD -->
 <div id="hud-top">
   <div class="ar-status">
     <span class="pulse" id="pulse"></span>
-    <span id="status-text">고양이 사진을 사각형 안에 맞춰주세요</span>
+    <span id="status-text">낑깡이를 찾는 중...</span>
   </div>
   <button class="back-btn" onclick="history.back()">← 돌아가기</button>
+</div>
+
+<div id="overlay">
+  <div class="ov-top"></div>
+  <div class="ov-bottom"></div>
+  <div class="ov-left"></div>
+  <div class="ov-right"></div>
+</div>
+
+<div id="scan-frame">
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <div id="scan-line"></div>
 </div>
 
 <div id="popup">
   <div class="popup-box">
     <div class="pop-label">✦ 단서 획득 ✦</div>
-    <div class="pop-word">하얀손</div>
-    <div class="pop-desc">타짜의 증거물을 획득했습니다!</div>
+    <div class="pop-word" id="pop-word"></div>
+    <div class="pop-desc" id="pop-desc"></div>
   </div>
 </div>
 
 <div id="hud-bottom">
   <div class="clue-label">획득한 단서</div>
-  <div id="chips"><span style="color:rgba(255,255,255,.2);font-size:13px;">아직 없음</span></div>
+  <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
 </div>
 
 <script>
-var accepted = false;
+var found = false;
+var timer = null;
 
-function onAccepted() {
-  if (accepted) return;
-  accepted = true;
-
-  document.getElementById('scan-guide').classList.add('found');
+function onFound() {
+  document.getElementById('scan-frame').classList.add('found');
   document.getElementById('pulse').classList.add('on');
   document.getElementById('status-text').textContent = '✅ 낑깡이 인식됨!';
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 
-  document.getElementById('chips').innerHTML = '<span class="chip">하얀손</span>';
-  try {
-    var clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
-    clues.push('하얀손');
-    localStorage.setItem('loopcat_clues', JSON.stringify(clues));
-  } catch(e) {}
+  if (!found) {
+    found = true;
+    var chips = document.getElementById('chips');
+    chips.innerHTML = '<span class="chip">하얀손</span>';
 
-  document.getElementById('popup').style.display = 'flex';
-  setTimeout(function() {
-    document.getElementById('popup').style.display = 'none';
-    if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
-    location.href = 'chapter2-unlocked.html';
-  }, 2500);
+    try {
+      var clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
+      clues.push('하얀손');
+      localStorage.setItem('loopcat_clues', JSON.stringify(clues));
+    } catch(e) {}
+
+    document.getElementById('pop-word').textContent = '하얀손';
+    document.getElementById('pop-desc').textContent = '타짜의 증거물을 획득했습니다!';
+    document.getElementById('popup').style.display = 'flex';
+
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function() {
+      document.getElementById('popup').style.display = 'none';
+      if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
+      location.href = 'chapter2-unlocked.html';
+    }, 2500);
+  }
 }
 
+function onLost() {
+  document.getElementById('scan-frame').classList.remove('found');
+  document.getElementById('pulse').classList.remove('on');
+  if (!found) {
+    document.getElementById('status-text').textContent = '낑깡이를 찾는 중...';
+  }
+}
+
+// 11개 타겟 전부 이벤트 등록
 document.addEventListener('DOMContentLoaded', function() {
   for (var i = 0; i <= 10; i++) {
     (function(idx) {
       var el = document.getElementById('t' + idx);
-      if (!el) return;
-      el.addEventListener('roiaccepted', onAccepted);
-      el.addEventListener('roistatus', function(e) {
-        if (accepted) return;
-        var s = e.detail && e.detail.status;
-        if (s === 'stabilizing') {
-          document.getElementById('status-text').textContent = '조금 더 가까이...';
-          document.getElementById('pulse').classList.add('on');
-        } else if (s === 'outside' || s === 'too-small' || s === 'too-large') {
-          document.getElementById('status-text').textContent = '고양이 사진을 사각형 안에 맞춰주세요';
-          document.getElementById('pulse').classList.remove('on');
-          document.getElementById('scan-guide').classList.remove('found');
-        } else if (s === 'lost') {
-          document.getElementById('status-text').textContent = '고양이 사진을 사각형 안에 맞춰주세요';
-          document.getElementById('pulse').classList.remove('on');
-          document.getElementById('scan-guide').classList.remove('found');
-        }
-      });
+      if (el) {
+        el.addEventListener('targetFound', onFound);
+        el.addEventListener('targetLost', onLost);
+      }
     })(i);
   }
 });
