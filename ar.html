@@ -31,7 +31,7 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 
 
 #popup{
-  position:fixed;inset:0;z-index:99999;
+  position:fixed;inset:0;z-index:2147483647;
   display:none;align-items:center;justify-content:center;
   pointer-events:none;
 }
@@ -39,6 +39,7 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   background:rgba(5,5,15,0.96);border:2px solid #c9a84c;
   border-radius:20px;padding:28px 40px;text-align:center;
   box-shadow:0 0 50px rgba(201,168,76,0.3);
+  position:relative;z-index:2147483647;
 }
 .pop-label{font-size:11px;letter-spacing:0.2em;color:#c9a84c;margin-bottom:10px;}
 .pop-word{font-size:40px;font-weight:700;margin-bottom:6px;color:white;}
