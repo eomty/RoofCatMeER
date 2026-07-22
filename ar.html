@@ -130,6 +130,13 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
     clueFound = true;
     unbindTargetEvents();
 
+    // MindAR 기본 스캐닝 UI 숨기기
+    ['mindar-ui-overlay','mindar-ui-scanning','mindar-ui-scanning-inner',
+     'mindar-ui-loading','mindar-ui-error'].forEach(function(cls) {
+      var el = document.querySelector('.' + cls);
+      if (el) el.style.display = 'none';
+    });
+
     chips.innerHTML = '<span class="chip">하얀손</span>';
     try {
       var savedClues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
