@@ -4,13 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>AR 단서 탐색</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{overflow:hidden;font-family:sans-serif;background:#000;}
 
-/* 상단 HUD */
 #hud-top{
   position:fixed;top:0;left:0;right:0;z-index:999;
   display:flex;align-items:center;justify-content:space-between;
@@ -18,25 +17,21 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   background:linear-gradient(to bottom,rgba(0,0,0,0.8),transparent);
 }
 .ar-status{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.7);}
-.pulse{width:8px;height:8px;border-radius:50%;background:#ef4444;}
+.pulse{width:8px;height:8px;border-radius:50%;background:#ef4444;transition:background .3s;}
 .pulse.on{background:#22c55e;}
 .back-btn{
   background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);
   color:white;font-size:13px;padding:7px 14px;border-radius:20px;cursor:pointer;
 }
 
-/* 어두운 오버레이 + 중앙 구역 */
 #overlay{position:fixed;inset:0;z-index:50;pointer-events:none;}
 .ov-top{position:absolute;top:0;left:0;right:0;height:22%;background:rgba(0,0,0,0.6);}
 .ov-bottom{position:absolute;bottom:0;left:0;right:0;height:30%;background:rgba(0,0,0,0.6);}
 .ov-left{position:absolute;top:22%;bottom:30%;left:0;width:8%;background:rgba(0,0,0,0.6);}
 .ov-right{position:absolute;top:22%;bottom:30%;right:0;width:8%;background:rgba(0,0,0,0.6);}
 
-/* 스캔 프레임 모서리 */
 #scan-frame{
-  position:fixed;
-  top:22%;left:8%;right:8%;
-  height:48%;
+  position:fixed;top:22%;left:8%;right:8%;height:48%;
   z-index:51;pointer-events:none;
 }
 .corner{position:absolute;width:28px;height:28px;}
@@ -45,7 +40,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 .corner.bl{bottom:0;left:0;border-bottom:3px solid #c9a84c;border-left:3px solid #c9a84c;border-radius:0 0 0 2px;}
 .corner.br{bottom:0;right:0;border-bottom:3px solid #c9a84c;border-right:3px solid #c9a84c;border-radius:0 0 2px 0;}
 
-/* 인식됐을 때 초록 글로우 */
 #scan-frame.found .corner{
   border-color:#22c55e;
   filter:drop-shadow(0 0 6px #22c55e);
@@ -56,7 +50,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   to{filter:drop-shadow(0 0 14px #22c55e);}
 }
 
-/* 스캔 라인 */
 #scan-line{
   position:absolute;left:0;right:0;top:0;height:2px;
   background:linear-gradient(to right,transparent,#c9a84c,transparent);
@@ -68,7 +61,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 }
 @keyframes scanning{0%,100%{top:0;opacity:0}10%,90%{opacity:0.8}50%{top:calc(100% - 2px)}}
 
-/* 키워드 팝업 */
 #popup{
   position:fixed;inset:0;z-index:9999;
   display:none;align-items:center;justify-content:center;
@@ -83,7 +75,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 .pop-word{font-size:40px;font-weight:700;margin-bottom:6px;color:white;}
 .pop-desc{font-size:12px;color:rgba(255,255,255,0.5);}
 
-/* 하단 단서 */
 #hud-bottom{
   position:fixed;bottom:0;left:0;right:0;z-index:999;
   padding:12px 18px 28px;
@@ -98,28 +89,37 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 
-<a-scene arjs="sourceType:webcam; debugUIEnabled:false;">
-  <a-marker preset="hiro" id="m-hiro">
-    <a-box position="0 0.5 0" color="#c9a84c" animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear"></a-box>
-    <a-text value="루프" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
-  </a-marker>
-  <a-marker type="pattern" url="pattern-nkk.patt" id="m-nkk">
-    <a-box position="0 0.5 0" color="#f0c040" animation="property:rotation;to:0 360 0;loop:true;dur:2000;easing:linear"></a-box>
-    <a-text value="하얀손" align="center" position="0 1.3 0" color="#fff" width="4"></a-text>
-  </a-marker>
-  <a-entity camera></a-entity>
+<!-- MindAR Scene -->
+<a-scene
+  mindar-image="imageTargetSrc: targets.mind; autoStart: true;"
+  color-space="sRGB"
+  renderer="colorManagement: true"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false">
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <!-- 11개 이미지 타겟 전부 감지 -->
+  <a-entity mindar-image-target="targetIndex: 0"  id="t0"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 1"  id="t1"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 2"  id="t2"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 3"  id="t3"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 4"  id="t4"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 5"  id="t5"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 6"  id="t6"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 7"  id="t7"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 8"  id="t8"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 9"  id="t9"></a-entity>
+  <a-entity mindar-image-target="targetIndex: 10" id="t10"></a-entity>
 </a-scene>
 
-<!-- HUD 상단 -->
+<!-- HUD -->
 <div id="hud-top">
   <div class="ar-status">
     <span class="pulse" id="pulse"></span>
-    <span id="status-text">문양을 찾는 중...</span>
+    <span id="status-text">낑깡이를 찾는 중...</span>
   </div>
   <button class="back-btn" onclick="history.back()">← 돌아가기</button>
 </div>
 
-<!-- 오버레이 + 프레임 -->
 <div id="overlay">
   <div class="ov-top"></div>
   <div class="ov-bottom"></div>
@@ -135,7 +135,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   <div id="scan-line"></div>
 </div>
 
-<!-- 키워드 팝업 -->
 <div id="popup">
   <div class="popup-box">
     <div class="pop-label">✦ 단서 획득 ✦</div>
@@ -144,60 +143,41 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   </div>
 </div>
 
-<!-- 하단 단서 -->
 <div id="hud-bottom">
   <div class="clue-label">획득한 단서</div>
   <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
 </div>
 
 <script>
-var MARKERS = {
-  hiro: {keyword:'루프', desc:'단서를 획득했습니다!', color:'#c9a84c', next:null},
-  nkk:  {keyword:'하얀손', desc:'타짜의 증거물을 획득했습니다!', color:'#f0c040', next:'chapter2-unlocked.html'},
-};
-var found = [];
+var found = false;
 var timer = null;
 
-function onFound(key) {
-  var d = MARKERS[key];
-  if (!d) return;
-
-  // 프레임 초록 글로우
+function onFound() {
   document.getElementById('scan-frame').classList.add('found');
   document.getElementById('pulse').classList.add('on');
-  document.getElementById('status-text').textContent = '✅ 인식됨!';
-  if (navigator.vibrate) navigator.vibrate([80,40,80]);
+  document.getElementById('status-text').textContent = '✅ 낑깡이 인식됨!';
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 
-  if (!found.includes(key)) {
-    found.push(key);
+  if (!found) {
+    found = true;
     var chips = document.getElementById('chips');
-    if (chips.querySelector('span')) chips.innerHTML = '';
-    var chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.textContent = d.keyword;
-    chip.style.color = d.color;
-    chips.appendChild(chip);
+    chips.innerHTML = '<span class="chip">하얀손</span>';
+
     try {
       var clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
-      clues.push(d.keyword);
+      clues.push('하얀손');
       localStorage.setItem('loopcat_clues', JSON.stringify(clues));
     } catch(e) {}
-  }
 
-  document.getElementById('pop-word').textContent = d.keyword;
-  document.getElementById('pop-word').style.color = d.color;
-  document.getElementById('pop-desc').textContent = d.desc;
-  document.getElementById('popup').style.display = 'flex';
-  if (timer) clearTimeout(timer);
-  if (d.next) {
+    document.getElementById('pop-word').textContent = '하얀손';
+    document.getElementById('pop-desc').textContent = '타짜의 증거물을 획득했습니다!';
+    document.getElementById('popup').style.display = 'flex';
+
+    if (timer) clearTimeout(timer);
     timer = setTimeout(function() {
       document.getElementById('popup').style.display = 'none';
       if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
-      location.href = d.next;
-    }, 2500);
-  } else {
-    timer = setTimeout(function() {
-      document.getElementById('popup').style.display = 'none';
+      location.href = 'chapter2-unlocked.html';
     }, 2500);
   }
 }
@@ -205,19 +185,21 @@ function onFound(key) {
 function onLost() {
   document.getElementById('scan-frame').classList.remove('found');
   document.getElementById('pulse').classList.remove('on');
-  document.getElementById('status-text').textContent = '문양을 찾는 중...';
+  if (!found) {
+    document.getElementById('status-text').textContent = '낑깡이를 찾는 중...';
+  }
 }
 
-document.querySelector('a-scene').addEventListener('loaded', function() {
-  var mHiro = document.getElementById('m-hiro');
-  if (mHiro) {
-    mHiro.addEventListener('markerFound', function() { onFound('hiro'); });
-    mHiro.addEventListener('markerLost', onLost);
-  }
-  var mNkk = document.getElementById('m-nkk');
-  if (mNkk) {
-    mNkk.addEventListener('markerFound', function() { onFound('nkk'); });
-    mNkk.addEventListener('markerLost', onLost);
+// 11개 타겟 전부 이벤트 등록
+document.addEventListener('DOMContentLoaded', function() {
+  for (var i = 0; i <= 10; i++) {
+    (function(idx) {
+      var el = document.getElementById('t' + idx);
+      if (el) {
+        el.addEventListener('targetFound', onFound);
+        el.addEventListener('targetLost', onLost);
+      }
+    })(i);
   }
 });
 </script>
