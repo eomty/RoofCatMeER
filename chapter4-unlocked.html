@@ -192,34 +192,15 @@ function flashPenalty(sec){
 <script>
 var TARGET_FREQ = 952; // 95.2 MHz
 var isPlaying = false;
-var isPaused = false;
-var pausedAt = 0;     // 멈춘 시점 (초)
-var startedAt = 0;    // audioCtx 기준 시작 시점
-var audioCtx = null;
-var audioSource = null;
-var noiseSource = null;
-var noiseGain = null;
-var audioGain = null;
-var audioBuffer = null;
-var audioLoaded = false;
+var mixCtx = null;
+var voiceGainNode = null;
+var noiseGainNode = null;
+var audioGraphReady = false;     // 멈춘 시점 (초)    // audioCtx 기준 시작 시점
 var audioEnded = false;
 var hintCount = 0;
 var puzzleSolved = false;
 
 // 오디오 미리 로드
-function loadAudio() {
-  var ctx = new (window.AudioContext || window.webkitAudioContext)();
-  fetch('dubbing/ch4/intercept.mp3')
-    .then(function(r) { return r.arrayBuffer(); })
-    .then(function(buf) { return ctx.decodeAudioData(buf); })
-    .then(function(decoded) {
-      audioBuffer = decoded;
-      audioLoaded = true;
-      ctx.close();
-    })
-    .catch(function(e) { console.log('오디오 로드 실패:', e); });
-}
-loadAudio();
 
 
 
@@ -233,7 +214,7 @@ slider.addEventListener('input', function() {
     document.getElementById('freq-num').textContent = (val / 10).toFixed(1);
     return;
   }
-  if (val >= TARGET_FREQ-2 && val <= TARGET_FREQ+2) {
+  if (val >= TARGET_FREQ-5 && val <= TARGET_FREQ+5) {
     val = TARGET_FREQ;
     this.value = TARGET_FREQ;
     document.getElementById('freq-num').textContent = (TARGET_FREQ/10).toFixed(1);
@@ -242,7 +223,7 @@ slider.addEventListener('input', function() {
     document.getElementById('freq-num').textContent = freq;
   }
   updateSignal(val);
-  updateSimpleAudioEffect(val);
+  updateMixedVolume(val);
 });
 
 function getStrength(val) {
@@ -285,24 +266,47 @@ function togglePlay() {
   if (!isPlaying) startPlay();
 }
 
+function setupAudioGraph() {
+  if (audioGraphReady) return;
+  var voice = document.getElementById('voice-audio');
+  var noise = document.getElementById('noise-audio');
+  if (!voice || !noise) throw new Error('오디오 요소를 찾지 못했습니다.');
+  mixCtx = new (window.AudioContext || window.webkitAudioContext)();
+  var voiceSrc = mixCtx.createMediaElementSource(voice);
+  var noiseSrc = mixCtx.createMediaElementSource(noise);
+  voiceGainNode = mixCtx.createGain();
+  noiseGainNode = mixCtx.createGain();
+  voiceSrc.connect(voiceGainNode);
+  voiceGainNode.connect(mixCtx.destination);
+  noiseSrc.connect(noiseGainNode);
+  noiseGainNode.connect(mixCtx.destination);
+  voiceGainNode.gain.value = 0.03;
+  noiseGainNode.gain.value = 1;
+  audioGraphReady = true;
+}
+
 function startPlay() {
   if (isPlaying) return;
   var voice = document.getElementById('voice-audio');
   var noise = document.getElementById('noise-audio');
-  if (!voice || !noise) { alert('도청 음원 파일을 찾지 못했습니다.'); return; }
-  voice.currentTime = 0;
-  noise.currentTime = 0;
-  isPlaying = true;
-  audioEnded = false;
-  updateSimpleAudioEffect(parseInt(slider.value));
-  Promise.all([voice.play(), noise.play()])
+  if (!voice || !noise) { alert('도청 음원을 찾지 못했습니다.'); return; }
+  try { setupAudioGraph(); }
+  catch(e) { console.error('오디오 그래프 생성 실패:', e); alert('오디오 장치를 준비하지 못했습니다.'); return; }
+  voice.pause(); noise.pause();
+  voice.currentTime = 0; noise.currentTime = 0;
+  updateMixedVolume(parseInt(slider.value, 10));
+  var resumePromise = mixCtx.resume();
+  var voicePromise = voice.play();
+  var noisePromise = noise.play();
+  Promise.all([resumePromise, voicePromise, noisePromise])
   .then(function() {
+    isPlaying = true; audioEnded = false;
     document.getElementById('intercept-btn').style.display = 'none';
-    updateSignal(parseInt(slider.value));
+    updateSignal(parseInt(slider.value, 10));
     setTimeout(function(){ if (isPlaying) unlockAnswer(); }, 20000);
   })
   .catch(function(error) {
-    console.error('도청 오디오 재생 실패:', error);
+    console.error('도청 재생 실패:', error);
     voice.pause(); noise.pause();
     isPlaying = false;
     alert('오디오 재생에 실패했습니다. 도청 시작을 다시 눌러주세요.');
@@ -321,35 +325,21 @@ function stopPlay() {
   document.getElementById('play-text').textContent = '도청 시작';
 }
 
-function updateAudioEffect(val) {
-  if (!audioCtx || !audioGain || !noiseGain) return;
-  var diff = Math.abs(val - TARGET_FREQ);
-  var audioVol, noiseVol;
-  if (diff === 0) {
-    audioVol = 1.0;   noiseVol = 0.0;
-  } else if (diff <= 1) {
-    audioVol = 0.85;  noiseVol = 0.13;
-  } else if (diff <= 5) {
-    audioVol = 0.5;   noiseVol = 0.202;
-  } else if (diff <= 10) {
-    audioVol = 0.3;   noiseVol = 0.352;
-  } else {
-    audioVol = 0.15;   noiseVol = 0.452;
-  }
-  audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
-  noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
-}
 
-function updateSimpleAudioEffect(val) {
-  var voice = document.getElementById('voice-audio');
-  var noise = document.getElementById('noise-audio');
-  if (!voice || !noise) return;
+function updateMixedVolume(val) {
+  if (!voiceGainNode || !noiseGainNode || !mixCtx) return;
   var diff = Math.abs(val - TARGET_FREQ);
-  if (diff <= 2)       { voice.volume = 1.0;  noise.volume = 0.02; }
-  else if (diff <= 5)  { voice.volume = 0.7;  noise.volume = 0.25; }
-  else if (diff <= 10) { voice.volume = 0.4;  noise.volume = 0.55; }
-  else if (diff <= 20) { voice.volume = 0.15; noise.volume = 0.8;  }
-  else                 { voice.volume = 0.03; noise.volume = 1.0;  }
+  var vv, nv;
+  if (diff <= 2)       { vv = 1.0;   nv = 0.001; }
+  else if (diff <= 5)  { vv = 0.65;  nv = 0.25; }
+  else if (diff <= 10) { vv = 0.3;   nv = 0.65; }
+  else if (diff <= 20) { vv = 0.08;  nv = 0.9;  }
+  else                 { vv = 0.005; nv = 1.0;  }
+  var now = mixCtx.currentTime;
+  voiceGainNode.gain.cancelScheduledValues(now);
+  noiseGainNode.gain.cancelScheduledValues(now);
+  voiceGainNode.gain.setTargetAtTime(vv, now, 0.05);
+  noiseGainNode.gain.setTargetAtTime(nv, now, 0.05);
 }
 
 function unlockAnswer(){
