@@ -26,9 +26,6 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 
 
 
-  to{filter:drop-shadow(0 0 14px #22c55e);}
-}
-
 
 #popup{
   position:fixed;inset:0;z-index:2147483647;
@@ -106,59 +103,97 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 </div>
 
 <script>
-var found = false;
-var timer = null;
+(function () {
+  var clueFound = false;
+  var redirectTimer = null;
+  var eventsBound = false;
 
-function onFound() {
-
-  document.getElementById('pulse').classList.add('on');
-  document.getElementById('status-text').textContent = '✅ 낑깡이 인식됨!';
-  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-
-  if (!found) {
-    found = true;
+  function showClue() {
+    console.log('[AR] showClue 실행');
+    var pulse = document.getElementById('pulse');
+    var statusText = document.getElementById('status-text');
     var chips = document.getElementById('chips');
+    var popup = document.getElementById('popup');
+    var popWord = document.getElementById('pop-word');
+    var popDesc = document.getElementById('pop-desc');
+
+    if (!pulse || !statusText || !chips || !popup || !popWord || !popDesc) {
+      console.error('[AR] 필요한 HTML 요소를 찾지 못했습니다.');
+      return;
+    }
+
+    pulse.classList.add('on');
+    statusText.textContent = '✅ 낑깡이 인식됨!';
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+    if (clueFound) return;
+    clueFound = true;
+
     chips.innerHTML = '<span class="chip">하얀손</span>';
-
     try {
-      var clues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
-      clues.push('하얀손');
-      localStorage.setItem('loopcat_clues', JSON.stringify(clues));
-    } catch(e) {}
+      var savedClues = JSON.parse(localStorage.getItem('loopcat_clues') || '[]');
+      if (!Array.isArray(savedClues)) savedClues = [];
+      if (savedClues.indexOf('하얀손') === -1) savedClues.push('하얀손');
+      localStorage.setItem('loopcat_clues', JSON.stringify(savedClues));
+    } catch (error) { console.error('[AR] 단서 저장 실패:', error); }
 
-    document.getElementById('pop-word').textContent = '하얀손';
-    document.getElementById('pop-desc').textContent = '타짜의 증거물을 획득했습니다!';
-    document.getElementById('popup').style.display = 'flex';
+    popWord.textContent = '하얀손';
+    popDesc.textContent = '타짜의 증거물을 획득했습니다!';
+    popup.style.display = 'flex';
+    popup.style.visibility = 'visible';
+    popup.style.opacity = '1';
+    console.log('[AR] 팝업 표시 완료');
 
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(function() {
-      document.getElementById('popup').style.display = 'none';
-      if (window.RCMFlow) RCMFlow.markComplete('chapter2.html');
-      location.href = 'chapter2-unlocked.html';
+    if (redirectTimer) clearTimeout(redirectTimer);
+    redirectTimer = setTimeout(function () {
+      popup.style.display = 'none';
+      try {
+        if (window.RCMFlow && typeof window.RCMFlow.markComplete === 'function') {
+          window.RCMFlow.markComplete('chapter2.html');
+        }
+      } catch (error) { console.error('[AR] 진행 상태 저장 실패:', error); }
+      window.location.href = 'chapter2-unlocked.html';
     }, 2500);
   }
-}
 
-function onLost() {
-
-  document.getElementById('pulse').classList.remove('on');
-  if (!found) {
-    document.getElementById('status-text').textContent = '낑깡이를 찾는 중...';
+  function hideDetectionStatus() {
+    var pulse = document.getElementById('pulse');
+    var statusText = document.getElementById('status-text');
+    if (pulse) pulse.classList.remove('on');
+    if (statusText && !clueFound) statusText.textContent = '낑깡이를 찾는 중...';
   }
-}
 
-// 11개 타겟 전부 이벤트 등록
-document.addEventListener('DOMContentLoaded', function() {
-  for (var i = 0; i <= 10; i++) {
-    (function(idx) {
-      var el = document.getElementById('t' + idx);
-      if (el) {
-        el.addEventListener('targetFound', onFound);
-        el.addEventListener('targetLost', onLost);
-      }
-    })(i);
+  function bindTargetEvents() {
+    if (eventsBound) return;
+    var boundCount = 0;
+    for (var i = 0; i <= 10; i++) {
+      var target = document.getElementById('t' + i);
+      if (!target) { console.warn('[AR] 타겟 요소 없음: t' + i); continue; }
+      target.addEventListener('targetFound', showClue);
+      target.addEventListener('targetLost', hideDetectionStatus);
+      boundCount++;
+    }
+    if (boundCount > 0) {
+      eventsBound = true;
+      console.log('[AR] 타겟 이벤트 연결 완료:', boundCount);
+    } else {
+      console.error('[AR] 연결된 이미지 타겟이 없습니다.');
+    }
   }
-});
+
+  function initializeAREvents() {
+    var scene = document.querySelector('a-scene');
+    if (!scene) { console.error('[AR] a-scene을 찾지 못했습니다.'); return; }
+    if (scene.hasLoaded) { bindTargetEvents(); return; }
+    scene.addEventListener('loaded', bindTargetEvents, { once: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAREvents, { once: true });
+  } else {
+    initializeAREvents();
+  }
+})();
 </script>
 </body>
 </html>
