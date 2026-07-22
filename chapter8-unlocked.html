@@ -104,7 +104,8 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
   max-width:480px;margin:0 auto;
   backdrop-filter:blur(10px);
 }
-#choices-panel.show{display:flex;}
+#choices-panel.show{display:block;}
+#choices{display:flex;flex-direction:column;gap:8px;}
 .choice-btn{
   padding:10px 14px;
   background:rgba(107,33,168,.15);
@@ -168,6 +169,10 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
     <div class="prompt-text" id="prompt-text" style="display:none;"></div>
     <button id="next-btn" onclick="goEnding()">체포하기 →</button>
   </div>
+</div>
+
+<div id="choices-panel">
+  <div id="choices"></div>
 </div>
 
 <script>
@@ -495,8 +500,5 @@ function goEnding(){
 setTimeout(run, 600);
 </script>
 
-<div id="choices-panel">
-  <div id="choices"></div>
-</div>
 </body>
 </html>
