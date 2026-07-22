@@ -365,8 +365,17 @@ function endCall() {
   dialNum = '';
 }
 
-// 페이지 진입 시 바로 다이얼 화면 표시 (중간 단계 생략)
-openDial();
+// AR 스캔으로 진입 시 다이얼만 건너뛰고 바로 통화 연결
+(function() {
+  var fromAR = window.location.search.indexOf('from=ar') !== -1;
+  if (fromAR) {
+    resetCallScreen();
+    document.getElementById('call-screen').style.display = 'flex';
+    startHackerCall(); // hello.mp3 + 코드 입력창 그대로 유지
+  } else {
+    openDial();
+  }
+})();
 </script>
 
 </body>
