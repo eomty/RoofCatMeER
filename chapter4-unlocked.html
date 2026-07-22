@@ -206,61 +206,20 @@ var audioEnded = false;
 var hintCount = 0;
 var puzzleSolved = false;
 
-var rawBuffer = null;
-var decodingPromise = null;
-
-// 페이지 로드 시 MP3 ArrayBuffer만 저장 (디코딩은 재생 시점에)
+// 오디오 미리 로드
 function loadAudio() {
-  fetch('dubbing/ch4/intercept.mp3', { cache: 'force-cache' })
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.arrayBuffer();
-    })
-    .then(function(buf) {
-      rawBuffer = buf;
+  var ctx = new (window.AudioContext || window.webkitAudioContext)();
+  fetch('dubbing/ch4/intercept.mp3')
+    .then(function(r) { return r.arrayBuffer(); })
+    .then(function(buf) { return ctx.decodeAudioData(buf); })
+    .then(function(decoded) {
+      audioBuffer = decoded;
       audioLoaded = true;
+      ctx.close();
     })
-    .catch(function(e) {
-      console.error('오디오 로드 실패:', e);
-      audioLoaded = false;
-    });
+    .catch(function(e) { console.log('오디오 로드 실패:', e); });
 }
 loadAudio();
-
-// AudioContext 재사용 (매번 close 안 함)
-function getAudioContext() {
-  if (!audioCtx || audioCtx.state === 'closed') {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    window.RCMAudioCtx = audioCtx;
-  }
-  return audioCtx;
-}
-
-// 버튼 클릭 직후 동기적으로 무음 재생 → iOS 컨텍스트 선점
-function unlockAudioContext(ctx) {
-  var silentBuf = ctx.createBuffer(1, 1, 22050);
-  var silentSrc = ctx.createBufferSource();
-  silentSrc.buffer = silentBuf;
-  silentSrc.connect(ctx.destination);
-  silentSrc.start(0);
-}
-
-// 디코딩 결과 캐싱 (중복 디코딩 방지)
-function decodeAudio(ctx) {
-  if (audioBuffer) return Promise.resolve(audioBuffer);
-  if (decodingPromise) return decodingPromise;
-  decodingPromise = new Promise(function(resolve, reject) {
-    if (!rawBuffer) { reject(new Error('버퍼 없음')); return; }
-    ctx.decodeAudioData(rawBuffer.slice(0), function(decoded) {
-      audioBuffer = decoded;
-      resolve(decoded);
-    }, function(e) {
-      decodingPromise = null;
-      reject(e);
-    });
-  });
-  return decodingPromise;
-}
 
 
 
@@ -283,7 +242,7 @@ slider.addEventListener('input', function() {
     document.getElementById('freq-num').textContent = freq;
   }
   updateSignal(val);
-  updateAudioEffect(val);
+  updateSimpleAudioEffect(val);
 });
 
 function getStrength(val) {
@@ -328,105 +287,34 @@ function togglePlay() {
 
 function startPlay() {
   if (isPlaying) return;
-  if (!audioLoaded || !rawBuffer) {
-    alert('오디오를 불러오는 중입니다. 다시 눌러주세요.');
-    return;
-  }
-  var ctx = getAudioContext();
-  // 클릭 이벤트가 살아있는 동안 즉시 동기 실행 → iOS 컨텍스트 선점
-  unlockAudioContext(ctx);
-  ctx.resume()
-    .then(function() { return decodeAudio(ctx); })
-    .then(function(decoded) {
-      // resume 상태 재확인
-      if (ctx.state !== 'running') return ctx.resume().then(function(){ return decoded; });
-      return decoded;
-    })
-    .then(function(decoded) { playDecodedAudio(ctx, decoded); })
-    .catch(function(e) {
-      console.error('오디오 재생 실패:', e);
-      isPlaying = false;
-      alert('오디오 재생에 실패했습니다. 음량과 무음 모드를 확인 후 다시 시도해주세요.');
-    });
-}
-
-function playDecodedAudio(ctx, decoded) {
-  if (audioSource) {
-    try { audioSource.stop(); } catch(e){}
-    try { audioSource.disconnect(); } catch(e){}
-  }
-  audioSource = ctx.createBufferSource();
-  audioSource.buffer = decoded;
-  audioGain = ctx.createGain();
-  audioGain.gain.value = 0.1;
-  audioSource.connect(audioGain);
-  audioGain.connect(ctx.destination);
-  var offset = isPaused ? pausedAt : 0;
-  startedAt = ctx.currentTime - offset;
-  audioSource.start(0, offset);
-  isPaused = false;
+  var voice = document.getElementById('voice-audio');
+  var noise = document.getElementById('noise-audio');
+  if (!voice || !noise) { alert('도청 음원 파일을 찾지 못했습니다.'); return; }
+  voice.currentTime = 0;
+  noise.currentTime = 0;
   isPlaying = true;
   audioEnded = false;
-  createRadioNoise(ctx);
-  document.getElementById('intercept-btn').style.display = 'none';
-  updateSignal(parseInt(slider.value));
-  updateAudioEffect(parseInt(slider.value));
-  var remaining = decoded.duration - offset;
-  setTimeout(function(){ if (isPlaying) unlockAnswer(); }, Math.min(20000, remaining * 1000));
-  audioSource.onended = function() {
-    if (!isPlaying) return;
-    audioEnded = true;
-    unlockAnswer();
-    stopPlay();
-  };
-}
-
-function createRadioNoise(ctx) {
-  if (noiseSource) {
-    try { noiseSource.stop(); } catch(e){}
-    try { noiseSource.disconnect(); } catch(e){}
-  }
-  var bufSize = ctx.sampleRate * 2;
-  var noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-  var d = noiseBuf.getChannelData(0);
-  for (var i = 0; i < bufSize; i++) {
-    var r = Math.random();
-    d[i] = r > 0.97 ? (Math.random()*2-1)*0.14 : (Math.random()*2-1)*0.018;
-  }
-  noiseSource = ctx.createBufferSource();
-  noiseSource.buffer = noiseBuf;
-  noiseSource.loop = true;
-  var noiseFilter1 = ctx.createBiquadFilter();
-  noiseFilter1.type = 'highpass';
-  noiseFilter1.frequency.value = 2000;
-  var noiseFilter2 = ctx.createBiquadFilter();
-  noiseFilter2.type = 'peaking';
-  noiseFilter2.frequency.value = 4000;
-  noiseFilter2.gain.value = 0;
-  noiseGain = ctx.createGain();
-  noiseGain.gain.value = 0.252;
-  noiseSource.connect(noiseFilter1);
-  noiseFilter1.connect(noiseFilter2);
-  noiseFilter2.connect(noiseGain);
-  noiseGain.connect(ctx.destination);
-  noiseSource.start(0);
+  updateSimpleAudioEffect(parseInt(slider.value));
+  Promise.all([voice.play(), noise.play()])
+  .then(function() {
+    document.getElementById('intercept-btn').style.display = 'none';
+    updateSignal(parseInt(slider.value));
+    setTimeout(function(){ if (isPlaying) unlockAnswer(); }, 20000);
+  })
+  .catch(function(error) {
+    console.error('도청 오디오 재생 실패:', error);
+    voice.pause(); noise.pause();
+    isPlaying = false;
+    alert('오디오 재생에 실패했습니다. 도청 시작을 다시 눌러주세요.');
+  });
+  voice.onended = function() { audioEnded = true; unlockAnswer(); stopPlay(); };
 }
 
 function stopPlay() {
-  if (audioSource) {
-    try { audioSource.stop(); } catch(e){}
-    try { audioSource.disconnect(); } catch(e){}
-    audioSource = null;
-  }
-  if (noiseSource) {
-    try { noiseSource.stop(); } catch(e){}
-    try { noiseSource.disconnect(); } catch(e){}
-    noiseSource = null;
-  }
-  // iOS: close 대신 suspend — 재사용 안정성
-  if (audioCtx && audioCtx.state === 'running') {
-    audioCtx.suspend().catch(function(){});
-  }
+  var voice = document.getElementById('voice-audio');
+  var noise = document.getElementById('noise-audio');
+  if (voice) { voice.pause(); voice.currentTime = 0; }
+  if (noise) { noise.pause(); noise.currentTime = 0; }
   isPlaying = false;
   document.getElementById('intercept-btn').classList.remove('playing');
   document.getElementById('play-icon').textContent = '📻';
@@ -450,6 +338,18 @@ function updateAudioEffect(val) {
   }
   audioGain.gain.setTargetAtTime(audioVol, audioCtx.currentTime, 0.2);
   noiseGain.gain.setTargetAtTime(noiseVol, audioCtx.currentTime, 0.2);
+}
+
+function updateSimpleAudioEffect(val) {
+  var voice = document.getElementById('voice-audio');
+  var noise = document.getElementById('noise-audio');
+  if (!voice || !noise) return;
+  var diff = Math.abs(val - TARGET_FREQ);
+  if (diff <= 2)       { voice.volume = 1.0;  noise.volume = 0.02; }
+  else if (diff <= 5)  { voice.volume = 0.7;  noise.volume = 0.25; }
+  else if (diff <= 10) { voice.volume = 0.4;  noise.volume = 0.55; }
+  else if (diff <= 20) { voice.volume = 0.15; noise.volume = 0.8;  }
+  else                 { voice.volume = 0.03; noise.volume = 1.0;  }
 }
 
 function unlockAnswer(){
@@ -482,19 +382,13 @@ document.getElementById('answer').addEventListener('keydown', function(e){
 });
 
 function replayAudio(btn) {
-  if (btn) {
-    btn.disabled = true;
-    btn.style.opacity = '0.4';
-    btn.style.cursor = 'default';
-  }
-  stopPlay();
-  pausedAt = 0;
-  isPaused = false;
-  var ctx = getAudioContext();
-  unlockAudioContext(ctx); // 다시 듣기 버튼 클릭 직후 동기 선점
-  ctx.resume()
-    .then(function() { startPlay(); })
-    .catch(function(e) { console.error('다시 듣기 실패:', e); });
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'default'; }
+  var voice = document.getElementById('voice-audio');
+  var noise = document.getElementById('noise-audio');
+  if (voice) { voice.pause(); voice.currentTime = 0; }
+  if (noise) { noise.pause(); noise.currentTime = 0; }
+  isPlaying = false;
+  startPlay();
 }
 
 function showHint() {
@@ -527,6 +421,9 @@ setInterval(renderHintBtn, 1000);
 
 updateSignal(0);
 </script>
+
+<audio id="voice-audio" src="dubbing/ch4/intercept.mp3" preload="auto" playsinline></audio>
+<audio id="noise-audio" src="dubbing/ch4/noise.mp3" preload="auto" playsinline loop></audio>
 
 </body>
 </html>
