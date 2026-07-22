@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>챕터 8 — 최종담판</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#0a0a0a;font-family:'Noto Sans KR',sans-serif;}
+body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
+
+#app{
+  width:100%;max-width:420px;
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;
+  background:#111;
+}
+
+/* 상단: 페너 이미지 영역 (50%) */
+#penner-area{
+  flex:0 0 50vh;
+  background:#1a1a2e;
+  display:flex;flex-direction:column;
+  padding:16px 16px 12px;
+  gap:10px;
+  position:relative;
+}
+#penner-image{
+  flex:1;
+  background:#2a2a3e;
+  border-radius:10px;
+  border:1px dashed rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#penner-image span{font-size:11px;color:rgba(255,255,255,.2);}
+#penner-image img{width:100%;height:100%;object-fit:cover;object-position:center top;display:none;}
+
+.penner-bubble{
+  background:#064e3b;border:1px solid #059669;
+  border-radius:4px 14px 14px 14px;
+  padding:9px 13px;
+  font-size:13px;color:#6ee7b7;line-height:1.7;
+  min-height:20px;
+}
+
+/* 중단: 증거 인벤토리 */
+#evidence-area{
+  flex-shrink:0;
+  background:#0f0f1a;
+  border-top:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding:10px 14px;
+}
+.ev-label{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.1em;margin-bottom:6px;}
+.ev-grid{display:flex;gap:7px;}
+.ev-item{
+  width:52px;height:52px;border-radius:8px;
+  background:#1e1e2e;border:1px solid rgba(255,255,255,.1);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;position:relative;
+  transition:all .2s;
+  cursor:default;
+}
+.ev-icon{font-size:16px;}
+.ev-name{font-size:7.5px;color:rgba(255,255,255,.4);letter-spacing:.02em;white-space:nowrap;}
+.ev-item.active{
+  border-color:#f59e0b;
+  box-shadow:0 0 10px rgba(245,158,11,.4);
+  cursor:pointer;
+}
+.ev-item.used{
+  border-color:#059669;
+  opacity:.4;
+  cursor:default;
+}
+.ev-item.locked{opacity:.15;}
+.ev-item.wrong-shake{animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+/* 하단: 나레이션 + 선택지 */
+#bottom-area{
+  flex:1;
+  background:#0a0a12;
+  padding:14px 16px 24px;
+  display:flex;flex-direction:column;
+  gap:8px;
+  overflow-y:auto;
+}
+.narr-text{
+  font-size:12px;color:rgba(255,255,255,.5);
+  line-height:1.8;margin-bottom:4px;
+  min-height:20px;
+}
+.detective-line{color:rgba(255,255,255,.75);}
+
+#choices-panel{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:rgba(10,10,18,.96);
+  border-top:1px solid rgba(168,85,247,.25);
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px)) 16px;
+  display:none;flex-direction:column;gap:8px;
+  max-width:480px;margin:0 auto;
+  backdrop-filter:blur(10px);
+}
+#choices-panel.show{display:flex;}
+.choice-btn{
+  padding:10px 14px;
+  background:rgba(107,33,168,.15);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:10px;
+  color:#a855f7;font-size:12.5px;
+  font-family:'Noto Sans KR',sans-serif;
+  text-align:left;cursor:pointer;
+  line-height:1.5;
+  -webkit-tap-highlight-color:transparent;
+}
+.choice-btn:active{background:rgba(107,33,168,.3);}
+
+.prompt-text{
+  font-size:12px;color:rgba(245,158,11,.8);
+  text-align:center;padding:8px;
+  background:rgba(245,158,11,.06);
+  border:1px solid rgba(245,158,11,.2);
+  border-radius:8px;
+}
+
+#next-btn{
+  width:100%;padding:13px;
+  background:#8b1a1a;color:#f0e8d8;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:14px;border:none;border-radius:6px;
+  cursor:pointer;display:none;
+  letter-spacing:.04em;
+}
+</style>
+</head>
+<body>
+<script src="debug-config.js"></script>
+<script src="rcm-common.js"></script>
+<script src="flow-guard.js"></script>
+<script src="debug-panel.js"></script>
+
+<audio id="bgm" src="background.mp3" loop autoplay preload="auto"></audio>
+
+<div id="app">
+  <div id="penner-area">
+    <div id="penner-image"><span>페너 이미지</span><img id="penner-img-tag"/></div>
+    <div class="penner-bubble" id="penner-bubble">무슨 용건인지나 말하시죠.</div>
+  </div>
+
+  <div id="evidence-area">
+    <div class="ev-label">증거 인벤토리</div>
+    <div class="ev-grid">
+      <div class="ev-item" id="ev-ledger" title="장부"><span class="ev-icon">📜</span><span class="ev-name">STRAW장부</span></div>
+      <div class="ev-item" id="ev-lodge" title="숙박리스트"><span class="ev-icon">🏨</span><span class="ev-name">투숙리스트</span></div>
+      <div class="ev-item" id="ev-cctv" title="CCTV"><span class="ev-icon">📹</span><span class="ev-name">CCTV</span></div>
+      <div class="ev-item" id="ev-schedule" title="근무표"><span class="ev-icon">📋</span><span class="ev-name">근무표</span></div>
+      <div class="ev-item" id="ev-looptalk" title="루프톡 대화"><span class="ev-icon">💬</span><span class="ev-name">루프톡</span></div>
+      <div class="ev-item" id="ev-card" title="카드내역"><span class="ev-icon">💳</span><span class="ev-name">카드내역</span></div>
+      <div class="ev-item" id="ev-family" title="가족관계증명서"><span class="ev-icon">📄</span><span class="ev-name">가족관계서</span></div>
+    </div>
+  </div>
+
+  <div id="bottom-area">
+    <div class="narr-text detective-line" id="narr-text"></div>
+    <div class="prompt-text" id="prompt-text" style="display:none;"></div>
+    <button id="next-btn" onclick="goEnding()">체포하기 →</button>
+  </div>
+</div>
+
+<script>
+var bgm = document.getElementById('bgm');
+bgm.volume = 0.15;
+bgm.play().catch(function(){
+  // 모바일 브라우저는 자동재생을 막는 경우가 있어 첫 탭에서 재생 시도
+  document.body.addEventListener('click', function once(){
+    bgm.play().catch(function(){});
+    document.body.removeEventListener('click', once);
+  });
+});
+</script>
+<script>
+var evidenceEls = {
+  ledger: document.getElementById('ev-ledger'),
+  lodge: document.getElementById('ev-lodge'),
+  cctv: document.getElementById('ev-cctv'),
+  schedule: document.getElementById('ev-schedule'),
+  looptalk: document.getElementById('ev-looptalk'),
+  card: document.getElementById('ev-card'),
+  family: document.getElementById('ev-family')
+};
+var pennerBubble = document.getElementById('penner-bubble');
+var narrText = document.getElementById('narr-text');
+var choicesDiv = document.getElementById('choices');
+var promptText = document.getElementById('prompt-text');
+
+function playAudio(src) {
+  return new Promise(function(resolve) {
+    var audio = new Audio(src);
+    audio.volume = 0.8;
+    audio.onended = resolve;
+    audio.onerror = resolve;
+    audio.play().catch(resolve);
+  });
+}
+
+function playAudioSeq(srcs) {
+  if (!srcs || !srcs.length) return Promise.resolve();
+  return playAudio(srcs[0]).then(function() {
+    return playAudioSeq(srcs.slice(1));
+  });
+}
+
+async function setPennerAudio(text, imgKey, audios) {
+  setPenner(text, imgKey);
+  if (audios && audios.length) playAudioSeq(audios);
+}
+
+function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+var pennerImgTag = document.getElementById('penner-img-tag');
+var pennerImgSpan = document.querySelector('#penner-image span');
+
+function setPenner(text, imgKey){
+  pennerBubble.textContent = text;
+  if(imgKey){
+    pennerImgTag.src = 'penner-images/' + imgKey + '.jpg';
+    pennerImgTag.style.display = 'block';
+    if(pennerImgSpan) pennerImgSpan.style.display = 'none';
+  }
+}
+
+function setNarr(text){
+  narrText.innerHTML = text.replace(/\n/g,'<br/>');
+}
+
+function showChoices(options){
+  return new Promise(function(resolve){
+    choicesDiv.innerHTML = '';
+    document.getElementById('choices-panel').classList.add('show');
+    options.forEach(function(opt, i){
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = '💬 ' + opt.text;
+      btn.onclick = function(){
+        choicesDiv.innerHTML = '';
+        document.getElementById('choices-panel').classList.remove('show');
+        resolve(opt);
+      };
+      choicesDiv.appendChild(btn);
+    });
+  });
+}
+
+function clearChoices(){
+  choicesDiv.innerHTML = '';
+  document.getElementById('choices-panel').classList.remove('show');
+}
+
+function activateEvidence(keys){
+  Object.keys(evidenceEls).forEach(function(k){
+    evidenceEls[k].classList.remove('active');
+  });
+  keys.forEach(function(k){
+    evidenceEls[k].classList.add('active');
+  });
+}
+
+function waitForEvidence(correctKey){
+  return new Promise(function(resolve){
+    Object.keys(evidenceEls).forEach(function(k){
+      var el = evidenceEls[k];
+      if(!el.classList.contains('active')) return;
+      el.onclick = function(){
+        if(k === correctKey){
+          Object.keys(evidenceEls).forEach(function(kk){
+            evidenceEls[kk].onclick = null;
+          });
+          el.classList.remove('active');
+          el.classList.add('used');
+          resolve();
+        } else {
+          el.classList.add('wrong-shake');
+          if(navigator.vibrate) navigator.vibrate(150);
+          setTimeout(function(){ el.classList.remove('wrong-shake'); }, 350);
+        }
+      };
+    });
+  });
+}
+
+// 1라운드 — 오답 반응 매핑
+var R1_WRONG = {
+  '빨대파가 범인입니다': ['...빨대파요?', '아, 죄송합니다. 메모가 섞였네요.', 'p8_straw.mp3'],
+  '여기 커피 맛있네요': ['지금 커피 얘기 하러 오신 겁니까?!', '아니, 진짜로 맛있어서요. 근데 그게 아니고...', 'p8_coffee.mp3']
+};
+var R2_WRONG = {
+  'CCTV 화질이 좀 아쉽더군요': ['...지금 화질 얘기를 왜 하시는 겁니까?', '아, 그래도 알아볼 순 있었습니다.', 'p8_quality.mp3'],
+  '경감님 닮은 묘가 꽤 있나봐요': ['그게 무슨...', '농담이고요. 본론은 이겁니다.', 'p8_whatmeans.mp3']
+};
+var R3_WRONG = {
+  '그 자리에 유령이라도 있었던 걸까요': ['유, 유령이요?!', '비유입니다. 살아있는 유령이요.', 'p8_ghost.mp3'],
+  '도플갱어라도 있나봐요': ['...', '어쩌면 맞는 말일 수도 있겠네요.', null]
+};
+var R4_WRONG = {
+  '동료분들이 경감님 뒷담화를 좀 하시던데요': ['뭐, 뭐라고요?!', '아, 표현이 좀 거칠었네요. 다시 말씀드리죠.', 'p8_whatwhat.mp3'],
+  '이 마을에서 꽤 오래 사셨더군요': ['그게 무슨 상관이오?', '오래 계셨으니 아는 것도 많으시겠죠.', 'p8_norel.mp3']
+};
+var R5_WRONG = {
+  '아인이라는 묘를 아십니까?': ['모, 모르는 이름이오!', '방금 보여드린 대화 내용은 다른 분 일인가요?', 'p8_dontknow.mp3'],
+  'Plan A가 뭔지 혹시 아세요?': ['...!', '아, 그건 이미 여쭤봤죠.', null]
+};
+
+async function pickChoice(options, correctText, wrongMap){
+  var remaining = options.slice().sort(function(){ return Math.random() - 0.5; });
+  while(true){
+    var picked = await showChoices(remaining.map(function(t){return {text:t};}));
+    if(picked.text === correctText){
+      setNarr('탐정: "' + picked.text + '"');
+      return;
+    } else {
+      remaining = remaining.filter(function(t){ return t !== picked.text; });
+      setNarr('탐정: "' + picked.text + '"');
+      await wait(600);
+      var reactions = wrongMap[picked.text];
+      setPenner(reactions[0]);
+      if (reactions[2]) playAudio('dubbing/ch8/u/' + reactions[2]);
+      await wait(1400);
+      setNarr('탐정: "' + reactions[1] + '"');
+      await wait(1600);
+    }
+  }
+}
+
+async function run(){
+  setPennerAudio('무슨 용건인지나 말하시죠.', 'penner-relaxed', ['dubbing/ch8/u/p8_intro.mp3']);
+  await wait(600);
+  setNarr('탐정: "급하시긴. 그럼 바로 본론으로."');
+  await wait(1200);
+
+  // ===== 1라운드 — 장부 =====
+  await pickChoice(
+    ['S.T.R.A.W 장부라고 들어보셨습니까?', '빨대파가 범인입니다', '여기 커피 맛있네요'],
+    'S.T.R.A.W 장부라고 들어보셨습니까?', R1_WRONG
+  );
+  await wait(1200);
+  setPennerAudio('...잠복수사 중이었소.', 'penner-tense', ['dubbing/ch8/u/p8_undercover.mp3']);
+  await wait(2400);
+  setNarr('탐정: "아, 잠복수사요." (수첩 넘기는 척) "그렇군요.\n그런데 잠복수사 중에 누군가와 실거래를 하셨다는 게 좀 걸리는군요."');
+  await wait(3300);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요';
+  activateEvidence(['ledger']);
+  await waitForEvidence('ledger');
+  promptText.style.display = 'none';
+
+  setPennerAudio('그건...!', 'penner-shocked', ['dubbing/ch8/u/p8_that.mp3']);
+  await wait(2100);
+  setNarr('탐정: "그날 그시간에 경감님은 근무중이셨으니, 거래하러 가실 수 없었을테니 말이죠."');
+  await wait(3300);
+  setPenner('...', 'penner-shocked');
+  await wait(1500);
+  setNarr('탐정: "그렇다면 그 자리에 있었던 건 누구였을까요."');
+  await wait(3000);
+
+  // ===== 2라운드 — 숙박리스트+CCTV+근무표 (통합) =====
+  setNarr('탐정: "딜리셔스 호텔 5월 9일 체크인도 같은 경우겠군요."');
+  await wait(3000);
+  setPennerAudio('누명이오! 누군가 제 이름을 도용한 겁니다!', 'penner-angry', ['dubbing/ch8/u/p8_framed.mp3']);
+  await wait(2700);
+  setNarr('탐정: "도용." (메모하는 척) "흥미로운 표현이네요.\n딜리셔스 호텔 CCTV를 확인해봤는데 말이죠."');
+  await wait(3300);
+
+  await pickChoice(
+    ['CCTV엔 경감님과 닮았지만 다른 묘가 찍혔습니다', 'CCTV 화질이 좀 아쉽더군요', '경감님 닮은 묘가 꽤 있나봐요'],
+    'CCTV엔 경감님과 닮았지만 다른 묘가 찍혔습니다', R2_WRONG
+  );
+  await wait(1200);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요 (CCTV)';
+  activateEvidence(['cctv']);
+  await waitForEvidence('cctv');
+  promptText.style.display = 'none';
+
+  setPennerAudio('그건 조작된 겁니다! 근무중이었으니까 호텔엔 갈 수가 없었소! 그게 제 알리바이요!', 'penner-angry',
+    ['dubbing/ch8/u/p8_fake.mp3']);
+  await wait(3900);
+  setNarr('탐정: "맞습니다. 바로 그게 문제입니다."');
+  await wait(2400);
+
+  await pickChoice(
+    ['누군가 경감님인 척 그 자리에 있었다는 거니까요', '그 자리에 유령이라도 있었던 걸까요', '도플갱어라도 있나봐요'],
+    '누군가 경감님인 척 그 자리에 있었다는 거니까요', R3_WRONG
+  );
+  await wait(1200);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요 (숙박리스트)';
+  activateEvidence(['lodge']);
+  await waitForEvidence('lodge');
+  promptText.textContent = '🔍 증거를 제출하세요 (근무표)';
+  activateEvidence(['schedule']);
+  await waitForEvidence('schedule');
+  promptText.style.display = 'none';
+
+  setPennerAudio('그, 누군가가 누구란 말이오!', 'penner-furious', ['dubbing/ch8/u/p8_whoisit.mp3']);
+  await wait(2700);
+  setNarr('탐정: "그러게요.\n경감님은 모르신다고 하시겠죠.\n하지만 그 누군가는 경감님을 알고 있는 것 같더군요."');
+  await wait(3600);
+  setPenner('...!', 'penner-furious');
+  await wait(1800);
+
+  // ===== 3라운드 — 루프톡+카드내역 (해킹 증거) =====
+  setNarr('탐정: "아, 그리고." (커피 한 모금)');
+  await wait(2100);
+
+  await pickChoice(
+    ['마을 민심은 얻었어도 주변 경찰 신임은 그리 많이 받지 않은 것 같더군요', '동료분들이 경감님 뒷담화를 좀 하시던데요', '이 마을에서 꽤 오래 사셨더군요'],
+    '마을 민심은 얻었어도 주변 경찰 신임은 그리 많이 받지 않은 것 같더군요', R4_WRONG
+  );
+  await wait(1500);
+  setNarr('탐정: "생각보다 구하기 쉬웠습니다."');
+  await wait(3000);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요 (루프톡 대화)';
+  activateEvidence(['looptalk']);
+  await waitForEvidence('looptalk');
+  promptText.style.display = 'none';
+
+  setNarr('탐정: "5월 9일, 아인이 보낸 \'Plan A\'라는 메시지에\n경감님은 \'금방 보내겠습니다\'라고 답했더군요."');
+  await wait(3600);
+  setPenner('...!', 'penner-grim');
+  await wait(1800);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요 (카드내역)';
+  activateEvidence(['card']);
+  await waitForEvidence('card');
+  promptText.style.display = 'none';
+
+  setNarr('탐정: "그리고 같은 날 13시 41분, 경찰청 내부 자판기 사용 기록.\n경감님은 분명 그 자리, 경찰서에 계셨습니다."');
+  await wait(3900);
+  setPennerAudio('그건...! 불법 아니오?!', 'penner-grim', ['dubbing/ch8/u/p8_illegal.mp3']);
+  await wait(2700);
+  setNarr('탐정: "글쎄요."  "범죄묘한테 설명할 이유는 없어요."');
+  await wait(3000);
+  setPenner('...!', 'penner-grim');
+  await wait(1800);
+  setNarr('탐정: "자, 마지막으로.."');
+  await wait(2400);
+
+  // ===== 4라운드 — 가족관계증명서 =====
+  setNarr('탐정: "아ㅡ 이걸 보여드려야하나..."');
+  await wait(2700);
+  setPennerAudio('머, 뭐라고요?', 'penner-grim', ['dubbing/ch8/u/p8_whatwhat.mp3']);
+  await wait(2100);
+  setNarr('탐정: "경감님도 아실겁니다."');
+  await wait(2100);
+
+  await pickChoice(
+    ['아인이와의 관계도 설명해주시겠습니까?', '아인이라는 묘를 아십니까?', 'Plan A가 뭔지 혹시 아세요?'],
+    '아인이와의 관계도 설명해주시겠습니까?', R5_WRONG
+  );
+  await wait(1200);
+
+  promptText.style.display = 'block';
+  promptText.textContent = '🔍 증거를 제출하세요';
+  activateEvidence(['family']);
+  await waitForEvidence('family');
+  promptText.style.display = 'none';
+
+  setPennerAudio('그건...', 'penner-breaking', ['dubbing/ch8/u/p8_break.mp3']);
+  await wait(3000);
+  setNarr('탐정: "..."');
+  await wait(2100);
+  setPenner('(긴 침묵)', 'penner-broken');
+  await wait(2700);
+  setNarr('탐정: "...이 정도면 충분하겠죠.\n경감님.\n오랫동안 수고 많으셨습니다."');
+  await wait(1500);
+
+  document.getElementById('next-btn').style.display = 'block';
+  if (window.RCMFlow) RCMFlow.markComplete();
+  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+}
+
+function goEnding(){
+  location.href = 'ending.html';
+}
+
+setTimeout(run, 600);
+</script>
+
+<div id="choices-panel">
+  <div id="choices"></div>
+</div>
+</body>
+</html>
