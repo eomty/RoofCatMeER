@@ -372,7 +372,7 @@ async function run(){
   await wait(3000);
 
   // ===== 2라운드 — 숙박리스트+CCTV+근무표 (통합) =====
-  setNarr('탐정: "딜리셔스 호텔 5월 9일 체크인도 같은 경우겠군요."');
+  setNarr('탐정: "딜리셔스 호텔 9월 1일 체크인도 같은 경우겠군요."');
   await wait(3000);
   setPennerAudio('누명이오! 누군가 제 이름을 도용한 겁니다!', 'penner-angry', ['dubbing/ch8/u/p8_framed.mp3']);
   await wait(2700);
@@ -437,7 +437,7 @@ async function run(){
   await waitForEvidence('looptalk');
   promptText.style.display = 'none';
 
-  setNarr('탐정: "5월 9일, 아인이 보낸 \'Plan A\'라는 메시지에\n경감님은 \'금방 보내겠습니다\'라고 답했더군요."');
+  setNarr('탐정: "9월 1일, 아인이 보낸 \'Plan A\'라는 메시지에\n경감님은 \'시작하겠습니다\'라고 답했더군요."');
   await wait(3600);
   setPenner('...!', 'penner-grim');
   await wait(1800);

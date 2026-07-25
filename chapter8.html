@@ -113,13 +113,13 @@ var S = [
 var canTap = true;
 
 function playLineAudio(src, onEnd) {
-  if (!src) { setTimeout(onEnd, 700); return; }
+  if (!src) { setTimeout(onEnd, 300); return; }
   var audio = new Audio(src);
   var done = false;
   function finish() {
     if (done) return;
     done = true;
-    setTimeout(onEnd, 700);
+    setTimeout(onEnd, 300);
   }
   audio.addEventListener('ended', finish);
   audio.onerror = finish;
@@ -128,7 +128,7 @@ function playLineAudio(src, onEnd) {
     var checkDuration = setInterval(function() {
       if (audio.duration && isFinite(audio.duration)) {
         clearInterval(checkDuration);
-        setTimeout(finish, (audio.duration * 1000) + 600);
+        setTimeout(finish, (audio.duration * 1000) + 300);
       }
     }, 100);
   }).catch(finish);

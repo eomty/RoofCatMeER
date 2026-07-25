@@ -112,7 +112,7 @@ function flashPenalty(sec){
     </div>
     <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>서명을 자세히 봐바</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너 경감의 서명을 좀 더 자세히 봐바</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너 경감의 5월 9일 서명... penner가 아닌 fenner로 되어있어!!?</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너 경감의 9월 1일 서명... penner가 아닌 fenner로 되어있어!!?</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
@@ -142,9 +142,23 @@ function checkAnswer() {
   var cat = document.getElementById('answer-cat').value.trim();
   var date = document.getElementById('answer-date').value.trim().replace(/\s/g,'');
   var catOk = (cat === '페너' || cat === '페너 경감' || cat.toLowerCase() === 'penner');
-  var dateNorm = date.replace('월','').replace('일','').replace('.','/')
-    .replace(/^0(\d)\//,'$1/').replace(/\/0(\d)$/,'/$1');
-  var dateOk = (dateNorm === '5/9' || date === '5/9' || date === '5월9일' || date === '09.05' || date === '05.09');
+  var dateNorm = date
+    .replace(/년/g, '/')
+    .replace(/월/g, '/')
+    .replace(/일/g, '')
+    .replace(/[.\-]/g, '/')
+    .replace(/\/+/g, '/')
+    .replace(/^\//, '')
+    .replace(/\/$/, '');
+
+  var dateParts = dateNorm.split('/').filter(Boolean);
+  if (dateParts.length >= 2) {
+    var month = parseInt(dateParts[dateParts.length - 2], 10);
+    var day = parseInt(dateParts[dateParts.length - 1], 10);
+    dateNorm = month + '/' + day;
+  }
+
+  var dateOk = (dateNorm === '9/1');
   var result = document.getElementById('answer-result');
   result.style.display = 'block';
   if (catOk && dateOk) {

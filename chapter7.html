@@ -96,11 +96,11 @@ function flashPenalty(sec){
 
   <div class="doc-body">
     <div class="story-text">
-      <p>5월 9일, 페너 경감은 어디에 있었을까요?</p>
+      <p>9월 1일, 페너 경감은 어디에 있었을까요?</p>
       <p>경찰서에 가서 근무표를 확인해봅시다.</p>
     </div>
 
-    <div class="quest-box">▶ 근무표에서 5월 9일 페너 경감의 근무 상태를 확인하자</div>
+    <div class="quest-box">▶ 근무표에서 9월 1일 페너 경감의 근무 상태를 확인하자</div>
 
     <div class="tear"></div>
 
@@ -110,7 +110,7 @@ function flashPenalty(sec){
     </div>
     <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>경찰서에가서 근무표를 확인해보자</div>
     <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너 경감도 근무를 하고있어</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>5월 9일, 페너 경감은 주간 근무중이었어!!</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>9월 1일, 페너 경감은 주간 근무중이었어!!</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
@@ -122,7 +122,8 @@ function flashPenalty(sec){
 
     <div id="after-story">
       <p>근무 중에 호텔 체크인이라니... 그럼 호텔 체크인에 찍혀있던 묘는 도대체 누구인 거야?</p>
-      <p>페너 경감을 더 깊이 파봐야겠어. 그러고 보니 이전에 뭐든지 알아내주는 친구 번호를 받았었지. 한번 연락해볼까?</p>
+      <p>페너 경감을 더 깊이 파봐야겠어. 그러고 보니 이전에 하얀손한테 뭐든지 알아내주는 친구 정보를 받았지.</p>
+      <p>경찰서에 연결할 수 있는 단서를 숨겨놨다고했는데... 찾아서 스캔해볼까?</p>
     </div>
 
     <div id="call-hints" style="display:none;margin-top:12px;">
@@ -132,10 +133,10 @@ function flashPenalty(sec){
       </div>
       <div class="hint-item" id="call-hint1"><span class="hint-num">힌트 1</span>낑깡이와의 대화내역을 생각해!</div>
       <div class="hint-item" id="call-hint2"><span class="hint-num">힌트 2</span>낑깡이가 검은손이라고 말하랬는데...</div>
-      <div class="hint-item" id="call-hint3"><span class="hint-num">힌트 3</span>경찰서 안 검은손 마크를 찾아 AR 스캔해봐!</div>
+      <div class="hint-item" id="call-hint3"><span class="hint-num">힌트 3</span>경찰서에서 검은손 마크를 찾아 AR 스캔해봐! 그리고 검은손이라고 입력해</div>
       <button class="hint-btn" id="call-hint-btn" onclick="showCallHint()">힌트 1 보기 <span class="hint-cost">+1:00</span></button>
     </div>
-    <button class="dial-btn" id="dial-btn" onclick="location.href='ar7.html'">🔍 검은손 마크 스캔하기</button>
+    <button class="dial-btn" id="dial-btn" onclick="location.href='ar7.html'">🔍 쿠미의 흔적 스캔하기</button>
   </div>
 </div>
 
@@ -179,7 +180,7 @@ function checkAnswer() {
   var answers = ['주','주간','주간 근무','근무'];
   if (answers.indexOf(val) !== -1) {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">5월 9일, 페너 경감은 주간 근무 중이었어요. 근데 호텔에 체크인을?!</span>';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">9월 1일, 페너 경감은 주간 근무 중이었어요. 근데 호텔에 체크인을?!</span>';
     document.getElementById('answer').disabled = true;
     setTimeout(function(){
       document.getElementById('after-story').style.display = 'block';

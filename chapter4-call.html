@@ -95,7 +95,7 @@ function flashPenalty(sec){
   <div class="doc-body">
     <div class="story-text">
       <p>탐정님! 여기가 영업사무소인가봐요!</p>
-      <p>저기 일하는 고양이들이 보여요...<br/>그들끼리 특정 주파수와 채널을 사용하여 교신하는 거 같아요.<br/>저희도 그들의 이야기를 들어보죠!</p>
+      <p>저기 일하는 고양이들이 보여요...<br/>그들끼리 특정 주파수를 사용하여 교신하는 거 같아요.<br/>저희도 그들의 이야기를 들어보죠!</p>
     </div>
 
     <div class="quest-box">▶ 암호를 해독하여 그들의 대화를 도청하자!</div>
@@ -114,7 +114,7 @@ function flashPenalty(sec){
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
     <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다이얼을 유심히 보자</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>주파수.채널을 맞추면돼</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>첫번째 숫자는9라는데..?</div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>95.2</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
@@ -122,7 +122,7 @@ function flashPenalty(sec){
 
     <!-- 정답 입력 -->
     <div class="section-title">ANSWER</div>
-    <input class="answer-input" id="answer" type="text" placeholder="[주파수.채널]을 입력하세요..."/>
+    <input class="answer-input" id="answer" type="text" placeholder="[주파수]를 입력하세요..."/>
     <button class="answer-btn" onclick="checkAnswer()">확인</button>
     <div id="result"></div>
     <button class="next-btn" id="next-btn" onclick="location.href='chapter4-unlocked.html'">다음 장소로 →</button>
@@ -168,7 +168,7 @@ function checkAnswer() {
   result.style.display = 'block';
   if (val === '95.2') {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">주파수와 채널을 맞췄습니다!</span>';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">주파수를 맞췄습니다!</span>';
     document.getElementById('next-btn').style.display = 'block';
     if (window.RCMFlow) RCMFlow.markComplete();
     document.getElementById('answer').disabled = true;

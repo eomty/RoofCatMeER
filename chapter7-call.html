@@ -223,6 +223,25 @@ function makeCall() {
   else startWrongCall();
 }
 
+function goBackTwoPages() {
+  if (_currentAudio) {
+    _currentAudio.pause();
+    _currentAudio = null;
+  }
+
+  document.getElementById('call-screen').style.display = 'none';
+  document.getElementById('dial-screen').style.display = 'none';
+
+  // 일반 진입: 브라우저 기록에서 두 페이지 전으로 이동
+  if (window.history.length > 2) {
+    window.history.go(-2);
+    return;
+  }
+
+  // 기록이 충분하지 않을 때의 안전한 대체 경로
+  location.href = 'chapter7.html';
+}
+
 function resetCallScreen() {
   wrongCount = 0;
   document.getElementById('call-name').textContent = '연결 중...';
@@ -303,8 +322,7 @@ function confirmCode() {
       document.getElementById('call-input-wrap').style.display = 'none';
       showThenPlay(msg, CAFE_RESPONSES[2], CAFE_AUDIOS[2], function() {
         setTimeout(function(){
-          document.getElementById('call-screen').style.display = 'none';
-          openDial();
+          goBackTwoPages();
         }, 1000);
       });
     }
@@ -360,9 +378,8 @@ function selectChoice2() {
 }
 
 function endCall() {
-  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
-  document.getElementById('call-screen').style.display = 'none';
   dialNum = '';
+  goBackTwoPages();
 }
 
 // AR 스캔으로 진입 시 다이얼만 건너뛰고 바로 통화 연결
