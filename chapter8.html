@@ -141,27 +141,80 @@ var S = [
 
 var canTap = true;
 
+
+var rcmAudioContext = null;
+
+function getRCMAudioContext() {
+  if (!rcmAudioContext) {
+    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    rcmAudioContext = new AudioContextClass();
+  }
+  return rcmAudioContext;
+}
+
+function unlockRCMAudioContext() {
+  var ctx = getRCMAudioContext();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(function(){});
+  }
+}
+
+document.addEventListener('touchstart', unlockRCMAudioContext, { once:true, passive:true });
+document.addEventListener('click', unlockRCMAudioContext, { once:true });
+
+
 function playLineAudio(src, onEnd) {
-  if (!src) { setTimeout(onEnd, 300); return; }
+  if (!src) {
+    setTimeout(onEnd, 300);
+    return;
+  }
+
   var audio = new Audio(src);
+  var ctx = getRCMAudioContext();
   var done = false;
+
   function finish() {
     if (done) return;
     done = true;
     setTimeout(onEnd, 300);
   }
+
   audio.addEventListener('ended', finish);
   audio.onerror = finish;
-  audio.play().then(function() {
-    // duration 기반 백업: 재생 시작 후 길이만큼 기다려도 안 끝나면 강제 해제
-    var checkDuration = setInterval(function() {
-      if (audio.duration && isFinite(audio.duration)) {
-        clearInterval(checkDuration);
-        setTimeout(finish, (audio.duration * 1000) + 300);
+
+  function startPlayback() {
+    audio.play().then(function() {
+      var checkDuration = setInterval(function() {
+        if (audio.duration && isFinite(audio.duration)) {
+          clearInterval(checkDuration);
+          setTimeout(finish, (audio.duration * 1000) + 300);
+        }
+      }, 100);
+    }).catch(finish);
+  }
+
+  if (ctx) {
+    try {
+      var sourceNode = ctx.createMediaElementSource(audio);
+      var gainNode = ctx.createGain();
+      gainNode.gain.value = 0.7;
+      sourceNode.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(startPlayback).catch(startPlayback);
+      } else {
+        startPlayback();
       }
-    }, 100);
-  }).catch(finish);
+      return;
+    } catch (e) {}
+  }
+
+  audio.volume = 0.7;
+  startPlayback();
 }
+
 
 var idx = 0;
 var container = document.getElementById('lines');

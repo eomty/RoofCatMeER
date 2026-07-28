@@ -230,15 +230,70 @@ var narrText = document.getElementById('narr-text');
 var choicesDiv = document.getElementById('choices');
 var promptText = document.getElementById('prompt-text');
 
+
+var rcmAudioContext = null;
+
+function getRCMAudioContext() {
+  if (!rcmAudioContext) {
+    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    rcmAudioContext = new AudioContextClass();
+  }
+  return rcmAudioContext;
+}
+
+function unlockRCMAudioContext() {
+  var ctx = getRCMAudioContext();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(function(){});
+  }
+}
+
+document.addEventListener('touchstart', unlockRCMAudioContext, { once:true, passive:true });
+document.addEventListener('click', unlockRCMAudioContext, { once:true });
+
+
 function playAudio(src) {
   return new Promise(function(resolve) {
     var audio = new Audio(src);
-    audio.volume = 0.8;
-    audio.onended = resolve;
-    audio.onerror = resolve;
-    audio.play().catch(resolve);
+    var ctx = getRCMAudioContext();
+    var finished = false;
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      resolve();
+    }
+
+    audio.onended = finish;
+    audio.onerror = finish;
+
+    function startPlayback() {
+      audio.play().catch(finish);
+    }
+
+    if (ctx) {
+      try {
+        var sourceNode = ctx.createMediaElementSource(audio);
+        var gainNode = ctx.createGain();
+        gainNode.gain.value = 0.7;
+        sourceNode.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(startPlayback).catch(startPlayback);
+        } else {
+          startPlayback();
+        }
+        return;
+      } catch (e) {}
+    }
+
+    audio.volume = 0.7;
+    startPlayback();
   });
 }
+
 
 function playAudioSeq(srcs) {
   if (!srcs || !srcs.length) return Promise.resolve();
