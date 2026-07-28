@@ -130,7 +130,7 @@ var AFTER = [
 
 var A1 = "나도 감시를 받고 있는지라...\n다만 이건 말해줄 수 있어. 백설이는 이름만큼 결백해.";
 var A2 = "큰 돈이 필요하다고 했어.\n그래서 내가 알고 있는 이세계의 큰 손들을 소개해줬지.";
-var A3 = "결국 캣력사무소를 찾아갔다고 들었어.\n그쪽 일이 돈이 좀 되거든. 지금도 고양이 구하고 있다고 하니까 전단지를 찾아봐.\n소개로만 운영되는 곳이니까 누구 소개냐고 하면 하얀손의 소개를 받았다고 해.\n\n나중에 뭔가 막히는 게 생기면... 경찰서 어딘가에 검은손 마크를 숨겨놨어. 그걸 찾아서 스캔해봐. 연결되면 당황하지 말고 [검은손] 이라고만 해. 알아들을 거야.";
+var A3 = "결국 <span style='color:#e24b4a;font-weight:700;'>캣력사무소</span>를 찾아갔다고 들었어.\n그쪽 일이 돈이 좀 되거든. 지금도 고양이 구하고 있다고 하니까 <span style='color:#e24b4a;font-weight:700;'>명함</span>을 찾아봐.\n소개로만 운영되는 곳이니까 누구 소개냐고 하면 하얀손의 소개를 받았다고 해.\n\n<span style='color:#e24b4a;font-weight:700;'>나중에 뭔가 막히는 게 생기면... 경찰서 어딘가에 검은손 마크를 숨겨놨어. 그걸 찾아서 스캔해봐. 연결되면 당황하지 말고 [검은손] 이라고만 해. 알아들을 거야.</span>";
 
 function rand(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -234,7 +234,7 @@ if (qId === 'q3') {
 
         nb.className = 'next-btn';
         nb.style.display = 'block';
-        nb.textContent = '캣력사무소 전단지 찾으러 가기 →';
+        nb.textContent = '캣력사무소 명함 찾으러 가기 →';
 
         nb.onclick = function() {
           if (window.RCMFlow) RCMFlow.markComplete();
