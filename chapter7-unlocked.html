@@ -515,15 +515,7 @@ function showScreen(name){
 function playAudio(src, volume) {
   return new Promise(function(resolve) {
     var audio = new Audio(src);
-
-    // 기본값은 항상 원본 음량(100%)
-    audio.volume = 1.0;
-
-    // 볼륨 인자가 전달된 파일만 개별 조절
-    if (typeof volume === 'number') {
-      audio.volume = volume;
-    }
-
+    if (volume !== undefined) audio.volume = volume;
     audio.onended = resolve;
     audio.onerror = resolve;
     audio.play().catch(resolve);
