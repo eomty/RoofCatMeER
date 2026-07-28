@@ -176,14 +176,26 @@ body{padding-top:64px !important;}
   color:rgba(255,255,255,.48);
 }
 
+
+#audio-start-button{
+  appearance:none;
+  -webkit-appearance:none;
+  border:1px solid rgba(168,85,247,.38);
+  width:100%;
+  touch-action:manipulation;
+  pointer-events:auto;
+  cursor:pointer;
+}
+
 </style>
 </head>
 <body>
 <div id="audio-start-gate">
-  <div class="audio-start-box">
+  <button type="button" id="audio-start-button" class="audio-start-box">
     <div class="audio-start-title">최종 담판</div>
     <div class="audio-start-sub">화면을 탭해 시작하세요.</div>
-  </div>
+  </button>
+</div>
 </div>
 <script src="debug-config.js"></script>
 <script src="rcm-common.js"></script>
@@ -615,34 +627,40 @@ function goEnding(){
   location.href = 'ending.html';
 }
 
-(function setupChapter8StartGate(){
+var chapter8Started = false;
+
+function beginChapter8() {
+  if (chapter8Started) return;
+  chapter8Started = true;
+
   var gate = document.getElementById('audio-start-gate');
-  var started = false;
+  var button = document.getElementById('audio-start-button');
 
-  function begin(e) {
-    if (e) e.preventDefault();
-    if (started) return;
-    started = true;
+  if (button) button.disabled = true;
+  if (gate) gate.style.display = 'none';
 
-    // iPhone에서는 오디오 해제 Promise 완료를 기다리지 않고
-    // 탭 즉시 화면을 진행시켜 멈춤 현상을 방지합니다.
-    gate.classList.add('hidden');
-
-    try {
-      var unlockPromise = unlockChapter8Audio();
-      if (unlockPromise && typeof unlockPromise.catch === 'function') {
-        unlockPromise.catch(function(){});
-      }
-    } catch (err) {
-      console.error('오디오 활성화 실패:', err);
+  // BGM과 음성 권한은 같은 사용자 클릭 안에서 즉시 활성화
+  try {
+    var unlockPromise = unlockChapter8Audio();
+    if (unlockPromise && typeof unlockPromise.catch === 'function') {
+      unlockPromise.catch(function(error) {
+        console.error('오디오 활성화 실패:', error);
+      });
     }
-
-    setTimeout(run, 150);
+  } catch (error) {
+    console.error('오디오 활성화 오류:', error);
   }
 
-  gate.addEventListener('pointerup', begin, { once:true });
-  gate.addEventListener('touchend', begin, { once:true, passive:false });
-  gate.addEventListener('click', begin, { once:true });
+  // 오디오 활성화 결과를 기다리지 않고 본문은 즉시 시작
+  setTimeout(run, 100);
+}
+
+(function setupChapter8StartGate(){
+  var button = document.getElementById('audio-start-button');
+  if (!button) return;
+
+  // 실제 button의 click 이벤트만 사용해 iPhone 중복 터치 충돌 방지
+  button.onclick = beginChapter8;
 })();
 </script>
 
