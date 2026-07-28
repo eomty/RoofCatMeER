@@ -195,22 +195,67 @@ var isPlaying = false;
 var mixCtx = null;
 var voiceGainNode = null;
 var noiseGainNode = null;
-var audioGraphReady = false;     // 멈춘 시점 (초)    // audioCtx 기준 시작 시점
+var audioGraphReady = false;
 var audioEnded = false;
 var hintCount = 0;
 var puzzleSolved = false;
 
-// 오디오 미리 로드
+/* ── iPhone Safari 대응 오디오 초기화 ──
+   화면의 기존 audio 요소 2개를 한 번만 AudioContext에 연결하고,
+   사용자가 '도청 시작' 또는 '다시 듣기' 버튼을 누른 순간
+   AudioContext 활성화와 재생을 직접 실행합니다. */
+function getAudioElements() {
+  return {
+    voice: document.getElementById('voice-audio'),
+    noise: document.getElementById('noise-audio')
+  };
+}
 
+function setupAudioGraph() {
+  if (audioGraphReady) return true;
 
+  var els = getAudioElements();
+  if (!els.voice || !els.noise) return false;
 
+  var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return false;
+
+  mixCtx = new AudioContextClass();
+
+  var voiceSrc = mixCtx.createMediaElementSource(els.voice);
+  var noiseSrc = mixCtx.createMediaElementSource(els.noise);
+
+  voiceGainNode = mixCtx.createGain();
+  noiseGainNode = mixCtx.createGain();
+
+  voiceSrc.connect(voiceGainNode);
+  noiseSrc.connect(noiseGainNode);
+  voiceGainNode.connect(mixCtx.destination);
+  noiseGainNode.connect(mixCtx.destination);
+
+  voiceGainNode.gain.value = 0.03;
+  noiseGainNode.gain.value = 1.0;
+  audioGraphReady = true;
+  return true;
+}
+
+function prepareAudioForIOS() {
+  if (!setupAudioGraph()) {
+    return Promise.reject(new Error('오디오 그래프를 준비하지 못했습니다.'));
+  }
+
+  if (mixCtx.state === 'suspended') {
+    return mixCtx.resume();
+  }
+
+  return Promise.resolve();
+}
 
 // 슬라이더
 var slider = document.getElementById('freq-slider');
 slider.addEventListener('input', function() {
   var val = parseInt(this.value);
   if (!isPlaying) {
-    // 도청 시작 전엔 다이얼만 움직일 뿐, 정답 판정/신호 표시에 영향 없음
     document.getElementById('freq-num').textContent = (val / 10).toFixed(1);
     return;
   }
@@ -247,6 +292,7 @@ function updateSignal(val) {
     else if (s > 0.4) bar.style.background = '#c9a84c';
     else bar.style.background = 'rgba(255,255,255,.1)';
   }
+
   var status = document.getElementById('radio-status');
   if (s > 0.85) {
     status.className = 'radio-status clear';
@@ -266,75 +312,96 @@ function togglePlay() {
   if (!isPlaying) startPlay();
 }
 
-function setupAudioGraph() {
-  if (audioGraphReady) return;
-  var voice = document.getElementById('voice-audio');
-  var noise = document.getElementById('noise-audio');
-  if (!voice || !noise) throw new Error('오디오 요소를 찾지 못했습니다.');
-  mixCtx = new (window.AudioContext || window.webkitAudioContext)();
-  var voiceSrc = mixCtx.createMediaElementSource(voice);
-  var noiseSrc = mixCtx.createMediaElementSource(noise);
-  voiceGainNode = mixCtx.createGain();
-  noiseGainNode = mixCtx.createGain();
-  voiceSrc.connect(voiceGainNode);
-  voiceGainNode.connect(mixCtx.destination);
-  noiseSrc.connect(noiseGainNode);
-  noiseGainNode.connect(mixCtx.destination);
-  voiceGainNode.gain.value = 0.03;
-  noiseGainNode.gain.value = 1;
-  audioGraphReady = true;
-}
-
 function startPlay() {
   if (isPlaying) return;
-  var voice = document.getElementById('voice-audio');
-  var noise = document.getElementById('noise-audio');
-  if (!voice || !noise) { alert('도청 음원을 찾지 못했습니다.'); return; }
-  try { setupAudioGraph(); }
-  catch(e) { console.error('오디오 그래프 생성 실패:', e); alert('오디오 장치를 준비하지 못했습니다.'); return; }
-  voice.pause(); noise.pause();
-  voice.currentTime = 0; noise.currentTime = 0;
+
+  var els = getAudioElements();
+  if (!els.voice || !els.noise) {
+    alert('도청 음원을 찾지 못했습니다.');
+    return;
+  }
+
+  // 버튼 클릭 이벤트 안에서 재생 준비와 play()를 모두 시작합니다.
+  try {
+    setupAudioGraph();
+  } catch (e) {
+    console.error('오디오 그래프 생성 실패:', e);
+    alert('오디오 장치를 준비하지 못했습니다.');
+    return;
+  }
+
+  els.voice.pause();
+  els.noise.pause();
+  els.voice.currentTime = 0;
+  els.noise.currentTime = 0;
+
   updateMixedVolume(parseInt(slider.value, 10));
-  var resumePromise = mixCtx.resume();
-  var voicePromise = voice.play();
-  var noisePromise = noise.play();
+
+  var resumePromise = (mixCtx.state === 'suspended')
+    ? mixCtx.resume()
+    : Promise.resolve();
+
+  // iOS의 사용자 동작 권한을 유지하기 위해 같은 클릭 흐름에서 즉시 호출
+  var voicePromise = els.voice.play();
+  var noisePromise = els.noise.play();
+
   Promise.all([resumePromise, voicePromise, noisePromise])
-  .then(function() {
-    isPlaying = true; audioEnded = false;
-    document.getElementById('intercept-btn').style.display = 'none';
-    updateSignal(parseInt(slider.value, 10));
-    setTimeout(function(){ if (isPlaying) unlockAnswer(); }, 20000);
-  })
-  .catch(function(error) {
-    console.error('도청 재생 실패:', error);
-    voice.pause(); noise.pause();
-    isPlaying = false;
-    alert('오디오 재생에 실패했습니다. 도청 시작을 다시 눌러주세요.');
-  });
-  voice.onended = function() { audioEnded = true; unlockAnswer(); stopPlay(); };
+    .then(function() {
+      isPlaying = true;
+      audioEnded = false;
+      document.getElementById('intercept-btn').style.display = 'none';
+      updateSignal(parseInt(slider.value, 10));
+      setTimeout(function() {
+        if (isPlaying) unlockAnswer();
+      }, 20000);
+    })
+    .catch(function(error) {
+      console.error('도청 재생 실패:', error);
+      els.voice.pause();
+      els.noise.pause();
+      isPlaying = false;
+      document.getElementById('intercept-btn').style.display = 'flex';
+      alert('오디오 재생에 실패했습니다. 화면을 한 번 누른 뒤 도청 시작을 다시 눌러주세요.');
+    });
+
+  els.voice.onended = function() {
+    audioEnded = true;
+    unlockAnswer();
+    stopPlay();
+  };
 }
 
 function stopPlay() {
-  var voice = document.getElementById('voice-audio');
-  var noise = document.getElementById('noise-audio');
-  if (voice) { voice.pause(); voice.currentTime = 0; }
-  if (noise) { noise.pause(); noise.currentTime = 0; }
+  var els = getAudioElements();
+
+  if (els.voice) {
+    els.voice.pause();
+    els.voice.currentTime = 0;
+  }
+
+  if (els.noise) {
+    els.noise.pause();
+    els.noise.currentTime = 0;
+  }
+
   isPlaying = false;
   document.getElementById('intercept-btn').classList.remove('playing');
   document.getElementById('play-icon').textContent = '📻';
   document.getElementById('play-text').textContent = '도청 시작';
 }
 
-
 function updateMixedVolume(val) {
   if (!voiceGainNode || !noiseGainNode || !mixCtx) return;
+
   var diff = Math.abs(val - TARGET_FREQ);
   var vv, nv;
+
   if (diff <= 2)       { vv = 1.0;   nv = 0.001; }
   else if (diff <= 5)  { vv = 0.65;  nv = 0.25; }
   else if (diff <= 10) { vv = 0.3;   nv = 0.65; }
   else if (diff <= 20) { vv = 0.08;  nv = 0.9;  }
   else                 { vv = 0.005; nv = 1.0;  }
+
   var now = mixCtx.currentTime;
   voiceGainNode.gain.cancelScheduledValues(now);
   noiseGainNode.gain.cancelScheduledValues(now);
@@ -372,11 +439,22 @@ document.getElementById('answer').addEventListener('keydown', function(e){
 });
 
 function replayAudio(btn) {
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'default'; }
-  var voice = document.getElementById('voice-audio');
-  var noise = document.getElementById('noise-audio');
-  if (voice) { voice.pause(); voice.currentTime = 0; }
-  if (noise) { noise.pause(); noise.currentTime = 0; }
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+    btn.style.cursor = 'default';
+  }
+
+  var els = getAudioElements();
+  if (els.voice) {
+    els.voice.pause();
+    els.voice.currentTime = 0;
+  }
+  if (els.noise) {
+    els.noise.pause();
+    els.noise.currentTime = 0;
+  }
+
   isPlaying = false;
   startPlay();
 }

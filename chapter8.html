@@ -142,27 +142,13 @@ var S = [
 var canTap = true;
 
 
-var rcmAudioContext = null;
-
-function getRCMAudioContext() {
-  if (!rcmAudioContext) {
-    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return null;
-    rcmAudioContext = new AudioContextClass();
-  }
-  return rcmAudioContext;
-}
-
-function unlockRCMAudioContext() {
-  var ctx = getRCMAudioContext();
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume().catch(function(){});
-  }
-}
-
-document.addEventListener('touchstart', unlockRCMAudioContext, { once:true, passive:true });
-document.addEventListener('click', unlockRCMAudioContext, { once:true });
-
+/* ── iPhone Safari 대응 공용 음성 플레이어 ──
+   음성마다 새 Audio 객체를 만들지 않고 하나의 객체를 계속 재사용합니다.
+   각 대사는 사용자의 화면 탭 흐름에서 시작되므로 iOS 재생 제한에 안정적입니다. */
+var chapter8Audio = new Audio();
+chapter8Audio.preload = 'auto';
+chapter8Audio.playsInline = true;
+var chapter8AudioToken = 0;
 
 function playLineAudio(src, onEnd) {
   if (!src) {
@@ -170,49 +156,32 @@ function playLineAudio(src, onEnd) {
     return;
   }
 
-  var audio = new Audio(src);
-  var ctx = getRCMAudioContext();
+  var token = ++chapter8AudioToken;
   var done = false;
 
   function finish() {
-    if (done) return;
+    if (done || token !== chapter8AudioToken) return;
     done = true;
+    chapter8Audio.onended = null;
+    chapter8Audio.onerror = null;
     setTimeout(onEnd, 300);
   }
 
-  audio.addEventListener('ended', finish);
-  audio.onerror = finish;
+  chapter8Audio.pause();
+  chapter8Audio.onended = finish;
+  chapter8Audio.onerror = finish;
+  chapter8Audio.src = src;
+  chapter8Audio.currentTime = 0;
+  chapter8Audio.volume = 0.7;
+  chapter8Audio.load();
 
-  function startPlayback() {
-    audio.play().then(function() {
-      var checkDuration = setInterval(function() {
-        if (audio.duration && isFinite(audio.duration)) {
-          clearInterval(checkDuration);
-          setTimeout(finish, (audio.duration * 1000) + 300);
-        }
-      }, 100);
-    }).catch(finish);
+  var promise = chapter8Audio.play();
+  if (promise && typeof promise.catch === 'function') {
+    promise.catch(function(error) {
+      console.error('오디오 재생 실패:', src, error);
+      finish();
+    });
   }
-
-  if (ctx) {
-    try {
-      var sourceNode = ctx.createMediaElementSource(audio);
-      var gainNode = ctx.createGain();
-      gainNode.gain.value = 0.7;
-      sourceNode.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(startPlayback).catch(startPlayback);
-      } else {
-        startPlayback();
-      }
-      return;
-    } catch (e) {}
-  }
-
-  audio.volume = 0.7;
-  startPlayback();
 }
 
 

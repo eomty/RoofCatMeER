@@ -246,9 +246,46 @@ body{background:#000;font-family:'Noto Sans KR',sans-serif;min-height:100vh;min-
   width: 0;
   height: 0;
 }
+
+/* iPhone 오디오 시작 게이트 */
+#audio-start-gate{
+  position:fixed;inset:0;z-index:10001;
+  background:#000;
+  display:none;
+  align-items:center;justify-content:center;
+  padding:24px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#audio-start-gate.show{display:flex;}
+.audio-start-box{
+  width:100%;max-width:320px;
+  border:1px solid rgba(0,255,65,.45);
+  background:rgba(0,20,8,.96);
+  padding:22px 18px;
+  text-align:center;
+  font-family:'Share Tech Mono',monospace;
+  color:#00ff41;
+  box-shadow:0 0 24px rgba(0,255,65,.12);
+}
+.audio-start-title{
+  font-size:14px;letter-spacing:.08em;
+  margin-bottom:10px;
+}
+.audio-start-sub{
+  font-size:11px;line-height:1.8;
+  color:rgba(0,255,65,.65);
+}
+
 </style>
 </head>
 <body>
+<div id="audio-start-gate" aria-label="오디오 시작">
+  <div class="audio-start-box">
+    <div class="audio-start-title">ACCESS GRANTED</div>
+    <div class="audio-start-sub">화면을 탭해 페너의 휴대폰을 확인하세요.</div>
+  </div>
+</div>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <div id="phase-terminal">
   <div class="t-bar"><div class="t-dot" style="background:#ff5f57;"></div><div class="t-dot" style="background:#ffbd2e;"></div><div class="t-dot" style="background:#28ca41;"></div><span style="font-size:10px;color:#555;margin-left:8px;letter-spacing:.1em;">KUMI_SHELL v2.1</span></div>
@@ -512,12 +549,75 @@ function showScreen(name){
   });
 }
 
-function playAudio(src) {
+/* ── iPhone Safari 대응 공용 오디오 플레이어 ──
+   한 개의 Audio 객체를 계속 재사용합니다.
+   최초 사용자 탭에서 이 객체를 활성화한 뒤 모든 음성을 이어서 재생합니다. */
+var chapter7Audio = new Audio();
+chapter7Audio.preload = 'auto';
+chapter7Audio.playsInline = true;
+var chapter7AudioToken = 0;
+var chapter7AudioUnlocked = false;
+
+function unlockChapter7Audio() {
   return new Promise(function(resolve) {
-    var audio = new Audio(src);
-    audio.onended = resolve;
-    audio.onerror = resolve;
-    audio.play().catch(resolve);
+    // 매우 짧은 무음 WAV로 동일 Audio 객체의 재생 권한을 확보
+    var silentWav =
+      'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAAgICA';
+
+    chapter7AudioToken++;
+    chapter7Audio.pause();
+    chapter7Audio.src = silentWav;
+    chapter7Audio.currentTime = 0;
+    chapter7Audio.volume = 0.01;
+
+    var p = chapter7Audio.play();
+    if (p && typeof p.then === 'function') {
+      p.then(function() {
+        chapter7Audio.pause();
+        chapter7Audio.currentTime = 0;
+        chapter7AudioUnlocked = true;
+        resolve();
+      }).catch(function() {
+        // 일부 iOS 버전은 무음 데이터 재생을 거부할 수 있으나,
+        // 같은 사용자 탭 흐름에서 이후 실제 음원 재생을 시도할 수 있도록 진행
+        chapter7AudioUnlocked = true;
+        resolve();
+      });
+    } else {
+      chapter7AudioUnlocked = true;
+      resolve();
+    }
+  });
+}
+
+function playAudio(src, volume) {
+  return new Promise(function(resolve) {
+    var token = ++chapter7AudioToken;
+    var finished = false;
+
+    function finish() {
+      if (finished || token !== chapter7AudioToken) return;
+      finished = true;
+      chapter7Audio.onended = null;
+      chapter7Audio.onerror = null;
+      resolve();
+    }
+
+    chapter7Audio.pause();
+    chapter7Audio.onended = finish;
+    chapter7Audio.onerror = finish;
+    chapter7Audio.src = src;
+    chapter7Audio.currentTime = 0;
+    chapter7Audio.volume = (typeof volume === 'number') ? volume : 1.0;
+    chapter7Audio.load();
+
+    var p = chapter7Audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(function(error) {
+        console.error('오디오 재생 실패:', src, error);
+        finish();
+      });
+    }
   });
 }
 
@@ -539,7 +639,7 @@ async function run(){
   // 3. 수상하다 코멘트
   await wait(800);
   await showHacker('9월 1일 내용이 좀 이상한데?');
-  await playAudio('dubbing/ch7/sep1.mp3');
+  await playAudio('dubbing/ch7/sep1.mp3', 0.7);
   await showChoices(['Plan A가 뭘까?']);
   await showMe('Plan A가 뭘까?');
   clearMe();
@@ -593,8 +693,29 @@ async function run(){
 <script>
 var TC=document.getElementById('term-lines');
 [{t:'$ ./kumi_exploit --target PENNER_DEVICE',d:0},{t:'> initializing connection...',d:200,dim:1},{t:'> scanning port 8443... open',d:450},{t:'> scanning port 22... closed',d:600,red:0},{t:'> ARP spoofing 192.168.0.14',d:1000,yellow:1},{t:'> MAC: A4:C3:F0:88:2D:11  matched',d:1350},{t:'> injecting payload...',d:1600,yellow:1},{t:'> payload injected. OK',d:1950},{t:'$ cat /sys/lock/config',d:2200},{t:'  lock_type=PIN  digits=4',d:2400,dim:1},{t:'$ ./bruteforce.sh --mode=smart',d:2650},{t:'> loading PIN db [2.4M entries]',d:2900,dim:1},{t:'─────────────────────────────',d:3250,dim:1},{t:'> cracking digit [1/4]...',d:3500,yellow:1,pin:0},{t:'  hit: 1',d:3900,dim:1},{t:'> digit [1] = 1  ✓',d:4150,confirm:0},{t:'> cracking digit [2/4]...',d:4400,yellow:1,pin:1},{t:'  hit: 4',d:4750,dim:1},{t:'> digit [2] = 4  ✓',d:5000,confirm:1},{t:'> cracking digit [3/4]...',d:5250,yellow:1,pin:2},{t:'  hit: 9',d:5600,dim:1},{t:'> digit [3] = 9  ✓',d:5850,confirm:2},{t:'> cracking digit [4/4]...',d:6100,yellow:1,pin:3},{t:'  hit: 8',d:6450,dim:1},{t:'> digit [4] = 8  ✓',d:6700,confirm:3},{t:'─────────────────────────────',d:6950,dim:1},{t:'> PIN recovered: 1 4 9 8',d:7200},{t:'> kernel auth override: OK',d:7550}].forEach(function(l){setTimeout(function(){var d=document.createElement('div');d.className='tl'+(l.dim?' dim':'')+(l.yellow?' yellow':'')+(l.red?' red':'');d.textContent=l.t;TC.appendChild(d);TC.scrollTop=TC.scrollHeight;if(l.pin!==undefined){var p=document.getElementById('pd'+l.pin);p.style.background='#ffbd2e';p.style.borderColor='#ffbd2e';}if(l.confirm!==undefined){var p=document.getElementById('pd'+l.confirm);p.style.background='#00ff41';p.style.borderColor='#00ff41';p.style.boxShadow='0 0 8px #00ff41';}},l.d);});
-setTimeout(function(){document.getElementById('access-granted').classList.add('show');},7900);
-setTimeout(function(){document.getElementById('phase-terminal').classList.add('hidden');run();},9500);
+setTimeout(function(){
+  document.getElementById('access-granted').classList.add('show');
+},7900);
+
+setTimeout(function(){
+  document.getElementById('phase-terminal').classList.add('hidden');
+
+  var gate = document.getElementById('audio-start-gate');
+  gate.classList.add('show');
+
+  function beginChapter7() {
+    gate.removeEventListener('click', beginChapter7);
+    gate.removeEventListener('touchend', beginChapter7);
+
+    unlockChapter7Audio().then(function() {
+      gate.classList.remove('show');
+      run();
+    });
+  }
+
+  gate.addEventListener('click', beginChapter7, { once:true });
+  gate.addEventListener('touchend', beginChapter7, { once:true, passive:false });
+},9500);
 </script>
 
 </body>

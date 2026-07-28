@@ -145,9 +145,46 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
 #penalty-toast{position:fixed;top:38px;left:50%;transform:translateX(-50%) translateY(-10px);background:#8b1a1a;color:#f0e8d8;font-family:monospace;font-size:11px;font-weight:700;padding:5px 14px;border-radius:3px;letter-spacing:.05em;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;}
 #penalty-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 body{padding-top:64px !important;}
+
+/* iPhone 오디오 시작 게이트 */
+#audio-start-gate{
+  position:fixed;inset:0;z-index:10001;
+  background:rgba(10,10,18,.98);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#audio-start-gate.hidden{display:none;}
+.audio-start-box{
+  width:100%;max-width:320px;
+  padding:22px 18px;
+  border:1px solid rgba(168,85,247,.38);
+  border-radius:10px;
+  background:#11111c;
+  color:#e8e0d0;
+  text-align:center;
+  box-shadow:0 0 24px rgba(107,33,168,.16);
+}
+.audio-start-title{
+  font-family:'Nanum Myeongjo',serif;
+  font-size:16px;letter-spacing:.06em;
+  margin-bottom:9px;
+}
+.audio-start-sub{
+  font-size:12px;line-height:1.7;
+  color:rgba(255,255,255,.48);
+}
+
 </style>
 </head>
 <body>
+<div id="audio-start-gate">
+  <div class="audio-start-box">
+    <div class="audio-start-title">최종 담판</div>
+    <div class="audio-start-sub">화면을 탭해 시작하세요.</div>
+  </div>
+</div>
 <script src="debug-config.js"></script>
 <script src="rcm-common.js"></script>
 <script src="flow-guard.js"></script>
@@ -207,13 +244,7 @@ function flashPenalty(sec){
 <script>
 var bgm = document.getElementById('bgm');
 bgm.volume = 0.15;
-bgm.play().catch(function(){
-  // 모바일 브라우저는 자동재생을 막는 경우가 있어 첫 탭에서 재생 시도
-  document.body.addEventListener('click', function once(){
-    bgm.play().catch(function(){});
-    document.body.removeEventListener('click', once);
-  });
-});
+bgm.playsInline = true;
 </script>
 <script>
 var evidenceEls = {
@@ -231,66 +262,69 @@ var choicesDiv = document.getElementById('choices');
 var promptText = document.getElementById('prompt-text');
 
 
-var rcmAudioContext = null;
+/* ── iPhone Safari 대응 공용 음성 플레이어 ──
+   최초 화면 탭에서 재생 권한을 확보하고,
+   이후 모든 대사는 하나의 Audio 객체를 계속 재사용합니다. */
+var chapter8VoiceAudio = new Audio();
+chapter8VoiceAudio.preload = 'auto';
+chapter8VoiceAudio.playsInline = true;
+var chapter8VoiceToken = 0;
 
-function getRCMAudioContext() {
-  if (!rcmAudioContext) {
-    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return null;
-    rcmAudioContext = new AudioContextClass();
+function unlockChapter8Audio() {
+  var silentWav =
+    'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAAAAgICA';
+
+  chapter8VoiceToken++;
+  chapter8VoiceAudio.pause();
+  chapter8VoiceAudio.src = silentWav;
+  chapter8VoiceAudio.currentTime = 0;
+  chapter8VoiceAudio.volume = 0.01;
+
+  var voicePromise = chapter8VoiceAudio.play();
+  var bgmPromise = bgm.play();
+
+  var tasks = [];
+  if (voicePromise && typeof voicePromise.catch === 'function') {
+    tasks.push(voicePromise.catch(function(){}));
   }
-  return rcmAudioContext;
-}
-
-function unlockRCMAudioContext() {
-  var ctx = getRCMAudioContext();
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume().catch(function(){});
+  if (bgmPromise && typeof bgmPromise.catch === 'function') {
+    tasks.push(bgmPromise.catch(function(){}));
   }
+
+  return Promise.all(tasks).then(function() {
+    chapter8VoiceAudio.pause();
+    chapter8VoiceAudio.currentTime = 0;
+  });
 }
-
-document.addEventListener('touchstart', unlockRCMAudioContext, { once:true, passive:true });
-document.addEventListener('click', unlockRCMAudioContext, { once:true });
-
 
 function playAudio(src) {
   return new Promise(function(resolve) {
-    var audio = new Audio(src);
-    var ctx = getRCMAudioContext();
+    var token = ++chapter8VoiceToken;
     var finished = false;
 
     function finish() {
-      if (finished) return;
+      if (finished || token !== chapter8VoiceToken) return;
       finished = true;
+      chapter8VoiceAudio.onended = null;
+      chapter8VoiceAudio.onerror = null;
       resolve();
     }
 
-    audio.onended = finish;
-    audio.onerror = finish;
+    chapter8VoiceAudio.pause();
+    chapter8VoiceAudio.onended = finish;
+    chapter8VoiceAudio.onerror = finish;
+    chapter8VoiceAudio.src = src;
+    chapter8VoiceAudio.currentTime = 0;
+    chapter8VoiceAudio.volume = 0.7;
+    chapter8VoiceAudio.load();
 
-    function startPlayback() {
-      audio.play().catch(finish);
+    var promise = chapter8VoiceAudio.play();
+    if (promise && typeof promise.catch === 'function') {
+      promise.catch(function(error) {
+        console.error('오디오 재생 실패:', src, error);
+        finish();
+      });
     }
-
-    if (ctx) {
-      try {
-        var sourceNode = ctx.createMediaElementSource(audio);
-        var gainNode = ctx.createGain();
-        gainNode.gain.value = 0.7;
-        sourceNode.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        if (ctx.state === 'suspended') {
-          ctx.resume().then(startPlayback).catch(startPlayback);
-        } else {
-          startPlayback();
-        }
-        return;
-      } catch (e) {}
-    }
-
-    audio.volume = 0.7;
-    startPlayback();
   });
 }
 
@@ -581,7 +615,26 @@ function goEnding(){
   location.href = 'ending.html';
 }
 
-setTimeout(run, 600);
+(function setupChapter8StartGate(){
+  var gate = document.getElementById('audio-start-gate');
+  var started = false;
+
+  function begin() {
+    if (started) return;
+    started = true;
+
+    unlockChapter8Audio().then(function() {
+      gate.classList.add('hidden');
+      setTimeout(run, 150);
+    });
+  }
+
+  gate.addEventListener('click', begin, { once:true });
+  gate.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    begin();
+  }, { once:true, passive:false });
+})();
 </script>
 
 </body>

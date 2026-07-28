@@ -183,27 +183,66 @@ var TARGET = '01093921678';
 var dialNum = '';
 var hintCount = 0;
 
-/* ── 음성 재생 헬퍼 ── */
-var _currentAudio = null;
-function playSequence(files, onEnd) {
-  if (!files.length) { if (onEnd) onEnd(); return; }
-  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
-  var audio = new Audio(files[0]);
-  _currentAudio = audio;
-  var next = files.slice(1);
-  var advanced = false;
-  function advance() {
-    if (advanced) return;
-    advanced = true;
-    _currentAudio = null;
-    playSequence(next, onEnd);
-  }
-  audio.onended = advance;
-  audio.onerror = advance;
-  audio.play().catch(advance);
-}
+/* ── iPhone 대응 음성 재생 헬퍼 ──
+   하나의 Audio 객체를 연결음과 모든 안내 음성에 계속 재사용합니다.
+   전화 버튼을 누른 사용자 동작 안에서 최초 재생을 시작하므로
+   iOS Safari의 자동재생 제한에 가장 안정적으로 대응합니다. */
+var _callAudio = new Audio();
+_callAudio.preload = 'auto';
+var _audioToken = 0;
+
 function stopAudio() {
-  if (_currentAudio) { _currentAudio.pause(); _currentAudio = null; }
+  _audioToken++;
+  _callAudio.pause();
+  _callAudio.removeAttribute('src');
+  _callAudio.load();
+  _callAudio.onended = null;
+  _callAudio.onerror = null;
+}
+
+function playOne(src, volume, onEnd) {
+  var token = ++_audioToken;
+  var finished = false;
+
+  function finish() {
+    if (finished || token !== _audioToken) return;
+    finished = true;
+    _callAudio.onended = null;
+    _callAudio.onerror = null;
+    if (onEnd) onEnd();
+  }
+
+  _callAudio.pause();
+  _callAudio.onended = finish;
+  _callAudio.onerror = finish;
+  _callAudio.src = src;
+  _callAudio.currentTime = 0;
+  _callAudio.volume = (typeof volume === 'number') ? volume : 0.7;
+  _callAudio.load();
+
+  var promise = _callAudio.play();
+  if (promise && typeof promise.catch === 'function') {
+    promise.catch(function(err) {
+      console.error('오디오 재생 실패:', src, err);
+      finish();
+    });
+  }
+}
+
+function playSequence(files, onEnd) {
+  if (!files || !files.length) {
+    if (onEnd) onEnd();
+    return;
+  }
+
+  playOne(files[0], 0.7, function() {
+    playSequence(files.slice(1), onEnd);
+  });
+}
+
+/* 전화 버튼을 누른 순간 동일 Audio 객체를 직접 재생해 iOS 재생 권한 확보 */
+function unlockAndPlayCalling() {
+  playOne('dubbing/ef/ef_calling.mp3', 0.6);
 }
 
 function showHint() {
@@ -313,23 +352,19 @@ function startValidCall() {
   resetCallScreen();
   document.getElementById('call-screen').style.display = 'flex';
 
-  // 연결음 재생
-  var callingAudio = new Audio('dubbing/ef/ef_calling.mp3');
-  callingAudio.volume = 0.6;
-  callingAudio.play().catch(function(){});
+  // makeCall()의 직접 클릭 흐름 안에서 동일 Audio 객체로 연결음을 시작합니다.
+  unlockAndPlayCalling();
 
-  // 3초 후 연결
+  // 3초 후 같은 Audio 객체를 그대로 재사용해 첫 안내 음성을 재생합니다.
   setTimeout(function() {
-    callingAudio.pause();
+    _callAudio.pause();
     document.getElementById('call-sub').textContent = '통화 중';
     var msg = document.getElementById('call-msg');
     msg.style.display = 'block';
 
-    // 텍스트0 + 음성파일0 동시 시작
     showThenPlay(msg, '현재 모든 상담원이 통화 중입니다.\n잠시만 기다려 주세요.',
       ['dubbing/ch3/음성파일0.mp3'], function() {
 
-      // 음성파일0 끝 → 3초 대기 → 텍스트1 + 음성파일1→2 동시
       setTimeout(function() {
         showThenPlay(msg, '신뢰를 기반으로 운영되는 캣력사무소입니다.\n중계자의 이름을 말해주세요.',
           ['dubbing/ch3/음성파일1.mp3', 'dubbing/ch3/음성파일2.mp3'], function() {
