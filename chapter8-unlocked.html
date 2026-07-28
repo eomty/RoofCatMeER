@@ -619,21 +619,30 @@ function goEnding(){
   var gate = document.getElementById('audio-start-gate');
   var started = false;
 
-  function begin() {
+  function begin(e) {
+    if (e) e.preventDefault();
     if (started) return;
     started = true;
 
-    unlockChapter8Audio().then(function() {
-      gate.classList.add('hidden');
-      setTimeout(run, 150);
-    });
+    // iPhone에서는 오디오 해제 Promise 완료를 기다리지 않고
+    // 탭 즉시 화면을 진행시켜 멈춤 현상을 방지합니다.
+    gate.classList.add('hidden');
+
+    try {
+      var unlockPromise = unlockChapter8Audio();
+      if (unlockPromise && typeof unlockPromise.catch === 'function') {
+        unlockPromise.catch(function(){});
+      }
+    } catch (err) {
+      console.error('오디오 활성화 실패:', err);
+    }
+
+    setTimeout(run, 150);
   }
 
+  gate.addEventListener('pointerup', begin, { once:true });
+  gate.addEventListener('touchend', begin, { once:true, passive:false });
   gate.addEventListener('click', begin, { once:true });
-  gate.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    begin();
-  }, { once:true, passive:false });
 })();
 </script>
 

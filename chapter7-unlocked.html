@@ -703,18 +703,32 @@ setTimeout(function(){
   var gate = document.getElementById('audio-start-gate');
   gate.classList.add('show');
 
-  function beginChapter7() {
-    gate.removeEventListener('click', beginChapter7);
-    gate.removeEventListener('touchend', beginChapter7);
+  var started = false;
 
-    unlockChapter7Audio().then(function() {
-      gate.classList.remove('show');
-      run();
-    });
+  function beginChapter7(e) {
+    if (e) e.preventDefault();
+    if (started) return;
+    started = true;
+
+    // iPhone에서는 오디오 해제 Promise가 끝날 때까지 기다리면
+    // 화면이 멈출 수 있으므로, 탭 즉시 화면을 넘기고 오디오는 동시에 해제합니다.
+    gate.classList.remove('show');
+
+    try {
+      var unlockPromise = unlockChapter7Audio();
+      if (unlockPromise && typeof unlockPromise.catch === 'function') {
+        unlockPromise.catch(function(){});
+      }
+    } catch (err) {
+      console.error('오디오 활성화 실패:', err);
+    }
+
+    run();
   }
 
-  gate.addEventListener('click', beginChapter7, { once:true });
+  gate.addEventListener('pointerup', beginChapter7, { once:true });
   gate.addEventListener('touchend', beginChapter7, { once:true, passive:false });
+  gate.addEventListener('click', beginChapter7, { once:true });
 },9500);
 </script>
 
