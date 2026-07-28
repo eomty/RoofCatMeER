@@ -512,73 +512,21 @@ function showScreen(name){
   });
 }
 
-var audioContext = null;
-
-function getAudioContext() {
-  if (!audioContext) {
-    var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return null;
-    audioContext = new AudioContextClass();
-  }
-  return audioContext;
-}
-
-// iOS Safari에서 첫 사용자 입력 시 오디오 컨텍스트를 미리 활성화
-function unlockAudioContext() {
-  var ctx = getAudioContext();
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume().catch(function(){});
-  }
-}
-
-document.addEventListener('touchstart', unlockAudioContext, { once: true, passive: true });
-document.addEventListener('click', unlockAudioContext, { once: true });
-
 function playAudio(src, volume) {
   return new Promise(function(resolve) {
     var audio = new Audio(src);
-    var ctx = getAudioContext();
-    var finished = false;
 
-    function finish() {
-      if (finished) return;
-      finished = true;
-      resolve();
+    // 기본값은 항상 원본 음량(100%)
+    audio.volume = 1.0;
+
+    // 볼륨 인자가 전달된 파일만 개별 조절
+    if (typeof volume === 'number') {
+      audio.volume = volume;
     }
 
-    audio.onended = finish;
-    audio.onerror = finish;
-
-    // Web Audio API를 지원하면 GainNode로 실제 출력 음량 조절
-    if (ctx) {
-      try {
-        var sourceNode = ctx.createMediaElementSource(audio);
-        var gainNode = ctx.createGain();
-
-        gainNode.gain.value =
-          (typeof volume === 'number') ? volume : 1.0;
-
-        sourceNode.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        var startPlayback = function() {
-          audio.play().catch(finish);
-        };
-
-        if (ctx.state === 'suspended') {
-          ctx.resume().then(startPlayback).catch(startPlayback);
-        } else {
-          startPlayback();
-        }
-        return;
-      } catch (e) {
-        // 예외 발생 시 일반 재생 방식으로 안전하게 대체
-      }
-    }
-
-    // Web Audio API 미지원 환경의 대체 방식
-    audio.volume = (typeof volume === 'number') ? volume : 1.0;
-    audio.play().catch(finish);
+    audio.onended = resolve;
+    audio.onerror = resolve;
+    audio.play().catch(resolve);
   });
 }
 
@@ -600,7 +548,7 @@ async function run(){
   // 3. 수상하다 코멘트
   await wait(800);
   await showHacker('9월 1일 내용이 좀 이상한데?');
-  await playAudio('dubbing/ch7/sep1.mp3', 0.65);
+  await playAudio('dubbing/ch7/sep1.mp3', 0.8);
   await showChoices(['Plan A가 뭘까?']);
   await showMe('Plan A가 뭘까?');
   clearMe();
