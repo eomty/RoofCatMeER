@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{background:#0a0a0a;font-family:'Noto Sans KR',sans-serif;}
-body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;padding-top:36px;}
+body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;}
 
 #app{
   width:100%;max-width:420px;
@@ -135,27 +135,13 @@ body{min-height:100vh;min-height:100svh;display:flex;justify-content:center;padd
   cursor:pointer;display:none;
   letter-spacing:.04em;
 }
-
-<style>
-#timer-bar{position:fixed;top:0;left:0;right:0;z-index:101;background:#12100c;border-bottom:1px solid rgba(201,168,76,.2);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;max-width:420px;margin:0 auto;}
-#timer-bar .rec-dot{width:6px;height:6px;border-radius:50%;background:#e24b4a;margin-right:5px;display:inline-block;animation:pulse-rec 1.4s ease-in-out infinite;}
-@keyframes pulse-rec{0%,100%{opacity:1;}50%{opacity:.3;}}
-#timer-bar .rec-label{font-size:9px;color:#c9a84c;letter-spacing:.12em;font-family:monospace;vertical-align:1px;}
-#timer-bar .clock{font-size:14px;color:#e8e4d8;font-family:monospace;font-weight:700;letter-spacing:.02em;}
-#timer-bar .chip-label{font-size:9px;color:#776e5e;font-family:monospace;letter-spacing:.05em;}
-</style></style>
+</style>
 </head>
 <body>
 <script src="debug-config.js"></script>
 <script src="rcm-common.js"></script>
 <script src="flow-guard.js"></script>
 <script src="debug-panel.js"></script>
-<script src="timer.js"></script>
-<script>
-RCMTimer.enterChapter('chapter8');
-function refreshClock(){ document.getElementById('elapsed-clock').textContent = RCMTimer.formatTime(RCMTimer.getElapsedSec()); }
-setInterval(refreshClock, 1000); refreshClock();
-</script>
 
 <audio id="bgm" src="background.mp3" loop autoplay preload="auto"></audio>
 
