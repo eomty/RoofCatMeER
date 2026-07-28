@@ -512,10 +512,9 @@ function showScreen(name){
   });
 }
 
-function playAudio(src, volume) {
+function playAudio(src) {
   return new Promise(function(resolve) {
     var audio = new Audio(src);
-    if (volume !== undefined) audio.volume = volume;
     audio.onended = resolve;
     audio.onerror = resolve;
     audio.play().catch(resolve);
@@ -540,7 +539,7 @@ async function run(){
   // 3. 수상하다 코멘트
   await wait(800);
   await showHacker('9월 1일 내용이 좀 이상한데?');
-  await playAudio('dubbing/ch7/sep1.mp3', 0.8);
+  await playAudio('dubbing/ch7/sep1.mp3');
   await showChoices(['Plan A가 뭘까?']);
   await showMe('Plan A가 뭘까?');
   clearMe();
