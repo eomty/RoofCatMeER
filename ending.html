@@ -110,6 +110,7 @@ body::after{
 <body>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
+<script src="timer.js"></script>
 
 <div class="scene" id="scene"></div>
 
@@ -184,6 +185,7 @@ setTimeout(function(){
 }, lastDelay);
 
 function goResult(){
+  if(window.RCMTimer) RCMTimer.stopTimer();
   if(window.RCMFlow) RCMFlow.markComplete();
   location.href = 'result.html';
 }

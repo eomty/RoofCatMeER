@@ -7,7 +7,7 @@
   var HINT3_UNLOCK_DELAY = 120; // 챕터 입장 후 2분
   var HINT_COSTS = [60, 120, 210]; // 힌트1,2,3 페널티(초): 1분/2분/3분30초
   var WRONG_ANSWER_PENALTY = 5; // 오답 1회당 페널티(초)
-  var CHAPTER_ORDER = ['chapter1','chapter2','chapter3','chapter4','chapter5','chapter6','chapter7'];
+  var CHAPTER_ORDER = ['chapter1','chapter2','chapter3','chapter4','chapter5','chapter6','chapter7','chapter8'];
 
   function loadState(){
     try {
