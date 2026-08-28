@@ -7,292 +7,362 @@
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#080808;min-height:100vh;overflow:hidden;}
-body{font-family:'Nanum Myeongjo',serif;color:#fff;}
+html,body{background:#080808;min-height:100vh;overflow:hidden;font-family:'Nanum Myeongjo',serif;}
 
-/* 탭 힌트 */
-#tap-hint{
-  position:fixed;bottom:32px;left:0;right:0;
-  text-align:center;font-size:11px;letter-spacing:.12em;
-  color:rgba(255,255,255,.3);font-family:monospace;
-  animation:pulse-hint 2s ease-in-out infinite;
-  z-index:100;pointer-events:none;
+#bg{position:fixed;inset:0;background:#080808;display:flex;align-items:center;justify-content:center;}
+
+/* ── 신문 래퍼 ── */
+#newspaper-wrap{
+  position:relative;
+  width:min(360px,92vw);
+  transform:translateY(-110vh) rotate(-6deg);
 }
-@keyframes pulse-hint{0%,100%{opacity:.3;}50%{opacity:.8;}}
+@keyframes drop{
+  0%  {transform:translateY(-110vh) rotate(-6deg);}
+  68% {transform:translateY(10px) rotate(-1.5deg);}
+  80% {transform:translateY(-12px) rotate(-2.5deg);}
+  90% {transform:translateY(4px) rotate(-1deg);}
+  96% {transform:translateY(-3px) rotate(-1.5deg);}
+  100%{transform:translateY(0) rotate(-2deg);}
+}
+#newspaper-wrap.drop{animation:drop .9s cubic-bezier(.23,1,.32,1) forwards;}
 
-/* 카드 컨테이너 */
-#card-wrap{
-  position:fixed;inset:0;display:flex;
+@keyframes bg-shake{
+  0%,100%{transform:translate(0,0);}
+  20%{transform:translate(-5px,3px);}
+  40%{transform:translate(5px,-3px);}
+  60%{transform:translate(-3px,2px);}
+  80%{transform:translate(3px,-1px);}
+}
+#bg.shake{animation:bg-shake .35s ease;}
+
+/* ── 신문 본체 ── */
+#newspaper{
+  background:#f2e8c8;
+  border-radius:3px;
+  box-shadow:0 24px 70px rgba(0,0,0,.95),0 6px 16px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.06);
+  position:relative;
+  perspective:1200px;
+  overflow:hidden;
+  min-height:420px;
+}
+#newspaper::after{
+  content:'';position:absolute;top:50%;left:0;right:0;
+  height:2px;background:rgba(0,0,0,.1);
+  box-shadow:0 1px 0 rgba(255,255,255,.25);
+  pointer-events:none;z-index:50;
+}
+
+/* ── 페이지 스택 ── */
+.np-page{
+  position:absolute;inset:0;
+  background:#f2e8c8;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  display:none;
+}
+.np-page.active{display:block;z-index:2;}
+.np-page.below {display:block;z-index:1;}
+.np-page.flip-out-fwd{
+  display:block;z-index:3;
+  transform-origin:left center;
+  animation:flipOutFwd .5s cubic-bezier(.4,0,.6,1) forwards;
+}
+.np-page.flip-in-fwd{
+  display:block;z-index:2;
+  transform-origin:left center;
+  animation:flipInFwd .5s cubic-bezier(.2,0,.4,1) forwards;
+}
+.np-page.flip-out-rev{
+  display:block;z-index:3;
+  transform-origin:right center;
+  animation:flipOutRev .5s cubic-bezier(.4,0,.6,1) forwards;
+}
+.np-page.flip-in-rev{
+  display:block;z-index:2;
+  transform-origin:right center;
+  animation:flipInRev .5s cubic-bezier(.2,0,.4,1) forwards;
+}
+
+@keyframes flipOutFwd{
+  0%  {transform:rotateY(0deg);filter:brightness(1);}
+  35% {transform:rotateY(-10deg);filter:brightness(.82);box-shadow:8px 0 24px rgba(0,0,0,.35);}
+  100%{transform:rotateY(-90deg);filter:brightness(.5);}
+}
+@keyframes flipInFwd{
+  0%  {transform:rotateY(18deg);filter:brightness(.85);}
+  100%{transform:rotateY(0deg);filter:brightness(1);}
+}
+@keyframes flipOutRev{
+  0%  {transform:rotateY(0deg);filter:brightness(1);}
+  35% {transform:rotateY(10deg);filter:brightness(.82);box-shadow:-8px 0 24px rgba(0,0,0,.35);}
+  100%{transform:rotateY(90deg);filter:brightness(.5);}
+}
+@keyframes flipInRev{
+  0%  {transform:rotateY(-18deg);filter:brightness(.85);}
+  100%{transform:rotateY(0deg);filter:brightness(1);}
+}
+
+/* ── 신문 내용 공통 ── */
+.paper-inner{padding:16px 18px 22px;}
+.masthead{text-align:center;border-bottom:3px double rgba(0,0,0,.35);padding-bottom:10px;margin-bottom:10px;}
+.masthead-name{font-size:25px;font-weight:800;color:#1a1410;letter-spacing:.05em;line-height:1.1;}
+.masthead-name.sm{font-size:18px;}
+.masthead-sub{font-size:8px;letter-spacing:.18em;color:rgba(0,0,0,.45);margin-top:3px;font-family:'Noto Sans KR',sans-serif;}
+.breaking-bar{background:#8b1a1a;color:#f2e8c8;text-align:center;font-size:9px;letter-spacing:.2em;padding:4px 0;margin-bottom:12px;font-family:'Noto Sans KR',sans-serif;font-weight:700;}
+.headline-xl{font-size:24px;font-weight:800;color:#1a1410;line-height:1.3;margin-bottom:6px;border-bottom:1.5px solid rgba(0,0,0,.2);padding-bottom:8px;}
+.headline-lg{font-size:20px;font-weight:800;color:#1a1410;line-height:1.3;margin-bottom:8px;border-bottom:1.5px solid rgba(0,0,0,.2);padding-bottom:8px;}
+.headline-md{font-size:14px;font-weight:700;color:#1a1410;line-height:1.5;margin-bottom:8px;}
+.article{font-size:11px;line-height:1.9;color:rgba(0,0,0,.65);font-family:'Noto Sans KR',sans-serif;font-weight:300;margin-bottom:10px;}
+.article-quote{font-size:12px;line-height:1.9;color:rgba(0,0,0,.7);font-family:'Nanum Myeongjo',serif;border-left:2px solid rgba(0,0,0,.2);padding-left:10px;margin:10px 0;}
+.article-src{font-size:10px;color:rgba(0,0,0,.35);font-family:'Noto Sans KR',sans-serif;}
+.divider-line{border:none;border-top:1px solid rgba(0,0,0,.18);margin:10px 0;}
+.mystery-box{border:1px solid rgba(0,0,0,.25);padding:12px 14px;background:rgba(0,0,0,.04);}
+.mystery-label{font-size:8px;letter-spacing:.2em;color:rgba(0,0,0,.4);font-family:'Noto Sans KR',sans-serif;margin-bottom:6px;}
+.mystery-title{font-size:15px;font-weight:700;color:#1a1410;margin-bottom:6px;}
+.mystery-text{font-size:11px;line-height:1.9;color:rgba(0,0,0,.6);font-family:'Noto Sans KR',sans-serif;}
+.mystery-close{font-size:13px;color:rgba(0,0,0,.5);font-style:italic;text-align:center;margin-top:12px;}
+
+/* ── 버튼 페이지 ── */
+#btn-page{
+  position:absolute;inset:0;
+  display:none;z-index:1;
+  background:#f2e8c8;
   align-items:center;justify-content:center;
-  padding:24px;
+  flex-direction:column;padding:32px 24px;
 }
-
-/* 카드 공통 */
-.e-card{
-  position:absolute;width:100%;max-width:360px;
-  opacity:0;transform:translateY(40px);
-  transition:opacity .7s ease, transform .7s ease;
-  pointer-events:none;
+#btn-page.active,#btn-page.below{display:flex;}
+#end-btn-wrap{width:100%;transform:translateY(-120vh);opacity:0;}
+@keyframes btn-drop{
+  0%  {transform:translateY(-120vh);opacity:1;}
+  65% {transform:translateY(10px);}
+  78% {transform:translateY(-12px);}
+  88% {transform:translateY(5px);}
+  95% {transform:translateY(-3px);}
+  100%{transform:translateY(0);}
 }
-.e-card.show{opacity:1;transform:translateY(0);pointer-events:all;}
-.e-card.hide{opacity:0;transform:translateY(-30px);}
-
-/* 이미지 카드 */
-.img-card{
-  border-radius:12px;overflow:hidden;
-  background:#0e0e0e;
-  box-shadow:0 20px 60px rgba(0,0,0,.8);
-}
-.img-card .card-img{
-  width:100%;aspect-ratio:3/2;
-  object-fit:cover;object-position:top;
-  filter:grayscale(30%) brightness(.85);
-}
-.img-card .card-body{
-  padding:20px 22px 24px;
-  border-top:1px solid rgba(255,255,255,.07);
-}
-.img-card .card-tag{
-  font-size:9px;letter-spacing:.3em;
-  color:rgba(201,168,76,.7);font-family:monospace;
-  margin-bottom:8px;
-}
-.img-card .card-title{
-  font-size:22px;font-weight:800;
-  color:#f0e8d8;margin-bottom:6px;
-  line-height:1.3;
-}
-.img-card .card-desc{
-  font-size:13px;line-height:1.9;
-  color:rgba(255,255,255,.5);
-}
-
-/* 텍스트 카드 */
-.txt-card{
-  border-radius:12px;padding:32px 28px;
-  background:#0e0e0e;
-  box-shadow:0 20px 60px rgba(0,0,0,.8);
-  border:1px solid rgba(255,255,255,.06);
-}
-.txt-card.dark-red{
-  border-color:rgba(139,26,26,.3);
-  background:#0a0606;
-}
-.txt-card .card-tag{
-  font-size:9px;letter-spacing:.3em;
-  color:rgba(201,168,76,.7);font-family:monospace;
-  margin-bottom:14px;
-}
-.txt-card .card-title{
-  font-size:20px;font-weight:800;
-  color:#f0e8d8;margin-bottom:14px;
-  line-height:1.4;
-}
-.txt-card .card-desc{
-  font-size:13.5px;line-height:2;
-  color:rgba(255,255,255,.55);
-}
-.txt-card .card-desc em{
-  color:rgba(201,168,76,.8);
-  font-style:normal;font-weight:700;
-}
-
-/* 미스터리 카드 */
-.mystery-card{
-  border-radius:12px;padding:32px 28px;
-  background:#080808;
-  box-shadow:0 20px 60px rgba(0,0,0,.9);
-  border:1px solid rgba(139,26,26,.2);
-  text-align:center;
-}
-.mystery-card .card-tag{
-  font-size:9px;letter-spacing:.3em;
-  color:rgba(139,26,26,.7);font-family:monospace;
-  margin-bottom:16px;
-}
-.mystery-card .card-title{
-  font-size:24px;font-weight:800;
-  color:rgba(255,255,255,.9);
-  margin-bottom:20px;
-  letter-spacing:.05em;
-}
-.mystery-card .card-desc{
-  font-size:13px;line-height:2.2;
-  color:rgba(255,255,255,.35);
-}
-.mystery-card .card-close{
-  margin-top:20px;
-  font-size:14px;line-height:2;
-  color:rgba(255,255,255,.5);
-  font-style:italic;
-}
-
-/* 결과 카드 */
-.result-card{
-  border-radius:12px;padding:32px 28px;
-  background:#0e0e0e;
-  box-shadow:0 20px 60px rgba(0,0,0,.8);
-  border:1px solid rgba(201,168,76,.15);
-  text-align:center;
-}
-.result-card .card-tag{
-  font-size:9px;letter-spacing:.3em;
-  color:rgba(201,168,76,.6);font-family:monospace;
-  margin-bottom:12px;
-}
-.result-card .card-title{
-  font-size:20px;font-weight:800;
-  color:#c9a84c;margin-bottom:8px;
-}
-.result-card .card-desc{
-  font-size:13px;color:rgba(255,255,255,.4);
-  margin-bottom:24px;line-height:1.8;
-}
+#end-btn-wrap.drop{animation:btn-drop .7s cubic-bezier(.23,1,.32,1) forwards;}
+.btn-label{font-size:9px;letter-spacing:.25em;color:rgba(26,20,16,.4);font-family:monospace;text-align:center;margin-bottom:10px;}
 #end-btn{
-  width:100%;padding:15px;
-  background:#8b1a1a;color:#f0e8d8;
+  width:100%;padding:18px;
+  background:#1a1410;color:#f2e8c8;
   font-family:'Nanum Myeongjo',serif;
-  font-size:15px;letter-spacing:.08em;
-  border:none;border-radius:6px;cursor:pointer;
+  font-size:16px;letter-spacing:.08em;
+  border:none;cursor:pointer;border-radius:3px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
 }
 
-/* 진행 도트 */
-#progress-dots{
-  position:fixed;bottom:60px;left:0;right:0;
-  display:flex;justify-content:center;gap:6px;
-  z-index:100;pointer-events:none;
+/* ── 네비 ── */
+#page-nav{
+  position:fixed;bottom:24px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  z-index:100;pointer-events:none;opacity:0;transition:opacity .5s;
 }
-.dot{
-  width:5px;height:5px;border-radius:50%;
-  background:rgba(255,255,255,.2);
-  transition:background .3s;
+#page-nav.show{opacity:1;}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .3s;}
+.nav-dot.active{background:rgba(201,168,76,.8);}
+#swipe-hint{
+  position:fixed;bottom:44px;left:0;right:0;text-align:center;
+  font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.25);
+  font-family:monospace;animation:pulse 2s ease-in-out infinite;
+  opacity:0;transition:opacity .5s;pointer-events:none;
 }
-.dot.active{background:rgba(201,168,76,.8);}
-
-/* 필름 그레인 */
-body::after{
-  content:'';position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:0;opacity:.4;
-}
+#swipe-hint.show{opacity:1;}
+@keyframes pulse{0%,100%{opacity:.2;}50%{opacity:.7;}}
 </style>
 </head>
 <body>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 <script src="timer.js"></script>
-<script>
-if (window.RCMTimer) RCMTimer.stopTimer();
-</script>
+<script>if(window.RCMTimer) RCMTimer.stopTimer();</script>
 
-<div id="card-wrap">
+<div id="bg">
+  <div id="newspaper-wrap">
+    <div id="newspaper">
 
-  <!-- 카드 1: 사건 해결 -->
-  <div class="e-card" id="card-0">
-    <div class="img-card">
-      <img class="card-img" src="penner-images/penner-broken.jpg" alt="페너 경감"/>
-      <div class="card-body">
-        <div class="card-tag">✦ CASE CLOSED ✦</div>
-        <div class="card-title">페너 경감,<br/>체포되다.</div>
-        <div class="card-desc">모든 혐의를 인정했다.<br/>루프캣미 빌리지의 비밀이 밝혀지는 순간이었다.</div>
+      <!-- 1면 -->
+      <div class="np-page active" id="np-0">
+        <div class="paper-inner">
+          <div class="masthead">
+            <div class="masthead-name">루프캣미 빌리지 일보</div>
+            <div class="masthead-sub">ROOFCATME VILLAGE DAILY NEWS · 수사 종결 특별호</div>
+          </div>
+          <div class="breaking-bar">▮ 속 보 ▮</div>
+          <div class="headline-xl">페너 경감,<br/>전격 체포되다</div>
+          <div class="headline-md">탐정의 집요한 수사 끝에 루프캣미의 진실이 밝혀지다</div>
+          <div class="article">수년간 루프캣미 빌리지를 지켜온 페너 경감이 전격 체포됐다. 백설에게 모든 죄를 뒤집어씌우려 한 이른바 'PLAN A'가 탐정의 수사로 낱낱이 드러났다.</div>
+          <div class="article-quote">"……말할 수 없어. 차라리 날 체포해.<br/>그곳이 지금보다 안전할 테니까."</div>
+          <div class="article-src">— 페너 경감, 체포 당시</div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- 카드 2: 백설 석방 -->
-  <div class="e-card" id="card-1">
-    <div class="img-card">
-      <img class="card-img" src="penner-images/penner-grim.jpg" alt="백설" style="filter:grayscale(60%) brightness(.7) sepia(.3);"/>
-      <div class="card-body">
-        <div class="card-tag">✦ CLEARED ✦</div>
-        <div class="card-title">백설,<br/>누명을 벗다.</div>
-        <div class="card-desc">억울하게 쫓기던 백설은<br/>먼치킨 난쟁이들과 함께 숲으로 돌아갔다.</div>
+      <!-- 2면 -->
+      <div class="np-page" id="np-1">
+        <div class="paper-inner">
+          <div class="masthead">
+            <div class="masthead-name sm">루프캣미 빌리지 일보</div>
+            <div class="masthead-sub">수사 종결 특별호 · 2면</div>
+          </div>
+          <div class="headline-lg">백설,<br/>억울한 누명을 벗다</div>
+          <div class="article">오랫동안 루프캣미 빌리지에서 쫓기며 지내온 백설이 마침내 억울한 누명을 벗었다. 페너 경감의 자백으로 무죄가 확인됐으며, 백설은 먼치킨 난쟁이들과 함께 숲으로 돌아간 것으로 전해졌다.</div>
+          <div class="divider-line"></div>
+          <div class="headline-md">사건의 핵심, 'PLAN A'란?</div>
+          <div class="article">PLAN A는 페너 경감이 자신의 혐의를 백설에게 전가하기 위해 계획한 공작이었다. 딜리셔스 호텔 투숙 기록 조작, 위조 서명, CCTV 조작 등이 포함된 치밀한 계획이었으나 탐정의 추리에 의해 밝혀졌다.</div>
+          <div class="article-quote">장부에서 발견된 단 하나의 거래 기록이<br/>모든 것을 바꿨다.</div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- 카드 3: 미스터리 -->
-  <div class="e-card" id="card-2">
-    <div class="mystery-card">
-      <div class="card-tag">UNKNOWN</div>
-      <div class="card-title">하지만,<br/>사건은 끝나지 않았다.</div>
-      <div class="card-desc">
-        부둣가에서 마지막으로 포착된 뒤<br/>행방이 묘연해진 아인.<br/><br/>
-        페너가 끝내 밝히지 않은 비밀.<br/>그들이 감추고 있는 진실은——
+      <!-- 3면 -->
+      <div class="np-page" id="np-2">
+        <div class="paper-inner">
+          <div class="masthead">
+            <div class="masthead-name sm">루프캣미 빌리지 일보</div>
+            <div class="masthead-sub">수사 종결 특별호 · 3면</div>
+          </div>
+          <div class="mystery-box">
+            <div class="mystery-label">▮ 미해결 · UNKNOWN ▮</div>
+            <div class="mystery-title">하지만,<br/>사건은 끝나지 않았다</div>
+            <div class="mystery-text">부둣가에서 마지막으로 포착된 뒤 행방이 묘연해진 아인. 페너의 누나로 알려진 그녀가 이 사건의 진짜 배후라는 의혹이 제기되고 있으나, 페너 경감은 끝내 누나에 대해 입을 열지 않았다.</div>
+            <div class="divider-line"></div>
+            <div class="mystery-text">페너가 감추고 있는 비밀, 아인의 행방, 그리고 루프캣미 빌리지에 남겨진 또 다른 의문들——</div>
+            <div class="mystery-close">그들이 감추고 있는 진실은,<br/>무엇일까.</div>
+          </div>
+        </div>
       </div>
-      <div class="card-close">무엇일까.</div>
+
+      <!-- 4면: 결과 버튼 -->
+      <div id="btn-page" class="np-page">
+        <div id="end-btn-wrap">
+          <div class="btn-label">INVESTIGATION COMPLETE</div>
+          <button id="end-btn" onclick="goResult()">수사 결과 확인하기 →</button>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- 카드 4: 결과 보기 -->
-  <div class="e-card" id="card-3">
-    <div class="result-card">
-      <div class="card-tag">INVESTIGATION COMPLETE</div>
-      <div class="card-title">수고하셨습니다,<br/>탐정님.</div>
-      <div class="card-desc">루프캣미 빌리지의 비밀을<br/>밝혀주셔서 감사해요.</div>
-      <button id="end-btn" onclick="goResult()">수사 결과 보기 →</button>
-    </div>
-  </div>
-
 </div>
 
-<div id="progress-dots">
-  <div class="dot active" id="dot-0"></div>
-  <div class="dot" id="dot-1"></div>
-  <div class="dot" id="dot-2"></div>
-  <div class="dot" id="dot-3"></div>
+<div id="page-nav">
+  <div class="nav-dot active" id="dot-0"></div>
+  <div class="nav-dot" id="dot-1"></div>
+  <div class="nav-dot" id="dot-2"></div>
+  <div class="nav-dot" id="dot-3"></div>
 </div>
-
-<div id="tap-hint">화면을 탭하면 다음으로</div>
+<div id="swipe-hint">← 스와이프하여 다음 →</div>
 
 <script>
-var TOTAL = 4;
-var current = 0;
-var canTap = false;
+var PAGE_COUNT = 4;
+var curPage = 0;
+var isFlipping = false;
+var canSwipe = false;
+var dropped = false;
+var startX = null;
+var isSwiping = false;
 
-function showCard(idx) {
-  for (var i = 0; i < TOTAL; i++) {
-    var c = document.getElementById('card-' + i);
+var pages = [];
+for (var i = 0; i < PAGE_COUNT; i++) pages.push(document.getElementById('np-' + i));
+// 버튼 페이지는 btn-page
+pages[3] = document.getElementById('btn-page');
+
+function updateDots(p) {
+  for (var i = 0; i < PAGE_COUNT; i++) {
     var d = document.getElementById('dot-' + i);
-    if (i === idx) {
-      c.classList.remove('hide');
-      c.classList.add('show');
-      d.classList.add('active');
-    } else if (i < idx) {
-      c.classList.remove('show');
-      c.classList.add('hide');
-      d.classList.remove('active');
-    } else {
-      c.classList.remove('show','hide');
-      d.classList.remove('active');
+    if (d) d.classList.toggle('active', i === p);
+  }
+}
+
+function flipTo(nextPage, dir) {
+  if (isFlipping) return;
+  if (nextPage < 0 || nextPage >= PAGE_COUNT) return;
+  isFlipping = true;
+  if (navigator.vibrate) navigator.vibrate(15);
+
+  var outClass = dir > 0 ? 'flip-out-fwd' : 'flip-out-rev';
+  var inClass  = dir > 0 ? 'flip-in-fwd'  : 'flip-in-rev';
+
+  var outPage = pages[curPage];
+  var inPage  = pages[nextPage];
+
+  // 다음 페이지 아래에 미리 표시
+  inPage.className = 'np-page below';
+  // 현재 페이지 넘김 애니
+  outPage.className = 'np-page ' + outClass;
+
+  // 넘김 중간에 다음 페이지 in 애니 시작
+  setTimeout(function() {
+    inPage.className = 'np-page ' + inClass;
+  }, 220);
+
+  // 완료
+  setTimeout(function() {
+    outPage.className = 'np-page';
+    inPage.className = 'np-page active';
+    curPage = nextPage;
+    updateDots(curPage);
+    isFlipping = false;
+
+    // 마지막 페이지: 버튼 낙하
+    if (curPage === PAGE_COUNT - 1) {
+      document.getElementById('swipe-hint').classList.remove('show');
+      setTimeout(function() {
+        var wrap = document.getElementById('end-btn-wrap');
+        wrap.style.opacity = '1';
+        wrap.classList.add('drop');
+        if (navigator.vibrate) navigator.vibrate([50, 20, 40]);
+      }, 200);
     }
-  }
-  // 마지막 카드면 탭 힌트 숨김
-  if (idx === TOTAL - 1) {
-    document.getElementById('tap-hint').style.display = 'none';
-  }
-  if (navigator.vibrate) navigator.vibrate(30);
+  }, 520);
 }
 
-function nextCard() {
-  if (!canTap) return;
-  if (current >= TOTAL - 1) return;
-  canTap = false;
-  current++;
-  showCard(current);
-  setTimeout(function() { canTap = true; }, 700);
+// 터치 스와이프
+document.addEventListener('touchstart', function(e) {
+  if (e.target.id === 'end-btn') return;
+  startX = e.touches[0].clientX;
+  isSwiping = false;
+}, {passive:true});
+
+document.addEventListener('touchmove', function(e) {
+  if (startX === null) return;
+  if (Math.abs(e.touches[0].clientX - startX) > 8) isSwiping = true;
+}, {passive:true});
+
+document.addEventListener('touchend', function(e) {
+  if (!canSwipe || startX === null) { startX = null; return; }
+  var dx = e.changedTouches[0].clientX - startX;
+  if (isSwiping) {
+    if (dx < -40) flipTo(curPage + 1, 1);
+    if (dx > 40)  flipTo(curPage - 1, -1);
+  }
+  startX = null; isSwiping = false;
+}, {passive:true});
+
+// 신문 낙하
+function startDrop() {
+  if (dropped) return;
+  dropped = true;
+  var wrap = document.getElementById('newspaper-wrap');
+  var bg = document.getElementById('bg');
+  wrap.classList.add('drop');
+  if (navigator.vibrate) navigator.vibrate([80, 30, 50]);
+  setTimeout(function() {
+    bg.classList.add('shake');
+    if (navigator.vibrate) navigator.vibrate(100);
+    setTimeout(function() { bg.classList.remove('shake'); }, 350);
+  }, 800);
+  setTimeout(function() {
+    canSwipe = true;
+    document.getElementById('page-nav').classList.add('show');
+    document.getElementById('swipe-hint').classList.add('show');
+  }, 1300);
 }
 
-// 첫 카드 자동 등장
-setTimeout(function() {
-  showCard(0);
-  setTimeout(function() { canTap = true; }, 800);
-}, 400);
-
+var autoTimer = setTimeout(startDrop, 700);
 document.body.addEventListener('click', function(e) {
   if (e.target.id === 'end-btn') return;
-  nextCard();
-});
+  clearTimeout(autoTimer);
+  if (!dropped) startDrop();
+}, {once:true});
 
 function goResult() {
   if (window.RCMFlow) RCMFlow.markComplete();
