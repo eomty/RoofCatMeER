@@ -143,7 +143,6 @@
   var fade = document.createElement('div'); fade.id = 'rcm-fade';
   var fadeLabel = document.createElement('div'); fadeLabel.id = 'rcm-fade-label';
   fadeLabel.innerHTML =
-    '<div class="fade-chapter" id="rcm-fade-chapter"></div>' +
     '<div class="fade-sub">새로운 단서로 이동 중…</div>';
   document.body.appendChild(fade);
   document.body.appendChild(fadeLabel);
@@ -260,7 +259,6 @@
 
   /* ── C. 페이드 전환 ──────────────────────────────────────────── */
   function goFade(chapterLabel, href) {
-    document.getElementById('rcm-fade-chapter').textContent = chapterLabel || '';
     fade.classList.add('on');
     fadeLabel.classList.add('on');
     setTimeout(function() {
