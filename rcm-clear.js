@@ -70,7 +70,7 @@
       '100%{opacity:0;}',
     '}',
     '#rcm-banner{',
-      'position:fixed;top:0;left:0;right:0;z-index:500;',
+      'position:fixed;top:50%;left:0;right:0;transform:translateY(-50%);z-index:500;',
       'display:none;flex-direction:column;align-items:center;',
       'justify-content:center;padding:14px 0 12px;',
       'background:rgba(10,8,6,.92);',
@@ -265,7 +265,7 @@
     fadeLabel.classList.add('on');
     setTimeout(function() {
       location.href = href;
-    }, 600);
+    }, 1500);
   }
 
   /* ── 공개 API ─────────────────────────────────────────────────── */
