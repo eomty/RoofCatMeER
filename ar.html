@@ -50,41 +50,9 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 .clue-label{font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:8px;}
 #chips{display:flex;gap:8px;flex-wrap:wrap;}
 .chip{font-size:13px;padding:5px 16px;border-radius:20px;border:1px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.15);color:#c9a84c;}
-
-#ar-loading{
-  position:fixed;inset:0;background:#080808;z-index:9999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:20px;transition:opacity .6s ease;
-}
-#ar-loading.hide{opacity:0;pointer-events:none;}
-.ar-ring-wrap{position:relative;width:72px;height:72px;}
-.ar-ring-wrap svg{position:absolute;inset:0;}
-.ar-load-label{font-size:8px;letter-spacing:.3em;color:rgba(201,168,76,.5);font-family:monospace;}
-.ar-load-title{font-size:11px;letter-spacing:.2em;color:#c9a84c;font-family:monospace;font-weight:700;}
-.ar-load-sub{font-size:9px;color:rgba(255,255,255,.3);font-family:monospace;letter-spacing:.1em;}
 </style>
 </head>
 <body>
-<div id="ar-loading">
-  <div class="ar-ring-wrap">
-    <svg width="72" height="72" viewBox="0 0 72 72">
-      <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(201,168,76,.12)" stroke-width="2"/>
-      <circle cx="36" cy="36" r="30" fill="none" stroke="#c9a84c" stroke-width="2"
-        stroke-dasharray="48 140" stroke-linecap="round"
-        style="animation:ar-spin 1.4s linear infinite;transform-origin:36px 36px;"/>
-      <circle cx="36" cy="36" r="22" fill="none" stroke="rgba(201,168,76,.08)" stroke-width="1"/>
-      <circle cx="36" cy="36" r="22" fill="none" stroke="rgba(201,168,76,.35)" stroke-width="1"
-        stroke-dasharray="28 110" stroke-linecap="round"
-        style="animation:ar-spin 2s linear infinite reverse;transform-origin:36px 36px;"/>
-    </svg>
-  </div>
-  <div class="ar-load-label">ROOFCATME</div>
-  <div class="ar-load-title">SCANNING</div>
-  <div class="ar-load-sub" id="ar-load-sub">단서를 불러오는 중...</div>
-</div>
-<style>
-@keyframes ar-spin{to{transform:rotate(360deg)}}
-</style>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 
@@ -231,19 +199,11 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
     console.log('[AR] 타겟 이벤트 해제 완료');
   }
 
-
-  // 로딩 오버레이 제거 (a-scene loaded 이벤트)
-  function hideLoading() {
-    var el = document.getElementById('ar-loading');
-    if (!el) return;
-    el.classList.add('hide');
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 700);
-  }
   function initializeAREvents() {
     var scene = document.querySelector('a-scene');
     if (!scene) { console.error('[AR] a-scene을 찾지 못했습니다.'); return; }
-    if (scene.hasLoaded) { hideLoading(); bindTargetEvents(); return; }
-    scene.addEventListener('loaded', function(){ hideLoading(); bindTargetEvents(); }, { once: true });
+    if (scene.hasLoaded) { bindTargetEvents(); return; }
+    scene.addEventListener('loaded', bindTargetEvents, { once: true });
   }
 
   if (document.readyState === 'loading') {
