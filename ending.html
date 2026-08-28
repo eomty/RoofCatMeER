@@ -4,189 +4,298 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>Ending — 루프캣미</title>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#080808;min-height:100vh;}
-body{font-family:'Nanum Myeongjo',serif;color:rgba(255,255,255,.82);padding:0 0 120px;}
+html,body{background:#080808;min-height:100vh;overflow:hidden;}
+body{font-family:'Nanum Myeongjo',serif;color:#fff;}
 
-/* 필름 그레인 오버레이 */
+/* 탭 힌트 */
+#tap-hint{
+  position:fixed;bottom:32px;left:0;right:0;
+  text-align:center;font-size:11px;letter-spacing:.12em;
+  color:rgba(255,255,255,.3);font-family:monospace;
+  animation:pulse-hint 2s ease-in-out infinite;
+  z-index:100;pointer-events:none;
+}
+@keyframes pulse-hint{0%,100%{opacity:.3;}50%{opacity:.8;}}
+
+/* 카드 컨테이너 */
+#card-wrap{
+  position:fixed;inset:0;display:flex;
+  align-items:center;justify-content:center;
+  padding:24px;
+}
+
+/* 카드 공통 */
+.e-card{
+  position:absolute;width:100%;max-width:360px;
+  opacity:0;transform:translateY(40px);
+  transition:opacity .7s ease, transform .7s ease;
+  pointer-events:none;
+}
+.e-card.show{opacity:1;transform:translateY(0);pointer-events:all;}
+.e-card.hide{opacity:0;transform:translateY(-30px);}
+
+/* 이미지 카드 */
+.img-card{
+  border-radius:12px;overflow:hidden;
+  background:#0e0e0e;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+}
+.img-card .card-img{
+  width:100%;aspect-ratio:3/2;
+  object-fit:cover;object-position:top;
+  filter:grayscale(30%) brightness(.85);
+}
+.img-card .card-body{
+  padding:20px 22px 24px;
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.img-card .card-tag{
+  font-size:9px;letter-spacing:.3em;
+  color:rgba(201,168,76,.7);font-family:monospace;
+  margin-bottom:8px;
+}
+.img-card .card-title{
+  font-size:22px;font-weight:800;
+  color:#f0e8d8;margin-bottom:6px;
+  line-height:1.3;
+}
+.img-card .card-desc{
+  font-size:13px;line-height:1.9;
+  color:rgba(255,255,255,.5);
+}
+
+/* 텍스트 카드 */
+.txt-card{
+  border-radius:12px;padding:32px 28px;
+  background:#0e0e0e;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+  border:1px solid rgba(255,255,255,.06);
+}
+.txt-card.dark-red{
+  border-color:rgba(139,26,26,.3);
+  background:#0a0606;
+}
+.txt-card .card-tag{
+  font-size:9px;letter-spacing:.3em;
+  color:rgba(201,168,76,.7);font-family:monospace;
+  margin-bottom:14px;
+}
+.txt-card .card-title{
+  font-size:20px;font-weight:800;
+  color:#f0e8d8;margin-bottom:14px;
+  line-height:1.4;
+}
+.txt-card .card-desc{
+  font-size:13.5px;line-height:2;
+  color:rgba(255,255,255,.55);
+}
+.txt-card .card-desc em{
+  color:rgba(201,168,76,.8);
+  font-style:normal;font-weight:700;
+}
+
+/* 미스터리 카드 */
+.mystery-card{
+  border-radius:12px;padding:32px 28px;
+  background:#080808;
+  box-shadow:0 20px 60px rgba(0,0,0,.9);
+  border:1px solid rgba(139,26,26,.2);
+  text-align:center;
+}
+.mystery-card .card-tag{
+  font-size:9px;letter-spacing:.3em;
+  color:rgba(139,26,26,.7);font-family:monospace;
+  margin-bottom:16px;
+}
+.mystery-card .card-title{
+  font-size:24px;font-weight:800;
+  color:rgba(255,255,255,.9);
+  margin-bottom:20px;
+  letter-spacing:.05em;
+}
+.mystery-card .card-desc{
+  font-size:13px;line-height:2.2;
+  color:rgba(255,255,255,.35);
+}
+.mystery-card .card-close{
+  margin-top:20px;
+  font-size:14px;line-height:2;
+  color:rgba(255,255,255,.5);
+  font-style:italic;
+}
+
+/* 결과 카드 */
+.result-card{
+  border-radius:12px;padding:32px 28px;
+  background:#0e0e0e;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+  border:1px solid rgba(201,168,76,.15);
+  text-align:center;
+}
+.result-card .card-tag{
+  font-size:9px;letter-spacing:.3em;
+  color:rgba(201,168,76,.6);font-family:monospace;
+  margin-bottom:12px;
+}
+.result-card .card-title{
+  font-size:20px;font-weight:800;
+  color:#c9a84c;margin-bottom:8px;
+}
+.result-card .card-desc{
+  font-size:13px;color:rgba(255,255,255,.4);
+  margin-bottom:24px;line-height:1.8;
+}
+#end-btn{
+  width:100%;padding:15px;
+  background:#8b1a1a;color:#f0e8d8;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:15px;letter-spacing:.08em;
+  border:none;border-radius:6px;cursor:pointer;
+}
+
+/* 진행 도트 */
+#progress-dots{
+  position:fixed;bottom:60px;left:0;right:0;
+  display:flex;justify-content:center;gap:6px;
+  z-index:100;pointer-events:none;
+}
+.dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  transition:background .3s;
+}
+.dot.active{background:rgba(201,168,76,.8);}
+
+/* 필름 그레인 */
 body::after{
   content:'';position:fixed;inset:0;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events:none;z-index:0;opacity:.4;
 }
-
-.scene{max-width:360px;margin:0 auto;padding:80px 28px 40px;position:relative;z-index:1;}
-
-.block{
-  opacity:0;
-  transform:translateY(12px);
-  transition:opacity 1.2s ease, transform 1.2s ease;
-  margin-bottom:36px;
-}
-.block.show{opacity:1;transform:translateY(0);}
-
-/* 대사 */
-.dialogue{
-  font-size:15px;line-height:2;
-  color:rgba(255,255,255,.88);
-  quotes:'"' '"';
-}
-/* 행동/나레이션 */
-.narr{
-  font-size:13px;line-height:2.1;
-  color:rgba(255,255,255,.45);
-  font-style:italic;
-}
-/* 탐정 내면 */
-.inner{
-  font-size:14px;line-height:2;
-  color:rgba(255,255,255,.65);
-}
-/* 강조 */
-.reveal{
-  font-size:13px;line-height:2;
-  color:rgba(255,255,255,.5);
-  border-left:2px solid rgba(139,26,26,.7);
-  padding-left:14px;
-}
-.reveal .plan{
-  display:inline-block;
-  font-style:normal;
-  font-size:14px;
-  font-weight:700;
-  color:rgba(200,168,76,.8);
-  letter-spacing:.1em;
-}
-/* 드라마틱 전환 */
-.turn{
-  font-size:18px;line-height:1.8;
-  color:rgba(255,255,255,.9);
-  font-weight:700;
-  text-align:center;
-  padding:10px 0;
-}
-/* 미스터리 클로징 */
-.mystery{
-  font-size:13px;line-height:2.2;
-  color:rgba(255,255,255,.38);
-}
-.mystery-close{
-  font-size:14px;line-height:2;
-  color:rgba(255,255,255,.55);
-  text-align:center;
-  font-style:italic;
-}
-
-/* 구분선 */
-.divider{
-  width:40px;height:1px;
-  background:rgba(255,255,255,.12);
-  margin:0 auto 36px;
-  opacity:0;
-  transition:opacity 1.2s ease;
-}
-.divider.show{opacity:1;}
-
-/* 엔딩 버튼 */
-#end-btn{
-  display:none;
-  width:100%;max-width:360px;
-  margin:0 auto;
-  padding:16px;
-  background:#8b1a1a;
-  color:#f0e8d8;
-  font-family:'Nanum Myeongjo',serif;
-  font-size:15px;letter-spacing:.08em;
-  border:none;cursor:pointer;
-  position:relative;z-index:1;
-  animation:fadeUp .8s ease both;
-}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.end-wrap{padding:0 28px;}
 </style>
 </head>
 <body>
 <script src="debug-config.js"></script>
 <script src="flow-guard.js"></script>
 <script src="timer.js"></script>
+<script>
+if (window.RCMTimer) RCMTimer.stopTimer();
+</script>
 
-<div class="scene" id="scene"></div>
+<div id="card-wrap">
 
-<div class="end-wrap">
-  <button id="end-btn" onclick="goResult()">수사 결과 보기 →</button>
+  <!-- 카드 1: 사건 해결 -->
+  <div class="e-card" id="card-0">
+    <div class="img-card">
+      <img class="card-img" src="penner-images/penner-broken.jpg" alt="페너 경감"/>
+      <div class="card-body">
+        <div class="card-tag">✦ CASE CLOSED ✦</div>
+        <div class="card-title">페너 경감,<br/>체포되다.</div>
+        <div class="card-desc">모든 혐의를 인정했다.<br/>루프캣미 빌리지의 비밀이 밝혀지는 순간이었다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 카드 2: 백설 석방 -->
+  <div class="e-card" id="card-1">
+    <div class="img-card">
+      <img class="card-img" src="penner-images/penner-grim.jpg" alt="백설" style="filter:grayscale(60%) brightness(.7) sepia(.3);"/>
+      <div class="card-body">
+        <div class="card-tag">✦ CLEARED ✦</div>
+        <div class="card-title">백설,<br/>누명을 벗다.</div>
+        <div class="card-desc">억울하게 쫓기던 백설은<br/>먼치킨 난쟁이들과 함께 숲으로 돌아갔다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 카드 3: 미스터리 -->
+  <div class="e-card" id="card-2">
+    <div class="mystery-card">
+      <div class="card-tag">UNKNOWN</div>
+      <div class="card-title">하지만,<br/>사건은 끝나지 않았다.</div>
+      <div class="card-desc">
+        부둣가에서 마지막으로 포착된 뒤<br/>행방이 묘연해진 아인.<br/><br/>
+        페너가 끝내 밝히지 않은 비밀.<br/>그들이 감추고 있는 진실은——
+      </div>
+      <div class="card-close">무엇일까.</div>
+    </div>
+  </div>
+
+  <!-- 카드 4: 결과 보기 -->
+  <div class="e-card" id="card-3">
+    <div class="result-card">
+      <div class="card-tag">INVESTIGATION COMPLETE</div>
+      <div class="card-title">수고하셨습니다,<br/>탐정님.</div>
+      <div class="card-desc">루프캣미 빌리지의 비밀을<br/>밝혀주셔서 감사해요.</div>
+      <button id="end-btn" onclick="goResult()">수사 결과 보기 →</button>
+    </div>
+  </div>
+
 </div>
 
+<div id="progress-dots">
+  <div class="dot active" id="dot-0"></div>
+  <div class="dot" id="dot-1"></div>
+  <div class="dot" id="dot-2"></div>
+  <div class="dot" id="dot-3"></div>
+</div>
+
+<div id="tap-hint">화면을 탭하면 다음으로</div>
+
 <script>
-var blocks = [
-  {type:'dialogue', text:'"……드디어 찾았군."'},
-  {type:'narr',     text:'어둠 속에서 백설이 모습을 드러냈다.'},
-  {type:'dialogue', text:'"그날 딜리셔스 호텔 앞에서 알아봤어.\n넌…… 내가 알던 페너가 아니었어."'},
-  {type:'reveal',   text:'나는 모든 단서를 맞춰 보았다.\n백설에게 모든 죄를 뒤집어씌우고 사라지는 계획.\n<span class="plan">PLAN A</span>'},
-  {type:'inner',    text:'백설이 도망치며 남긴 쪽지는\n나를 이 사건의 진실로 이끌었다.'},
-  {type:'divider'},
-  {type:'narr',     text:'나는 페너를 바라봤다.'},
-  {type:'dialogue', text:'"페너.\n너와 네 누나는 대체 무슨 일을 꾸미고 있는 거지?"'},
-  {type:'narr',     text:'페너는 고개를 숙였다.'},
-  {type:'dialogue', text:'"……말할 수 없어.\n차라리 날 체포해.\n그곳이 지금보다 안전할 테니까."'},
-  {type:'divider'},
-  {type:'inner',    text:'페너는 그 후 모든 혐의점을 인정했다.\n\n백설은 누명을 벗고\n먼치킨 난쟁이들과 숲으로 돌아갔다.'},
-  {type:'divider'},
-  {type:'turn',     text:'하지만 사건은 끝나지 않았다.'},
-  {type:'mystery',  text:'부둣가에서 마지막으로 포착된 뒤\n행방이 묘연해진 아인.\n\n페너가 끝내 밝히지 않은 비밀.'},
-  {type:'mystery-close', text:'그들이 감추고 있는 진실은\n무엇일까.'},
-];
+var TOTAL = 4;
+var current = 0;
+var canTap = false;
 
-var scene = document.getElementById('scene');
-var els = [];
-var BASE_DELAY = 600;
-var GAP = 900;
-
-blocks.forEach(function(b, i){
-  var el;
-  if(b.type === 'divider'){
-    el = document.createElement('div');
-    el.className = 'divider';
-  } else {
-    el = document.createElement('div');
-    el.className = 'block';
-    var inner = document.createElement('div');
-    inner.className = b.type;
-    inner.innerHTML = b.text.replace(/\n/g,'<br/>');
-    el.appendChild(inner);
-  }
-  scene.appendChild(el);
-  els.push({el:el, delay: BASE_DELAY + i * GAP});
-});
-
-// 페이지 시작은 무조건 맨 위
-window.scrollTo(0, 0);
-
-els.forEach(function(item){
-  setTimeout(function(){
-    item.el.classList.add('show');
-    // 현재 요소가 화면 밖으로 나갔을 때만 스크롤
-    var rect = item.el.getBoundingClientRect();
-    if(rect.bottom > window.innerHeight - 60){
-      item.el.scrollIntoView({behavior:'smooth', block:'end'});
+function showCard(idx) {
+  for (var i = 0; i < TOTAL; i++) {
+    var c = document.getElementById('card-' + i);
+    var d = document.getElementById('dot-' + i);
+    if (i === idx) {
+      c.classList.remove('hide');
+      c.classList.add('show');
+      d.classList.add('active');
+    } else if (i < idx) {
+      c.classList.remove('show');
+      c.classList.add('hide');
+      d.classList.remove('active');
+    } else {
+      c.classList.remove('show','hide');
+      d.classList.remove('active');
     }
-  }, item.delay);
+  }
+  // 마지막 카드면 탭 힌트 숨김
+  if (idx === TOTAL - 1) {
+    document.getElementById('tap-hint').style.display = 'none';
+  }
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function nextCard() {
+  if (!canTap) return;
+  if (current >= TOTAL - 1) return;
+  canTap = false;
+  current++;
+  showCard(current);
+  setTimeout(function() { canTap = true; }, 700);
+}
+
+// 첫 카드 자동 등장
+setTimeout(function() {
+  showCard(0);
+  setTimeout(function() { canTap = true; }, 800);
+}, 400);
+
+document.body.addEventListener('click', function(e) {
+  if (e.target.id === 'end-btn') return;
+  nextCard();
 });
 
-// 마지막 블록 후 버튼 등장
-var lastDelay = BASE_DELAY + (blocks.length - 1) * GAP + 2000;
-setTimeout(function(){
-  var btn = document.getElementById('end-btn');
-  btn.style.display = 'block';
-  setTimeout(function(){
-    btn.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 200);
-}, lastDelay);
-
-function goResult(){
-  if(window.RCMTimer) RCMTimer.stopTimer();
-  if(window.RCMFlow) RCMFlow.markComplete();
+function goResult() {
+  if (window.RCMFlow) RCMFlow.markComplete();
   location.href = 'result.html';
 }
 </script>
