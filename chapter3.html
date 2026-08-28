@@ -403,7 +403,11 @@ function confirmName() {
           document.getElementById('end-call-btn').style.display = 'none';
           if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
           setTimeout(function() {
-            document.getElementById('next-btn').style.display = 'block';
+            if (window.RCMClear) {
+              RCMClear.show('CHAPTER 03', 'chapter4.html', document.getElementById('next-btn'));
+            } else {
+              document.getElementById('next-btn').style.display = 'block';
+            }
           }, 800);
         });
       });
@@ -425,5 +429,6 @@ function endCall() {
 }
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

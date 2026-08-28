@@ -683,8 +683,12 @@ async function run(){
     await showHacker('···');
     await wait(1000);
     hackerMsg.classList.remove('show');
-    document.getElementById('next-btn').classList.add('show');
     if (window.RCMFlow) RCMFlow.markComplete();
+    if (window.RCMClear) {
+      RCMClear.show('CHAPTER 07', 'chapter8.html', document.getElementById('next-btn'));
+    } else {
+      document.getElementById('next-btn').classList.add('show');
+    }
     if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
   };
 }
@@ -732,5 +736,6 @@ setTimeout(function(){
 },9500);
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

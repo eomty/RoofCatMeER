@@ -185,9 +185,14 @@ function checkAnswer() {
     setTimeout(function(){
       document.getElementById('after-story').style.display = 'block';
       document.getElementById('call-hints').style.display = 'block';
-      document.getElementById('dial-btn').style.display = 'block';
       if (window.RCMFlow) RCMFlow.markComplete();
       document.getElementById('after-story').scrollIntoView({behavior:'smooth'});
+      if (window.RCMClear) {
+        RCMClear.correct(result);
+        RCMClear.show('CHAPTER 07', 'ar7.html', document.getElementById('dial-btn'));
+      } else {
+        document.getElementById('dial-btn').style.display = 'block';
+      }
     }, 800);
     if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
   } else {
@@ -233,5 +238,6 @@ document.getElementById('answer').addEventListener('keydown', function(e) {
 });
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

@@ -618,12 +618,17 @@ async function run(){
   setNarr('탐정: "...이 정도면 충분하겠죠.\n경감님.\n오랫동안 수고 많으셨습니다."');
   await wait(1500);
 
-  document.getElementById('next-btn').style.display = 'block';
   if (window.RCMFlow) RCMFlow.markComplete();
+  if (window.RCMClear) {
+    RCMClear.show('CASE CLOSED', 'ending.html', document.getElementById('next-btn'), 'CASE CLOSED');
+  } else {
+    document.getElementById('next-btn').style.display = 'block';
+  }
   if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
 }
 
 function goEnding(){
+  if (window.RCMClear) { RCMClear.goFade('ENDING', 'ending.html'); return; }
   location.href = 'ending.html';
 }
 
@@ -664,5 +669,6 @@ function beginChapter8() {
 })();
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

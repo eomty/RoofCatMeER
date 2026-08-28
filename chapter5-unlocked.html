@@ -481,10 +481,14 @@ function checkAnswer() {
   if (val === '페너') {
     result.className = 'correct';
     result.innerHTML = '✓ 정답입니다!';
-    document.getElementById('next-btn').style.display = 'block';
     if (window.RCMFlow) RCMFlow.markComplete();
     document.getElementById('answer').disabled = true;
-    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    if (window.RCMClear) {
+      RCMClear.correct(result);
+      RCMClear.show('CHAPTER 05', 'chapter6.html', document.getElementById('next-btn'));
+    } else {
+      document.getElementById('next-btn').style.display = 'block';
+    }
   } else {
     result.className = 'wrong';
     result.textContent = '✗ 틀렸습니다. 다시 시도해보세요.';
@@ -499,5 +503,6 @@ document.getElementById('answer').addEventListener('keydown', function(e) {
 });
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

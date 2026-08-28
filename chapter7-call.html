@@ -369,8 +369,12 @@ function selectChoice2() {
       ['dubbing/ch7/screen_ready.mp3'], function() {
       document.getElementById('end-call-btn').style.display = 'none';
       setTimeout(function(){
-        document.getElementById('next-btn').style.display = 'block';
         if (window.RCMFlow) RCMFlow.markComplete();
+        if (window.RCMClear) {
+          RCMClear.show('CHAPTER 07', 'chapter7-unlocked.html', document.getElementById('next-btn'));
+        } else {
+          document.getElementById('next-btn').style.display = 'block';
+        }
         if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
       }, 800);
     });
@@ -396,5 +400,6 @@ function endCall() {
 })();
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

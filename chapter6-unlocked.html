@@ -168,13 +168,17 @@ function submitCCTV() {
   if (correct) {
     result.className = 'correct';
     result.innerHTML = '✓ 정확합니다! 수상한 묘를 찾아냈어요.';
-    document.getElementById('next-btn').style.display = 'block';
     if (window.RCMFlow) RCMFlow.markComplete();
     cells.forEach(function(c){
       if(c.dataset.ain === '1') c.classList.add('correct-sel');
       c.onclick = null;
     });
-    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    if (window.RCMClear) {
+      RCMClear.correct(result);
+      RCMClear.show('CHAPTER 06', 'chapter7.html', document.getElementById('next-btn'));
+    } else {
+      document.getElementById('next-btn').style.display = 'block';
+    }
   } else {
     result.className = 'wrong';
     result.textContent = '✗ 다시 살펴보세요. 수상한 묘를 모두 골라야 해요.';
@@ -215,5 +219,6 @@ renderHintBtn();
 setInterval(renderHintBtn, 1000);
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

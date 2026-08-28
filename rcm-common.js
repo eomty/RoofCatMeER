@@ -1,16 +1,9 @@
 /**
  * rcm-common.js — RoofCatMe 공통 초기화
- * 모든 챕터 HTML에 포함됩니다.
- *
- * 담당:
- *  - sessionStorage의 이름으로 페이지 내 "탐정님" 텍스트 교체
- *  - iOS Safari 오디오 잠금 해제 (첫 터치 시 자동 처리)
  */
 
 /* ── 1. iOS 오디오 잠금 해제 ─────────────────────────────────────────
-   iOS는 사용자 터치 없이 audio.play()를 막음.
-   첫 터치 때 Web Audio API 무음 버퍼 재생으로 가장 확실하게 해제.
-   이후 모든 챕터의 new Audio() / Web Audio API 정상 작동.
+   공용 AudioContext를 전역(RCMAudioCtx)으로 저장해서 챕터별 재사용 가능
 ──────────────────────────────────────────────────────────────────── */
 (function () {
   var unlocked = false;
@@ -19,27 +12,26 @@
     if (unlocked) return;
     unlocked = true;
 
-    // 가장 확실한 방법: Web Audio API 무음 버퍼 재생
     try {
-      var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      var buf = ctx.createBuffer(1, 1, 22050);
-      var src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-      src.start(0);
+      var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        if (!window.RCMAudioCtx) {
+          window.RCMAudioCtx = new AudioContextClass();
+        }
+        if (window.RCMAudioCtx.state === 'suspended') {
+          window.RCMAudioCtx.resume().catch(function(){});
+        }
+        var buffer = window.RCMAudioCtx.createBuffer(1, 1, 22050);
+        var source = window.RCMAudioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(window.RCMAudioCtx.destination);
+        source.start(0);
+      }
     } catch (e) {}
-
-    // chapter4 AudioContext가 이미 생성되어 있으면 resume
-    if (window.RCMAudioCtx) {
-      if (RCMAudioCtx.state === 'suspended') RCMAudioCtx.resume();
-    }
-
-    // HTML5 Audio 추가 보험
-    try { new Audio().play().catch(function(){}); } catch(e) {}
   }
 
-  document.addEventListener('touchstart', unlockAudio, { once: true });
-  document.addEventListener('click',      unlockAudio, { once: true });
+  document.addEventListener('touchend', unlockAudio, { once: true, passive: true });
+  document.addEventListener('click',    unlockAudio, { once: true });
 })();
 
 /* ── 2. "탐정님" → 플레이어 이름 교체 ───────────────────────────── */
@@ -48,12 +40,7 @@
   if (!name) return;
 
   function replaceName(root) {
-    var walker = document.createTreeWalker(
-      root,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while ((node = walker.nextNode())) {
       if (node.nodeValue.indexOf('탐정님') !== -1) {
@@ -63,10 +50,34 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      replaceName(document.body);
-    });
+    document.addEventListener('DOMContentLoaded', function () { replaceName(document.body); });
   } else {
     replaceName(document.body);
   }
+})();
+
+/* ── 3. 동일 요소 중복 탭 방지 ──────────────────────────────────────
+   같은 버튼을 500ms 안에 다시 누른 경우만 차단
+   서로 다른 버튼 연속 클릭, 빈 화면 탭 진행에는 영향 없음
+──────────────────────────────────────────────────────────────────── */
+(function () {
+  var lastTarget = null;
+  var lastTapTime = 0;
+  var BLOCK_TIME = 500;
+
+  document.addEventListener('click', function (e) {
+    var target = e.target.closest(
+      'button, a, input[type="button"], input[type="submit"], [role="button"]'
+    );
+    if (!target) return;
+
+    var now = Date.now();
+    if (target === lastTarget && now - lastTapTime < BLOCK_TIME) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    lastTarget = target;
+    lastTapTime = now;
+  }, true);
 })();

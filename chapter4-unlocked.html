@@ -423,9 +423,13 @@ function checkAnswer() {
     result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">우체통으로 가보죠!</span>';
     document.getElementById('answer').disabled = true;
     document.getElementById('answer-btn').disabled = true;
-    document.getElementById('next-btn').style.display = 'block';
     if (window.RCMFlow) RCMFlow.markComplete();
-    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    if (window.RCMClear) {
+      RCMClear.correct(result);
+      RCMClear.show('CHAPTER 04', 'chapter5.html', document.getElementById('next-btn'));
+    } else {
+      document.getElementById('next-btn').style.display = 'block';
+    }
   } else {
     result.className = 'wrong';
     result.textContent = '✗ 틀렸습니다. 다시 확인해보세요.';
@@ -493,5 +497,6 @@ updateSignal(0);
 <audio id="voice-audio" src="dubbing/ch4/intercept.mp3" preload="auto" playsinline></audio>
 <audio id="noise-audio" src="dubbing/ch4/noise.mp3" preload="auto" playsinline loop></audio>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

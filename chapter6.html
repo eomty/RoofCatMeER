@@ -167,9 +167,13 @@ function checkAnswer() {
     result.innerHTML = '✓ 수상한 서명을 발견했습니다!';
     document.getElementById('answer-cat').disabled = true;
     document.getElementById('answer-date').disabled = true;
-    document.getElementById('next-btn').style.display = 'block';
     if (window.RCMFlow) RCMFlow.markComplete();
-    if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+    if (window.RCMClear) {
+      RCMClear.correct(result);
+      RCMClear.show('CHAPTER 06', 'chapter6-unlocked.html', document.getElementById('next-btn'));
+    } else {
+      document.getElementById('next-btn').style.display = 'block';
+    }
   } else {
     result.className = 'wrong';
     if (!catOk && !dateOk) result.textContent = '✗ 투숙묘와 날짜 모두 다시 확인해보세요.';
@@ -218,5 +222,6 @@ renderHintBtn();
 setInterval(renderHintBtn, 1000);
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>

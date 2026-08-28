@@ -51,6 +51,35 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 .back-btn{width:100%;padding:13px;background:transparent;color:var(--muted);font-family:'Nanum Myeongjo',serif;font-size:13px;border:none;cursor:pointer;margin-top:8px;letter-spacing:.06em;}
 
 .tape-bottom{width:100%;align-self:stretch;background:#f5c518;color:#1a1410;font-size:9px;font-weight:700;letter-spacing:.12em;text-align:center;padding:7px 0;border-top:2px solid #d4a800;white-space:nowrap;overflow:hidden;}
+
+/* ── 랭크 연출 ─────────────────────────────────────────────── */
+@keyframes rcm-fadein{from{opacity:0}to{opacity:1}}
+@keyframes rcm-slideup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes rcm-scaleS{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+@keyframes rcm-border{0%{opacity:0;box-shadow:inset 0 0 0 0 rgba(201,168,76,0)}50%{opacity:1;box-shadow:inset 0 0 0 3px rgba(201,168,76,.7)}100%{opacity:0;box-shadow:inset 0 0 0 3px rgba(201,168,76,0)}}
+@keyframes rcm-timeglow{0%,100%{text-shadow:none}50%{text-shadow:0 0 16px rgba(201,168,76,.8)}}
+@keyframes rcm-particle{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+@keyframes rcm-banner-out{0%{opacity:1;}100%{opacity:0;}}
+#rank-overlay{position:fixed;inset:0;background:#080808;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;pointer-events:all;opacity:1;transition:opacity .6s ease;}
+#rank-overlay.done{opacity:0;pointer-events:none;}
+#inv-complete{font-size:10px;letter-spacing:.3em;color:rgba(255,255,255,.35);font-family:monospace;opacity:0;}
+#inv-complete.show{animation:rcm-fadein .6s ease forwards;}
+#rank-time-anim{font-size:28px;color:#e8e4d8;font-family:monospace;font-weight:700;opacity:0;}
+#rank-time-anim.show{animation:rcm-fadein .4s ease forwards;}
+#rank-time-anim.glow{animation:rcm-timeglow .8s ease;}
+#rank-big{font-family:'Nanum Myeongjo',serif;font-size:72px;font-weight:800;line-height:1;opacity:0;}
+#rank-big.show-S{animation:rcm-scaleS .5s cubic-bezier(.34,1.56,.64,1) forwards;color:#c9a84c;}
+#rank-big.show-A{animation:rcm-slideup .5s ease forwards;color:#4caf82;}
+#rank-big.show-B{animation:rcm-fadein .6s ease forwards;color:#6098d0;}
+#rank-big.show-C{animation:rcm-fadein .8s ease forwards;color:#a09070;}
+#rank-phrase{font-family:'Nanum Myeongjo',serif;font-size:13px;letter-spacing:.2em;opacity:0;margin-top:4px;}
+#rank-phrase.show{animation:rcm-fadein .5s ease .2s forwards;}
+#rank-phrase.S{color:#c9a84c;}#rank-phrase.A{color:#4caf82;}#rank-phrase.B{color:#6098d0;}#rank-phrase.C{color:#a09070;}
+#rank-border{position:fixed;inset:0;pointer-events:none;z-index:1001;opacity:0;}
+#rank-border.show{animation:rcm-border 1.2s ease forwards;}
+.rcm-result-particle{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:9999;animation:rcm-particle .8s ease-out forwards;}
+.rank-btn:disabled,.back-btn:disabled{opacity:.35;cursor:default;pointer-events:none;}
+@media(prefers-reduced-motion:reduce){#rank-overlay,#inv-complete,#rank-big,#rank-phrase,#rank-time-anim{animation:none!important;opacity:1!important;}}
 </style>
 </head>
 <body>
@@ -58,6 +87,14 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <script src="rcm-common.js"></script>
 <script src="flow-guard.js"></script>
 <script src="debug-panel.js"></script>
+
+<div id="rank-border"></div>
+<div id="rank-overlay">
+  <div id="inv-complete">INVESTIGATION COMPLETE</div>
+  <div id="rank-time-anim">--:--</div>
+  <div id="rank-big">-</div>
+  <div id="rank-phrase"></div>
+</div>
 <div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
 <div class="document">
@@ -101,8 +138,8 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
       <div id="breakdown-list"></div>
     </div>
 
-    <button class="rank-btn" onclick="location.href='ranking.html'">🏆 랭킹 보러가기</button>
-    <button class="back-btn" onclick="restartGame()">처음으로 돌아가기</button>
+    <button class="rank-btn" id="rank-btn" onclick="location.href='ranking.html'">🏆 랭킹 보러가기</button>
+    <button class="back-btn" id="back-btn" onclick="restartGame()">처음으로 돌아가기</button>
 
   </div>
 </div>
@@ -110,6 +147,79 @@ body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);m
 <div style="height:20px"></div>
 <div class="tape-bottom">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
+
+<script>
+var RANK_CONFIG = {
+  S: { phrase:'PERFECT CLEAR',  particles:14, colors:['#c9a84c','#f0e8d8','#e8c84c','#fff8dc'], border:true,  vibrate:[80,40,160] },
+  A: { phrase:'EXCELLENT CLEAR',particles:7,  colors:['#4caf82','#a8dfc4','#c9a84c'],           border:false, vibrate:[120] },
+  B: { phrase:'CASE CLEARED',   particles:0,  colors:[],                                        border:false, vibrate:[] },
+  C: { phrase:'CASE CLOSED',    particles:0,  colors:[],                                        border:false, vibrate:[] },
+};
+function spawnResultParticles(count, colors) {
+  var cx = window.innerWidth/2, cy = window.innerHeight*.38;
+  for (var i=0;i<count;i++){
+    (function(i){
+      setTimeout(function(){
+        var p=document.createElement('div');
+        p.className='rcm-result-particle';
+        var angle=(i/count)*Math.PI*2+(Math.random()-.5);
+        var dist=60+Math.random()*80;
+        p.style.cssText=['left:'+cx+'px','top:'+cy+'px','background:'+colors[i%colors.length],'--dx:'+(Math.cos(angle)*dist)+'px','--dy:'+(Math.sin(angle)*dist)+'px'].join(';');
+        document.body.appendChild(p);
+        setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},900);
+      },i*40);
+    })(i);
+  }
+}
+function countUpTime(targetSec, el, onDone) {
+  var start=Date.now(), duration=900;
+  function format(s){s=Math.floor(s);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+  function tick(){
+    var elapsed=Math.min((Date.now()-start)/duration,1);
+    el.textContent=format(elapsed*targetSec);
+    if(elapsed<1)requestAnimationFrame(tick);
+    else{el.textContent=format(targetSec);onDone&&onDone();}
+  }
+  requestAnimationFrame(tick);
+}
+function runRankReveal(grade, finalSec) {
+  var cfg=RANK_CONFIG[grade]||RANK_CONFIG.C;
+  var overlay=document.getElementById('rank-overlay');
+  var invEl=document.getElementById('inv-complete');
+  var timeEl=document.getElementById('rank-time-anim');
+  var rankEl=document.getElementById('rank-big');
+  var phraseEl=document.getElementById('rank-phrase');
+  var borderEl=document.getElementById('rank-border');
+  var rankBtn=document.getElementById('rank-btn');
+  var backBtn=document.getElementById('back-btn');
+  var reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion){overlay.style.display='none';if(rankBtn)rankBtn.disabled=false;if(backBtn)backBtn.disabled=false;return;}
+  if(rankBtn)rankBtn.disabled=true;
+  if(backBtn)backBtn.disabled=true;
+  setTimeout(function(){invEl.classList.add('show');},400);
+  setTimeout(function(){
+    timeEl.classList.add('show');
+    countUpTime(finalSec,timeEl,function(){timeEl.classList.add('glow');});
+  },1000);
+  setTimeout(function(){
+    rankEl.textContent=grade;
+    rankEl.classList.add('show-'+grade);
+    phraseEl.textContent=cfg.phrase;
+    phraseEl.className='show '+grade;
+    if(cfg.border)borderEl.classList.add('show');
+    if(cfg.particles>0)spawnResultParticles(cfg.particles,cfg.colors);
+    if(cfg.vibrate.length&&navigator.vibrate)navigator.vibrate(cfg.vibrate);
+  },2100);
+  setTimeout(function(){
+    overlay.classList.add('done');
+    setTimeout(function(){
+      overlay.style.display='none';
+      if(rankBtn)rankBtn.disabled=false;
+      if(backBtn)backBtn.disabled=false;
+    },700);
+  },3400);
+}
+</script>
 <script src="timer.js"></script>
 <script src="rcm-rank.js"></script>
 <script>
@@ -156,6 +266,7 @@ function render(){
   }catch(e){}
   document.getElementById('stat-hints').textContent=hintTotal;
   document.getElementById('stat-wrongs').textContent=wrongTotal;
+  runRankReveal(rank.grade, finalSec);
 }
 render();
 

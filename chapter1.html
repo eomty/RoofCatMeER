@@ -213,7 +213,13 @@ function checkCode() {
     result.className = 'correct';
     result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">락커를 열고 안을 조사해보세요.</span>';
     if (navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-    setTimeout(() => { if (window.RCMFlow) RCMFlow.markComplete(); location.href='chapter1-unlocked.html'; }, 1500);
+    if (window.RCMFlow) RCMFlow.markComplete();
+    if (window.RCMClear) {
+      RCMClear.correct(result);
+      setTimeout(function() { RCMClear.goFade('CHAPTER 01', 'chapter1-unlocked.html'); }, 1200);
+    } else {
+      setTimeout(() => { location.href='chapter1-unlocked.html'; }, 1500);
+    }
   } else {
     result.className = 'wrong';
     result.innerHTML = '✗ 틀렸습니다. 다시 시도해보세요.';
@@ -226,5 +232,6 @@ function checkCode() {
 }
 </script>
 
+<script src="rcm-clear.js"></script>
 </body>
 </html>
