@@ -83,6 +83,12 @@ body.ledger-open{position:fixed;left:0;right:0;overflow:hidden;}
 .ledger-dots{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap;}
 .ledger-dot{width:6px;height:6px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.25);cursor:pointer;}
 .ledger-dot.active{background:#c9a84c;}
+
+.ledger-modal-table tr[data-no]{cursor:pointer;transition:background .15s;}
+.ledger-modal-table tr[data-no]:active{background:rgba(201,168,76,.15);}
+.ledger-modal-table tr.row-wrong{background:rgba(139,26,26,.25) !important;animation:row-shake .3s ease;}
+.ledger-modal-table tr.row-correct{background:rgba(76,175,130,.2) !important;}
+@keyframes row-shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
 </style>
 </head>
 <body>
@@ -144,7 +150,7 @@ function flashPenalty(sec){
       <p>이 코드를 스캔하면 장부를 획득할 수 있을거에요.</p>
     </div>
 
-    <div class="quest-box">▶ QR코드를 스캔하여 장부에 접속, 수상한 거래자를 찾자</div>
+    <div class="quest-box">▶ QR코드를 스캔하여 장부에 접속, 수상한 거래 항목을 탭하라</div>
 
     <div class="tear"></div>
 
@@ -196,9 +202,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 1 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>1</td><td>하프</td><td>절미</td><td>7g</td><td>분수대</td><td>08.03</td></tr>
-                <tr><td>2</td><td>랑이</td><td>닉</td><td>10g</td><td>사무실</td><td>08.05</td></tr>
-                <tr><td>3</td><td>모찌</td><td>S.W</td><td>6g</td><td>드링크바</td><td>08.07</td></tr>
+                <tr data-no="1" onclick="selectRow(1)"><td>1</td><td>하프</td><td>절미</td><td>7g</td><td>분수대</td><td>08.03</td></tr>
+                <tr data-no="2" onclick="selectRow(2)"><td>2</td><td>랑이</td><td>닉</td><td>10g</td><td>사무실</td><td>08.05</td></tr>
+                <tr data-no="3" onclick="selectRow(3)"><td>3</td><td>모찌</td><td>S.W</td><td>6g</td><td>드링크바</td><td>08.07</td></tr>
               </table>
             </div>
 
@@ -208,9 +214,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 2 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>4</td><td>모찌</td><td>S.W</td><td>7g</td><td>락커룸</td><td>08.09</td></tr>
-                <tr><td>5</td><td>하프</td><td>소고</td><td>4g</td><td>우체국</td><td>08.12</td></tr>
-                <tr><td>6</td><td>랑이</td><td>절미</td><td>7g</td><td>상품샵</td><td>08.14</td></tr>
+                <tr data-no="4" onclick="selectRow(4)"><td>4</td><td>모찌</td><td>S.W</td><td>7g</td><td>락커룸</td><td>08.09</td></tr>
+                <tr data-no="5" onclick="selectRow(5)"><td>5</td><td>하프</td><td>소고</td><td>4g</td><td>우체국</td><td>08.12</td></tr>
+                <tr data-no="6" onclick="selectRow(6)"><td>6</td><td>랑이</td><td>절미</td><td>7g</td><td>상품샵</td><td>08.14</td></tr>
               </table>
             </div>
 
@@ -220,9 +226,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 3 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>7</td><td>하프</td><td>닉</td><td>7g</td><td>루프존</td><td>08.17</td></tr>
-                <tr><td>8</td><td>하프</td><td>소고</td><td>5g</td><td>상품샵</td><td>08.20</td></tr>
-                <tr><td>9</td><td>하프</td><td>소고</td><td>8g</td><td>드링크바</td><td>08.23</td></tr>
+                <tr data-no="7" onclick="selectRow(7)"><td>7</td><td>하프</td><td>닉</td><td>7g</td><td>루프존</td><td>08.17</td></tr>
+                <tr data-no="8" onclick="selectRow(8)"><td>8</td><td>하프</td><td>소고</td><td>5g</td><td>상품샵</td><td>08.20</td></tr>
+                <tr data-no="9" onclick="selectRow(9)"><td>9</td><td>하프</td><td>소고</td><td>8g</td><td>드링크바</td><td>08.23</td></tr>
               </table>
             </div>
 
@@ -232,9 +238,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 4 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>10</td><td>모찌</td><td>닉</td><td>5g</td><td>우체국</td><td>08.25</td></tr>
-                <tr><td>11</td><td>모찌</td><td>S.W</td><td>3g</td><td>테라스룸</td><td>08.27</td></tr>
-                <tr><td>12</td><td>모찌</td><td>S.W</td><td>8g</td><td>락커룸</td><td>08.30</td></tr>
+                <tr data-no="10" onclick="selectRow(10)"><td>10</td><td>모찌</td><td>닉</td><td>5g</td><td>우체국</td><td>08.25</td></tr>
+                <tr data-no="11" onclick="selectRow(11)"><td>11</td><td>모찌</td><td>S.W</td><td>3g</td><td>테라스룸</td><td>08.27</td></tr>
+                <tr data-no="12" onclick="selectRow(12)"><td>12</td><td>모찌</td><td>S.W</td><td>8g</td><td>락커룸</td><td>08.30</td></tr>
               </table>
             </div>
 
@@ -244,9 +250,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 5 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>13</td><td>페너</td><td>S.W</td><td>12g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
-                <tr><td>14</td><td>랑이</td><td>닉</td><td>12g</td><td>사무실</td><td>09.03</td></tr>
-                <tr><td>15</td><td>모찌</td><td>절미</td><td>12g</td><td>창고</td><td>09.05</td></tr>
+                <tr data-no="13" onclick="selectRow(13)"><td>13</td><td>페너</td><td>S.W</td><td>12g</td><td>딜리셔스호텔</td><td>09.01</td></tr>
+                <tr data-no="14" onclick="selectRow(14)"><td>14</td><td>랑이</td><td>닉</td><td>12g</td><td>사무실</td><td>09.03</td></tr>
+                <tr data-no="15" onclick="selectRow(15)"><td>15</td><td>모찌</td><td>절미</td><td>12g</td><td>창고</td><td>09.05</td></tr>
               </table>
             </div>
 
@@ -256,9 +262,9 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 6 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>16</td><td>랑이</td><td>닉</td><td>10g</td><td>락커룸</td><td>09.08</td></tr>
-                <tr><td>17</td><td>모찌</td><td>소고</td><td>6g</td><td>화장실</td><td>09.10</td></tr>
-                <tr><td>18</td><td>랑이</td><td>절미</td><td>5g</td><td>락커룸</td><td>09.12</td></tr>
+                <tr data-no="16" onclick="selectRow(16)"><td>16</td><td>랑이</td><td>닉</td><td>10g</td><td>락커룸</td><td>09.08</td></tr>
+                <tr data-no="17" onclick="selectRow(17)"><td>17</td><td>모찌</td><td>소고</td><td>6g</td><td>화장실</td><td>09.10</td></tr>
+                <tr data-no="18" onclick="selectRow(18)"><td>18</td><td>랑이</td><td>절미</td><td>5g</td><td>락커룸</td><td>09.12</td></tr>
               </table>
             </div>
 
@@ -268,8 +274,8 @@ function flashPenalty(sec){
               <div class="ledger-page-label">PAGE 7 / 7</div>
               <table class="ledger-modal-table">
                 <tr><th>NO</th><th>거래자</th><th>배달원</th><th>물량</th><th>장소</th><th>일시</th></tr>
-                <tr><td>19</td><td>하프</td><td>소고</td><td>4g</td><td>테라스룸</td><td>09.14</td></tr>
-                <tr><td>20</td><td>랑이</td><td>절미</td><td>7g</td><td>분수대</td><td>09.15</td></tr>
+                <tr data-no="19" onclick="selectRow(19)"><td>19</td><td>하프</td><td>소고</td><td>4g</td><td>테라스룸</td><td>09.14</td></tr>
+                <tr data-no="20" onclick="selectRow(20)"><td>20</td><td>랑이</td><td>절미</td><td>7g</td><td>분수대</td><td>09.15</td></tr>
               </table>
             </div>
 
@@ -295,16 +301,15 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>거래자 중 이상한 이름이 있는거 같아</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>백설을 체포했던 사람같은데...</div>
-    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>페너</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>다른 거래들과 뭔가 다른 항목이 있어. 물량을 잘 봐봐</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>거래자 이름 중 루프캣미 빌리지 주민이 아닌 것 같은 이름이 있어</div>
+    <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>13번 항목을 잘 봐봐</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
     <div class="tear"></div>
 
     <div class="section-title">ANSWER</div>
-    <input class="answer-input" id="answer" type="text" placeholder="수상한 거래자 이름을 입력하세요..."/>
-    <button class="answer-btn" onclick="checkAnswer()">확인</button>
+    <div style="font-size:13px;color:var(--muted);text-align:center;padding:10px 0;">장부에서 수상한 항목을 탭하세요</div>
     <div id="result"></div>
     <button class="next-btn" id="next-btn" onclick="location.href='chapter6.html'">다음으로 →</button>
     </div>
@@ -433,15 +438,25 @@ function ledgerGoTo(i) {
 }
 (function() {
   var startX = null;
+  var ledgerSwiping = false;
   var wrap = document.querySelector('.ledger-track-wrap');
-  wrap.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; });
+  wrap.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    ledgerSwiping = false;
+  });
+  wrap.addEventListener('touchmove', function(e) {
+    if (startX === null) return;
+    if (Math.abs(e.touches[0].clientX - startX) > 10) ledgerSwiping = true;
+  });
   wrap.addEventListener('touchend', function(e) {
     if (startX === null) return;
     var dx = e.changedTouches[0].clientX - startX;
     if (dx < -40 && ledgerPage < LEDGER_PAGE_COUNT - 1) ledgerGoTo(ledgerPage + 1);
     if (dx > 40 && ledgerPage > 0) ledgerGoTo(ledgerPage - 1);
+    setTimeout(function(){ ledgerSwiping = false; }, 350);
     startX = null;
   });
+  window._ledgerSwiping = function(){ return ledgerSwiping; };
 })();
 </script>
 <script>
@@ -474,33 +489,40 @@ function renderHintBtn(){
 renderHintBtn();
 setInterval(renderHintBtn, 1000);
 
-function checkAnswer() {
-  var val = document.getElementById('answer').value.trim();
+var rowAnswered = false;
+function selectRow(no) {
+  if (rowAnswered) return;
+  if (window._ledgerSwiping && window._ledgerSwiping()) return;
+  var row = document.querySelector('tr[data-no="' + no + '"]');
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val === '페너') {
+
+  if (no === 13) {
+    rowAnswered = true;
+    if (row) row.classList.add('row-correct');
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!';
+    result.innerHTML = '✓ 수상한 거래를 발견했습니다!<br/><span style="font-size:13px;font-weight:normal">페너... 이 이름 어디서 들어본 것 같은데?</span>';
+    setTimeout(function(){ closeLedgerModal(); }, 600);
     if (window.RCMFlow) RCMFlow.markComplete();
-    document.getElementById('answer').disabled = true;
     if (window.RCMClear) {
-      RCMClear.correct(result);
       RCMClear.show('CHAPTER 05', 'chapter6.html', document.getElementById('next-btn'));
     } else {
       document.getElementById('next-btn').style.display = 'block';
     }
   } else {
+    if (row) {
+      row.classList.add('row-wrong');
+      setTimeout(function(){ row.classList.remove('row-wrong'); }, 400);
+    }
     result.className = 'wrong';
-    result.textContent = '✗ 틀렸습니다. 다시 시도해보세요.';
+    result.textContent = '✗ 수상한 항목이 아닌 것 같아요. 다시 살펴보세요.';
     RCMTimer.wrongAnswer(THIS_CHAPTER_ID);
     flashPenalty(RCMTimer.WRONG_ANSWER_PENALTY);
-    if (navigator.vibrate) navigator.vibrate(200);
+    if (navigator.vibrate) navigator.vibrate(120);
   }
 }
 
-document.getElementById('answer').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') checkAnswer();
-});
+
 </script>
 
 <script src="rcm-clear.js"></script>
