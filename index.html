@@ -53,7 +53,13 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
     var TIME_LIMIT = 2000;
     var ADMIN_PW = '3865';
 
-    function onTap(){
+    // 텍스트 선택/검색 팝업 방지
+    el.style.userSelect = 'none';
+    el.style.webkitUserSelect = 'none';
+    el.style.webkitTouchCallout = 'none';
+
+    function onTap(e){
+      e.preventDefault();
       tapCount++;
       clearTimeout(tapTimer);
       if (tapCount >= REQUIRED){
@@ -69,8 +75,7 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
     }
     el.addEventListener('pointerup', onTap);
   }
-  if (document.body) init();
-  else document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', init);
 })();
 </script>
 
