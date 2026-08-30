@@ -50,6 +50,12 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 .clue-label{font-size:10px;letter-spacing:0.15em;color:rgba(255,255,255,0.35);margin-bottom:8px;}
 #chips{display:flex;gap:8px;flex-wrap:wrap;}
 .chip{font-size:13px;padding:5px 16px;border-radius:20px;border:1px solid rgba(201,168,76,0.5);background:rgba(201,168,76,0.15);color:#c9a84c;}
+
+/* 비상 코드 폴백 */
+#emergency-btn{display:none;margin-top:14px;background:none;border:none;color:rgba(255,255,255,0.25);font-size:11px;letter-spacing:0.05em;cursor:pointer;padding:4px 0;text-decoration:underline;}
+#emergency-overlay{display:none;position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+#emergency-inp{background:#1a1a2e;border:1px solid rgba(201,168,76,0.4);border-radius:10px;color:#e8e0d0;font-size:18px;padding:12px 20px;text-align:center;letter-spacing:0.15em;outline:none;width:160px;}
+#emergency-cancel{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);font-size:12px;padding:7px 18px;border-radius:20px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -100,6 +106,13 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
 <div id="hud-bottom">
   <div class="clue-label">획득한 단서</div>
   <div id="chips"><span style="color:rgba(255,255,255,0.2);font-size:13px;">아직 없음</span></div>
+    <button id="emergency-btn">카메라가 작동하지 않나요?</button>
+</div>
+<div id="emergency-overlay">
+  <div style="color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:0.05em;">비상 코드를 입력하세요</div>
+  <input id="emergency-inp" type="tel" maxlength="4" placeholder="----"/>
+  <div id="emergency-err" style="color:#e24b4a;font-size:11px;letter-spacing:0.05em;height:16px;"></div>
+  <button id="emergency-cancel">취소</button>
 </div>
 
 <script>
@@ -211,6 +224,37 @@ body{overflow:hidden;font-family:sans-serif;background:#000;}
   } else {
     initializeAREvents();
   }
+
+  // ── 비상 코드 폴백 (10초 후 등장) ──
+  var FALLBACK_CODE = '1772';
+  setTimeout(function(){
+    if (clueFound) return;
+    var btn = document.getElementById('emergency-btn');
+    if (btn) btn.style.display = 'block';
+  }, 10000);
+  document.getElementById('emergency-btn').addEventListener('click', function(){
+    var ov = document.getElementById('emergency-overlay');
+    if (ov) { ov.style.display = 'flex'; document.getElementById('emergency-inp').focus(); }
+  });
+  document.getElementById('emergency-inp').addEventListener('input', function(){
+    var err = document.getElementById('emergency-err');
+    if (this.value.length === 4) {
+      if (this.value === FALLBACK_CODE) {
+        document.getElementById('emergency-overlay').style.display = 'none';
+        showClue();
+      } else {
+        if (err) err.textContent = '코드가 올바르지 않습니다';
+        var inp = this;
+        setTimeout(function(){ inp.value = ''; if (err) err.textContent = ''; }, 1000);
+      }
+    } else {
+      if (err) err.textContent = '';
+    }
+  });
+  document.getElementById('emergency-cancel').addEventListener('click', function(){
+    document.getElementById('emergency-overlay').style.display = 'none';
+    document.getElementById('emergency-inp').value = '';
+  });
 })();
 </script>
 </body>
