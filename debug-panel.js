@@ -13,7 +13,7 @@
      3. debug-panel.js    (이 파일 — 둘 다 참조함)
    =================================================================== */
 (function(){
-  if (typeof RCM_DEBUG_MODE !== 'undefined' && RCM_DEBUG_MODE === false) return;
+  if (typeof RCM_DEBUG_MODE === 'undefined' || RCM_DEBUG_MODE !== true) return;
 
   var isIndex = (location.pathname.split('/').pop() || 'index.html') === 'index.html';
   var bottomOffset = isIndex ? 80 : 16;
@@ -64,6 +64,7 @@
           '<button id="rcm-debug-reset-timer" style="color:#ff9a9a;font-size:12px;padding:6px 10px;background:rgba(139,26,26,.18);border:1px solid rgba(139,26,26,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">⏱ 소요시간 초기화</button>' +
           '<button id="rcm-debug-reset-progress" style="color:#ffb366;font-size:12px;padding:6px 10px;background:rgba(160,90,20,.18);border:1px solid rgba(160,90,20,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">🔓 챕터 클리어 기록 초기화</button>' +
           '<button id="rcm-debug-next" style="color:#9ad8ff;font-size:12px;padding:6px 10px;background:rgba(40,100,160,.18);border:1px solid rgba(40,100,160,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">⏭ 다음 챕터로</button>' +
+          '<button id="rcm-debug-logout" style="color:#aaa;font-size:12px;padding:6px 10px;background:rgba(80,80,80,.18);border:1px solid rgba(80,80,80,.35);border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;">🔒 관리자 해제</button>' +
         '</div>' +
       '</details>' +
     '</div>';
@@ -120,6 +121,11 @@
     document.getElementById('rcm-debug-reset-timer').onclick = resetTimer;
     document.getElementById('rcm-debug-reset-progress').onclick = resetProgress;
     document.getElementById('rcm-debug-next').onclick = goNext;
+    document.getElementById('rcm-debug-logout').onclick = function(){
+      if (!confirm('관리자 모드를 해제할까요?')) return;
+      try { localStorage.removeItem('rcm_admin_mode'); } catch(e){}
+      location.reload();
+    };
   }
 
   if (document.body) mount();

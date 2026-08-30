@@ -41,6 +41,38 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
 <script src="rcm-common.js"></script>
 <script src="flow-guard.js"></script>
 <script src="debug-panel.js"></script>
+<script>
+/* 관리자 잠금해제: .title-wrap 2초 안에 7번 탭 → 비밀번호 입력 */
+(function(){
+  function init(){
+    var el = document.querySelector('.title-wrap');
+    if (!el) return;
+    var tapCount = 0;
+    var tapTimer = null;
+    var REQUIRED = 7;
+    var TIME_LIMIT = 2000;
+    var ADMIN_PW = '3865';
+
+    function onTap(){
+      tapCount++;
+      clearTimeout(tapTimer);
+      if (tapCount >= REQUIRED){
+        tapCount = 0;
+        var pw = prompt('🔐 관리자 코드를 입력하세요');
+        if (pw === ADMIN_PW){
+          try { localStorage.setItem('rcm_admin_mode','1'); } catch(e){}
+          location.reload();
+        }
+        return;
+      }
+      tapTimer = setTimeout(function(){ tapCount = 0; }, TIME_LIMIT);
+    }
+    el.addEventListener('pointerup', onTap);
+  }
+  if (document.body) init();
+  else document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
 
 <div class="tape">POLICE LINE DO NOT CROSS · POLICE LINE DO NOT CROSS</div>
 
