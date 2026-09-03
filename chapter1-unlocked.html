@@ -149,7 +149,7 @@ function checkAnswer() {
   var val = document.getElementById('answer').value.trim();
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val === '다락방') {
+  if (val.includes('다락방')) {
     result.className = 'correct';
     result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">다락방으로 가보죠.</span>';
     document.getElementById('answer').disabled = true;
