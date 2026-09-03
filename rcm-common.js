@@ -94,7 +94,9 @@
   function showHint() {
     if (hint || hidden) return;
     if (window.scrollY > 80) { hidden = true; return; }
-    if (document.body.scrollHeight <= window.innerHeight + 40) return;
+    // 실제 스크롤 가능한 거리로 판단 (min-height:100vh 페이지 오탐 방지)
+    var scrollable = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (scrollable < 150) return;
 
     var style = document.createElement('style');
     style.textContent = [
