@@ -230,17 +230,6 @@ function goBackTwoPages() {
     _currentAudio.pause();
     _currentAudio = null;
   }
-
-  document.getElementById('call-screen').style.display = 'none';
-  document.getElementById('dial-screen').style.display = 'none';
-
-  // 일반 진입: 브라우저 기록에서 두 페이지 전으로 이동
-  if (window.history.length > 2) {
-    window.history.go(-2);
-    return;
-  }
-
-  // 기록이 충분하지 않을 때의 안전한 대체 경로
   location.href = 'chapter7.html';
 }
 
