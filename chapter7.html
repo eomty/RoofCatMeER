@@ -99,10 +99,10 @@ function flashPenalty(sec){
   <div class="doc-body">
     <div class="story-text">
       <p>9월 1일, 페너 경감은 어디에 있었을까요?</p>
-      <p>경찰서에 가서 근무표를 확인해봅시다.</p>
+      <p>페너경감이 근무하는 경찰서를 찾아가봐야겠어요</p>
     </div>
 
-    <div class="quest-box">▶ 근무표에서 9월 1일 페너 경감의 근무 상태를 확인하자</div>
+    <div class="quest-box">▶ 루프캣미 경찰서를 찾아가서 단서를 찾아보세요.</div>
 
     <div class="tear"></div>
 
@@ -110,8 +110,8 @@ function flashPenalty(sec){
       HINTS
       <span class="hint-counter" id="hint-counter">3회 남음</span>
     </div>
-    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>경찰서에가서 근무표를 확인해보자</div>
-    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>페너 경감도 근무를 하고있어</div>
+    <div class="hint-item" id="hint1"><span class="hint-num">힌트 1</span>경찰서는 카페 안에 파란장이야</div>
+    <div class="hint-item" id="hint2"><span class="hint-num">힌트 2</span>경찰서에서 근무표를 확인해봐</div>
     <div class="hint-item" id="hint3"><span class="hint-num">힌트 3</span>9월 1일, 페너 경감은 주간 근무중이었어!!</div>
     <button class="hint-btn" id="hint-btn" onclick="showHint()">힌트 보기</button>
 
@@ -123,9 +123,10 @@ function flashPenalty(sec){
     <div id="result"></div>
 
     <div id="after-story">
-      <p>근무 중에 호텔 체크인이라니... 그럼 호텔 체크인에 찍혀있던 묘는 도대체 누구인 거야?</p>
+      <p>근무 중에 호텔 체크인이라니... 그럼 호텔 체크인에 찍혀있던 고양이는 도대체 누구인 거야?</p>
       <p>페너 경감을 더 깊이 파봐야겠어. 그러고 보니 이전에 하얀손한테 뭐든지 알아내주는 친구 정보를 받았지.</p>
       <p>경찰서에 연결할 수 있는 단서를 숨겨놨다고했는데... 찾아서 스캔해볼까?</p>
+	  <p>빛 때문에 인식이 안될 수 있으니, 빛을 피해 확대해서 스캔해봐야겠어.</p>
     </div>
 
     <div id="call-hints" style="display:none;margin-top:12px;">
@@ -133,12 +134,12 @@ function flashPenalty(sec){
         HINTS
         <span class="hint-counter" id="call-hint-counter">3회 남음</span>
       </div>
-      <div class="hint-item" id="call-hint1"><span class="hint-num">힌트 1</span>낑깡이와의 대화내역을 생각해!</div>
-      <div class="hint-item" id="call-hint2"><span class="hint-num">힌트 2</span>낑깡이가 검은손이라고 말하랬는데...</div>
-      <div class="hint-item" id="call-hint3"><span class="hint-num">힌트 3</span>경찰서에서 검은손 마크를 찾아 AR 스캔해봐! 그리고 검은손이라고 입력해</div>
+      <div class="hint-item" id="call-hint1"><span class="hint-num">힌트 1</span>하얀손의 대화내역을 생각해!</div>
+      <div class="hint-item" id="call-hint2"><span class="hint-num">힌트 2</span>하얀손이 검은손이라고 말하랬는데...</div>
+      <div class="hint-item" id="call-hint3"><span class="hint-num">힌트 3</span>경찰서에서 검은손 발바닥 마크를 찾아 AR 스캔해봐! 그리고 검은손이라고 입력해</div>
       <button class="hint-btn" id="call-hint-btn" onclick="showCallHint()">힌트 1 보기 <span class="hint-cost">+1:00</span></button>
     </div>
-    <button class="dial-btn" id="dial-btn" onclick="location.href='ar7.html'">🔍 쿠미의 흔적 스캔하기</button>
+    <button class="dial-btn" id="dial-btn" onclick="location.href='ar7.html'">🔍 고양이 발바닥 스캔하기</button>
   </div>
 </div>
 
