@@ -151,7 +151,7 @@ function checkAnswer() {
   result.style.display = 'block';
   if (val.includes('다락방')) {
     result.className = 'correct';
-    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">다락방으로 가보죠.</span>';
+	result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal;color:black">탐정님, 누가 볼 수 있으니 <span style="color:red;font-weight:bold">일기장은 잠가두고</span> <span style="color:green;font-weight:bold">다락방</span>으로 가죠.</span>';
     document.getElementById('answer').disabled = true;
     document.querySelector('.answer-btn').disabled = true;
     if (window.RCMFlow) RCMFlow.markComplete();
