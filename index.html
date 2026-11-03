@@ -35,7 +35,8 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
 .footer-sub{font-family:'Nanum Myeongjo',serif;font-size:14px;color:#c9a84c;letter-spacing:.5px;margin-bottom:10px;}
 .footer-case{font-family:monospace;font-size:9px;color:#888;letter-spacing:1.5px;}
 
-.start-btn{padding:18px;background:#8b1a1a;color:#f0e8d8;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;width:100%;cursor:pointer;z-index:5;position:relative;flex-shrink:0;}
+.start-btn{padding:18px;background:#8b1a1a;color:#f0e8d8;text-align:center;font-family:'Nanum Myeongjo',serif;font-size:15px;letter-spacing:.08em;border:none;width:100%;cursor:pointer;z-index:5;position:relative;flex-shrink:0;transition:opacity .2s;}
+.start-btn:disabled{opacity:.45;cursor:default;}
 </style>
 </head>
 <body>
@@ -43,6 +44,39 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
 <script src="rcm-common.js"></script>
 <script src="flow-guard.js"></script>
 <script src="debug-panel.js"></script>
+
+<!-- Firebase Auth 로그인 체크 -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+  import { getAuth, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+  // ★ login.html과 동일한 firebaseConfig 사용
+  const firebaseConfig = {
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL:       "https://roofcatmeer-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "YOUR_PROJECT_ID",
+    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId:             "YOUR_APP_ID"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // 미로그인 → login.html로
+      window.location.replace('login.html');
+    } else {
+      // 로그인 상태 → 이름 세팅 + 시작 버튼 활성화
+      sessionStorage.setItem('rcm_player_name', user.displayName || user.email || '플레이어');
+      const btn = document.querySelector('.start-btn');
+      if (btn) btn.disabled = false;
+    }
+  });
+</script>
 <script>
 /* 관리자 잠금해제: .title-wrap 2초 안에 7번 탭 → 비밀번호 입력 */
 (function(){
@@ -140,7 +174,8 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
   <div class="footer-case">CASE FILE NO.1 · CONFIDENTIAL</div>
 </div>
 
-<button class="start-btn" onclick="if(window.RCMFlow)RCMFlow.markComplete();location.href='synopsis-story.html'">사건 파일 열기 →</button>
+<button class="start-btn" id="startBtn" disabled
+  onclick="if(window.RCMFlow)RCMFlow.markComplete();location.href='synopsis-story.html'">사건 파일 열기 →</button>
 
 </div>
 
