@@ -5,8 +5,8 @@
 (function(){
   var STORAGE_KEY = 'rcm_timer';
   var HINT3_UNLOCK_DELAY = 120; // 챕터 입장 후 2분
-  var HINT_COSTS = [60, 120, 210]; // 힌트1,2,3 페널티(초): 1분/2분/3분30초
-  var WRONG_ANSWER_PENALTY = 5; // 오답 1회당 페널티(초)
+  var HINT_COSTS = [60, 60, 120]; // 힌트1,2,3 페널티(초): 1분/1분/2분
+  var WRONG_ANSWER_PENALTY = 10; // 오답 1회당 페널티(초)
   var CHAPTER_ORDER = ['chapter1','chapter2','chapter3','chapter4','chapter5','chapter6','chapter7','chapter8'];
 
   function loadState(){
@@ -124,10 +124,10 @@
 
   function getRank(totalSec){
     var min = totalSec / 60;
-    if (min <= 20) return {grade:'S', reward:'상품샵 이용권 (미정)'};
-    if (min <= 30) return {grade:'A', reward:'고양이 간식'};
-    if (min <= 40) return {grade:'B', reward:'음료수 2잔 티켓'};
-    return {grade:'C', reward:'포토카드 1장'};
+    if (min <= 40) return {grade:'S', reward:'루프캣미 입장권 2매 + 상품샵 1만원권'};
+    if (min <= 45) return {grade:'A', reward:'고양이 간식 2개'};
+    if (min <= 50) return {grade:'B', reward:'고양이 사료 1개'};
+    return {grade:'C', reward:'상품샵 포토카드 1개'};
   }
 
   function getChapterBreakdown(){

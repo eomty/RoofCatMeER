@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta name="color-scheme" content="light">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>챕터 1 — 백설이의 일기</title>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-html{color-scheme:light;}
 :root{--paper:#f0e8d8;--paper2:#e8dcc8;--ink:#1a1410;--red:#8b1a1a;--gold:#8b6914;--muted:#5a4a38;--green:#4caf82;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1a1410;font-family:'Noto Sans KR',sans-serif;color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 0 60px;}
@@ -116,11 +114,11 @@ function flashPenalty(sec){
 
     <div class="hint-item" id="hint1">
       <span class="hint-num">힌트 1</span>
-      백설이가 사랑하는 고양이의 생일이 비밀번호야!
+      백설이는 일기를 열심히 쓴데
     </div>
     <div class="hint-item" id="hint2">
       <span class="hint-num">힌트 2</span>
-      특별한 빛은 백설이의 진짜 속마음을 알 수 있어
+      근데 진짜 속마음은 특별한 빛을 비춰야한데
     </div>
     <div class="hint-item" id="hint3">
       <span class="hint-num">힌트 3</span>
@@ -149,9 +147,9 @@ function checkAnswer() {
   var val = document.getElementById('answer').value.trim();
   var result = document.getElementById('result');
   result.style.display = 'block';
-  if (val.includes('다락방')) {
+  if (val === '다락방') {
     result.className = 'correct';
-	result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal;color:black">탐정님, 누가 볼 수 있으니 <span style="color:red;font-weight:bold">일기장은 잠가두고</span> <span style="color:green;font-weight:bold">다락방</span>으로 가죠.</span>';
+    result.innerHTML = '✓ 정답입니다!<br/><span style="font-size:13px;font-weight:normal">다락방으로 가보죠.</span>';
     document.getElementById('answer').disabled = true;
     document.querySelector('.answer-btn').disabled = true;
     if (window.RCMFlow) RCMFlow.markComplete();
@@ -188,7 +186,7 @@ function showHint() {
   if (cost !== null) flashPenalty(cost);
   renderHintBtn();
 }
-var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+var HINT_COST_LABELS = ['+1:00','+1:00','+2:00'];
 function renderHintBtn(){
   var btn = document.getElementById('hint-btn');
   if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
