@@ -110,9 +110,22 @@
   const provider = new GoogleAuthProvider();
   const statusEl = document.getElementById('statusMsg');
 
+  // ?reason=google_required 파라미터 감지 → 안내 문구 표시
+  if (new URLSearchParams(location.search).get('reason') === 'google_required') {
+    document.querySelector('.sub').textContent = '방탈출은 구글 계정 로그인만 가능합니다. Google로 로그인해주세요.';
+    document.querySelector('.sub').style.color = '#d4a800';
+  }
+
   // 이미 로그인된 상태면 바로 index.html로
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      const hasGoogle = user.providerData.some(p => p.providerId === 'google.com');
+      if (!hasGoogle) {
+        // 이메일 전용 계정 → 로그인 페이지에 남겨 안내
+        statusEl.textContent = '방탈출은 구글 계정 로그인만 가능합니다.';
+        statusEl.className = 'status error';
+        return;
+      }
       sessionStorage.setItem('rcm_player_name', user.displayName || user.email || '플레이어');
       window.location.replace('index.html');
     }

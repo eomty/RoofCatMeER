@@ -70,7 +70,14 @@ body{min-height:100vh;max-width:420px;margin:0 auto;position:relative;display:fl
       // 미로그인 → login.html로
       window.location.replace('login.html');
     } else {
-      // 로그인 상태 → 이름 세팅 + 시작 버튼 활성화
+      // 구글 로그인 여부 확인
+      const hasGoogle = user.providerData.some(p => p.providerId === 'google.com');
+      if (!hasGoogle) {
+        // 이메일 전용 계정 → login.html로 (구글 로그인 필요 안내)
+        window.location.replace('login.html?reason=google_required');
+        return;
+      }
+      // 구글 로그인 확인 → 이름 세팅 + 시작 버튼 활성화
       sessionStorage.setItem('rcm_player_name', user.displayName || user.email || '플레이어');
       const btn = document.querySelector('.start-btn');
       if (btn) btn.disabled = false;
