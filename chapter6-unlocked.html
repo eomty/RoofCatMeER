@@ -203,7 +203,7 @@ function showHint() {
   if (cost !== null) flashPenalty(cost);
   renderHintBtn();
 }
-var HINT_COST_LABELS = ['+1:00','+2:00','+3:30'];
+var HINT_COST_LABELS = ['+1:00','+1:00','+2:00'];
 function renderHintBtn(){
   var btn = document.getElementById('hint-btn');
   if (hintCount >= 3) { btn.disabled = true; btn.textContent = '힌트 소진'; return; }
